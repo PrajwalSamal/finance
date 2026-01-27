@@ -2702,46 +2702,67 @@ public class CreateVoucher {
 	public void setAppConfigValuesService(final AppConfigValueService appConfigValuesService) {
 		this.appConfigValuesService = appConfigValuesService;
 	}
-
-	public boolean isUniqueVN(String vcNum, final String vcDate) {
-		boolean isUnique = false;
-		String fyStartDate = "", fyEndDate = "";
-		vcNum = vcNum.toUpperCase();
-		Query pst = null;
-		List<Object[]> rs = null;
-		try {
-			final StringBuilder query1 = new StringBuilder(
-					"SELECT to_char(startingDate, 'DD-Mon-YYYY') AS \"startingDate\",").append(
-							" to_char(endingDate, 'DD-Mon-YYYY') AS \"endingDate\" FROM financialYear WHERE startingDate <= ?")
-							.append(" AND endingDate >= ?");
-			pst = persistenceService.getSession().createSQLQuery(query1.toString())
-					.setParameter(0, formatter.parse(vcDate)).setParameter(1, formatter.parse(vcDate));
-			rs = pst.list();
-			if (rs != null && rs.size() > 0)
-				for (final Object[] element : rs) {
-					fyStartDate = element[0].toString();
-					fyEndDate = element[1].toString();
-				}
-			final StringBuilder query2 = new StringBuilder("SELECT id FROM voucherHeader WHERE voucherNumber = ? ")
-					.append(" AND voucherDate>= ? AND voucherDate<=? and status!=4");
-			pst = persistenceService.getSession().createSQLQuery(query2.toString())
-					.setParameter(0, vcNum)
-					.setParameter(1, formatter.parse(fyStartDate))
-					.setParameter(2, formatter.parse(fyEndDate));
-			rs = pst.list();
-			if (rs != null && rs.size() > 0) {
-				if (LOGGER.isDebugEnabled())
-					LOGGER.debug("Duplicate Voucher Number");
-			} else
-				isUnique = true;
-		} catch (final ParseException ex) {
-			LOGGER.error("error in finding unique VoucherNumber");
-			throw new ApplicationRuntimeException("error in finding unique VoucherNumber");
-		} finally {
-
-		}
-		return isUnique;
-	}
+public boolean isUniqueVN(String vcNum, final String vcDate) {
+    boolean isUnique = false;
+    vcNum = vcNum.toUpperCase();
+    Query pst = null;
+    List<Object[]> rs = null;
+    try {
+        // Parse the input voucher date once
+        Date voucherDate = formatter.parse(vcDate);
+        
+        // Query 1: Get financial year dates based on voucher date
+        final StringBuilder query1 = new StringBuilder(
+                "SELECT startingDate, endingDate FROM financialYear WHERE startingDate <= ? AND endingDate >= ?");
+        pst = persistenceService.getSession().createSQLQuery(query1.toString())
+                .setParameter(0, voucherDate)
+                .setParameter(1, voucherDate);
+        rs = pst.list();
+        
+        // Validate that financial year exists
+        if (rs == null || rs.size() == 0) {
+            LOGGER.error("No financial year found for voucher date: " + vcDate);
+            throw new ApplicationRuntimeException("No financial year found for the given voucher date: " + vcDate);
+        }
+        
+        Date fyStartDate = null;
+        Date fyEndDate = null;
+        
+        // Extract the financial year dates
+        for (final Object[] element : rs) {
+            fyStartDate = (Date) element[0];
+            fyEndDate = (Date) element[1];
+            break; // Take the first result
+        }
+        
+        // Query 2: Check if voucher number exists in this financial year
+        final StringBuilder query2 = new StringBuilder(
+                "SELECT id FROM voucherHeader WHERE voucherNumber = ? AND voucherDate >= ? AND voucherDate <= ? AND status != 4");
+        pst = persistenceService.getSession().createSQLQuery(query2.toString())
+                .setParameter(0, vcNum)
+                .setParameter(1, fyStartDate)
+                .setParameter(2, fyEndDate);
+        rs = pst.list();
+        
+        if (rs != null && rs.size() > 0) {
+            if (LOGGER.isDebugEnabled())
+                LOGGER.debug("Duplicate Voucher Number: " + vcNum);
+            isUnique = false;
+        } else {
+            isUnique = true;
+        }
+        
+    } catch (final ParseException ex) {
+        LOGGER.error("Error parsing voucher date: " + vcDate, ex);
+        throw new ApplicationRuntimeException("Invalid voucher date format. Expected: " + DD_MMM_YYYY);
+    } catch (final HibernateException hex) {
+        LOGGER.error("Database error in finding unique VoucherNumber", hex);
+        throw new ApplicationRuntimeException("Database error while checking voucher uniqueness: " + hex.getMessage());
+    } finally {
+        // No action needed
+    }
+    return isUnique;
+}
 
 	public CFiscalPeriod getFiscalPeriod(final String vDate) throws TaskFailedException {
 		CFiscalPeriod fiscalPeriod = null;
