@@ -2710,7 +2710,8 @@ public boolean isUniqueVN(String vcNum, final String vcDate) {
     try {
         // Parse the input voucher date once
         Date voucherDate = formatter.parse(vcDate);
-        
+        LOGGER.info("---------------Fetch FY as per voucher date-----------------");
+
         // Query 1: Get financial year dates based on voucher date
         final StringBuilder query1 = new StringBuilder(
                 "SELECT startingDate, endingDate FROM financialYear WHERE startingDate <= ? AND endingDate >= ?");
@@ -2743,7 +2744,8 @@ public boolean isUniqueVN(String vcNum, final String vcDate) {
                 .setParameter(1, fyStartDate)
                 .setParameter(2, fyEndDate);
         rs = pst.list();
-        
+        LOGGER.info("---------------Fetch VH as per FY date-----------------");
+
         if (rs != null && rs.size() > 0) {
             if (LOGGER.isDebugEnabled())
                 LOGGER.debug("Duplicate Voucher Number: " + vcNum);
