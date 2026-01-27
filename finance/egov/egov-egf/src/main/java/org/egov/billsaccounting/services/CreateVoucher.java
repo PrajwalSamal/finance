@@ -2704,66 +2704,144 @@ public class CreateVoucher {
 	}
 public boolean isUniqueVN(String vcNum, final String vcDate) {
     boolean isUnique = false;
-    vcNum = vcNum.toUpperCase();
+    vcNum = vcNum.toUpperCase().trim();
+    
+    if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Checking uniqueness for VoucherNumber: " + vcNum + ", VoucherDate: " + vcDate);
+    }
+    
     Query pst = null;
-    List<Object[]> rs = null;
+    List<?> rs = null;
+    
     try {
-        // Parse the input voucher date once
-        Date voucherDate = formatter.parse(vcDate);
-        LOGGER.info("---------------Fetch FY as per voucher date-----------------");
-
+        // Parse the input voucher date - handle multiple date formats
+        Date voucherDate = parseVoucherDate(vcDate);
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Parsed voucher date: " + voucherDate);
+        }
+        
         // Query 1: Get financial year dates based on voucher date
-        final StringBuilder query1 = new StringBuilder(
-                "SELECT startingDate, endingDate FROM financialYear WHERE startingDate <= ? AND endingDate >= ?");
-        pst = persistenceService.getSession().createSQLQuery(query1.toString())
+        final String query1 = "SELECT startingDate, endingDate FROM financialYear " +
+                              "WHERE startingDate <= ? AND endingDate >= ?";
+        pst = persistenceService.getSession().createSQLQuery(query1)
                 .setParameter(0, voucherDate)
                 .setParameter(1, voucherDate);
         rs = pst.list();
         
         // Validate that financial year exists
-        if (rs == null || rs.size() == 0) {
+        if (rs == null || rs.isEmpty()) {
             LOGGER.error("No financial year found for voucher date: " + vcDate);
-            throw new ApplicationRuntimeException("No financial year found for the given voucher date: " + vcDate);
+            throw new ApplicationRuntimeException(
+                "No financial year found for the given voucher date: " + vcDate);
         }
         
         Date fyStartDate = null;
         Date fyEndDate = null;
         
         // Extract the financial year dates
-        for (final Object[] element : rs) {
-            fyStartDate = (Date) element[0];
-            fyEndDate = (Date) element[1];
-            break; // Take the first result
+        Object[] firstResult = (Object[]) rs.get(0);
+        fyStartDate = (Date) firstResult[0];
+        fyEndDate = (Date) firstResult[1];
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Financial Year Start: " + fyStartDate + ", End: " + fyEndDate);
         }
         
         // Query 2: Check if voucher number exists in this financial year
-        final StringBuilder query2 = new StringBuilder(
-                "SELECT id FROM voucherHeader WHERE voucherNumber = ? AND voucherDate >= ? AND voucherDate <= ? AND status != 4");
-        pst = persistenceService.getSession().createSQLQuery(query2.toString())
+        final String query2 = "SELECT id FROM voucherHeader " +
+                              "WHERE UPPER(voucherNumber) = ? " +
+                              "AND voucherDate >= ? " +
+                              "AND voucherDate <= ? " +
+                              "AND status != 4";
+        
+        pst = persistenceService.getSession().createSQLQuery(query2)
                 .setParameter(0, vcNum)
                 .setParameter(1, fyStartDate)
                 .setParameter(2, fyEndDate);
         rs = pst.list();
-        LOGGER.info("---------------Fetch VH as per FY date-----------------");
-
-        if (rs != null && rs.size() > 0) {
-            if (LOGGER.isDebugEnabled())
-                LOGGER.debug("Duplicate Voucher Number: " + vcNum);
+        
+        if (rs != null && !rs.isEmpty()) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Duplicate Voucher Number found: " + vcNum);
+            }
             isUnique = false;
         } else {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Voucher Number is unique: " + vcNum);
+            }
             isUnique = true;
         }
         
-    } catch (final ParseException ex) {
-        LOGGER.error("Error parsing voucher date: " + vcDate, ex);
-        throw new ApplicationRuntimeException("Invalid voucher date format. Expected: " + DD_MMM_YYYY);
+    } catch (final ParseException pex) {
+        LOGGER.error("Invalid voucher date format. Received: " + vcDate + 
+                     ". Supported formats: dd-MMM-yyyy, dd/MM/yyyy, dd/M/yy, dd/M/yyyy", pex);
+        throw new ApplicationRuntimeException(
+            "Invalid voucher date format. Received: " + vcDate + 
+            ". Supported formats: dd-MMM-yyyy (27-Jan-2026), dd/MM/yyyy (27/01/2026), dd/M/yy (27/1/26)");
+        
     } catch (final HibernateException hex) {
-        LOGGER.error("Database error in finding unique VoucherNumber", hex);
-        throw new ApplicationRuntimeException("Database error while checking voucher uniqueness: " + hex.getMessage());
-    } finally {
-        // No action needed
+        LOGGER.error("Database error while checking voucher uniqueness", hex);
+        throw new ApplicationRuntimeException(
+            "Database error while checking voucher uniqueness: " + hex.getMessage());
+        
+    } catch (final Exception ex) {
+        LOGGER.error("Unexpected error while checking voucher uniqueness", ex);
+        throw new ApplicationRuntimeException(
+            "Unexpected error while checking voucher uniqueness: " + ex.getMessage());
     }
+    
     return isUnique;
+}
+
+/**
+ * Parse voucher date in multiple formats:
+ * - dd-MMM-yyyy (27-Jan-2026)
+ * - dd/MM/yyyy (27/01/2026)
+ * - dd/M/yyyy (27/1/2026)
+ * - dd/M/yy (27/1/26)
+ * 
+ * @param dateStr the date string to parse
+ * @return parsed Date object
+ * @throws ParseException if date cannot be parsed
+ */
+private Date parseVoucherDate(final String dateStr) throws ParseException {
+    if (dateStr == null || dateStr.trim().isEmpty()) {
+        throw new ParseException("Voucher date cannot be empty", 0);
+    }
+    
+    String trimmedDate = dateStr.trim();
+    
+    // Try dd-MMM-yyyy format first (27-Jan-2026)
+    try {
+        return formatter.parse(trimmedDate);
+    } catch (ParseException e1) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Date format dd-MMM-yyyy not matched, trying other formats");
+        }
+    }
+    
+    // Try dd/MM/yyyy or dd/M/yyyy or dd/M/yy formats
+    try {
+        // Handle both single and double digit months and years
+        SimpleDateFormat flexibleFormatter = new SimpleDateFormat("dd/M/yyyy");
+        try {
+            return flexibleFormatter.parse(trimmedDate);
+        } catch (ParseException e2) {
+            // Try with 2-digit year (27/1/26)
+            flexibleFormatter = new SimpleDateFormat("dd/M/yy");
+            return flexibleFormatter.parse(trimmedDate);
+        }
+    } catch (ParseException e3) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Date format dd/M/yyyy or dd/M/yy not matched");
+        }
+    }
+    
+    // If all formats fail, throw comprehensive error
+    throw new ParseException(
+        "Unable to parse voucher date: " + trimmedDate + 
+        ". Supported formats: dd-MMM-yyyy (27-Jan-2026), dd/MM/yyyy (27/01/2026), dd/M/yy (27/1/26)", 0);
 }
 
 	public CFiscalPeriod getFiscalPeriod(final String vDate) throws TaskFailedException {
