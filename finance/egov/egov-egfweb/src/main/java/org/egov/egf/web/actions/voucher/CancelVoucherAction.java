@@ -315,14 +315,19 @@ public class CancelVoucherAction extends BaseFormAction {
 
 			final Query query = persistenceService.getSession()
 					.createQuery((voucheerWithNoPayment.append(filterQry)).toString());
-			query.setParameter(VH_STATUS, FinancialConstants.CREATEDVOUCHERSTATUS);
+			query.setParameterList(
+				    VH_STATUS,
+				    Arrays.asList(FinancialConstants.CREATEDVOUCHERSTATUS)
+				);
 			params.entrySet().forEach(entry -> query.setParameter(entry.getKey(), entry.getValue()));
 			voucherList.addAll(query.list());
 
 			final Query allPaymentQuery = persistenceService.getSession()
 					.createQuery((allPayment.append(filterQry)).toString());
-			allPaymentQuery.setParameter(VH_STATUS, FinancialConstants.CREATEDVOUCHERSTATUS);
-			params.entrySet().forEach(entry -> allPaymentQuery.setParameter(entry.getKey(), entry.getValue()));
+			allPaymentQuery.setParameterList(
+				    VH_STATUS,
+				    Arrays.asList(FinancialConstants.CREATEDVOUCHERSTATUS)
+				);			params.entrySet().forEach(entry -> allPaymentQuery.setParameter(entry.getKey(), entry.getValue()));
 			voucherList.addAll(allPaymentQuery.list());
 
 			// editModeQuery3 :-check for voucher for for which payments are
@@ -335,7 +340,7 @@ public class CancelVoucherAction extends BaseFormAction {
 
 			final Query editModeQueryThree = persistenceService.getSession()
 					.createQuery(editModeQuery3.concat(filterQry));
-			editModeQueryThree.setParameter("phStatus", Arrays.asList(FinancialConstants.CREATEDVOUCHERSTATUS,
+			editModeQueryThree.setParameterList("phStatus", Arrays.asList(FinancialConstants.CREATEDVOUCHERSTATUS,
 					FinancialConstants.PREAPPROVEDVOUCHERSTATUS));
 			params.entrySet().forEach(entry -> editModeQueryThree.setParameter(entry.getKey(), entry.getValue()));
 
