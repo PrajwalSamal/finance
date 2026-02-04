@@ -50,9 +50,9 @@ package org.egov.egf.autonumber.impl;
 
 import java.io.Serializable;
 
+
 import org.egov.commons.CFinancialYear;
 import org.egov.commons.dao.FinancialYearDAO;
-import org.egov.commons.dao.FunctionDAO;
 import org.egov.egf.autonumber.ExpenseBillNumberGenerator;
 import org.egov.infra.exception.ApplicationRuntimeException;
 import org.egov.infra.persistence.utils.GenericSequenceNumberGenerator;
@@ -68,8 +68,6 @@ public class ExpenseBillNumberGeneratorImpl implements ExpenseBillNumberGenerato
     @Autowired
     private FinancialYearDAO financialYearDAO;
     
-    @Autowired
-    private FunctionDAO functionDAO;
 
     @Autowired
     private GenericSequenceNumberGenerator genericSequenceNumberGenerator;
