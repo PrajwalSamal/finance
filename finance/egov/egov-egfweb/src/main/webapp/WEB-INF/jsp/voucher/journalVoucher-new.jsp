@@ -285,6 +285,13 @@
 			return false;
 		}
 
+		/* adding this line for testing */
+		
+		if(document.getElementById('vouchermis.function').value == -1){
+		    document.getElementById('lblError').innerHTML = "Please select function";
+		    return false;
+		}
+
 		var voucherdate = vhDate.substring(0, 2);
 	    var vouchermonth = vhDate.substring(3, 5);
 	    var voucheryear = vhDate.substring(6, 10);
