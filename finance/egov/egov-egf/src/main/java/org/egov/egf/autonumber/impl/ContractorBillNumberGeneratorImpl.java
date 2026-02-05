@@ -86,8 +86,7 @@ public class ContractorBillNumberGeneratorImpl implements ContractorBillNumberGe
             throw new ValidationException(FinancialConstants.EMPTY_STRING, "Financial Year is not defined for the voucher date" );
         sequenceName = "seq_contractor_billnumber_" + financialYear.getFinYearRange();
         Serializable nextSequence = genericSequenceNumberGenerator.getNextSequence(sequenceName);
-        contractorBillNumber = String.format("%s/%s/%04d/%s", br.getEgBillregistermis().getDepartmentcode(), "CJV", nextSequence,
-                financialYear.getFinYearRange());
+        contractorBillNumber = String.format("%s/%s/%s/%06d",financialYear.getFinYearRange(), br.getEgBillregistermis().getDepartmentcode(), br.getEgBillregistermis().getFunction().getCode(),nextSequence);
         return contractorBillNumber;
     }
 }

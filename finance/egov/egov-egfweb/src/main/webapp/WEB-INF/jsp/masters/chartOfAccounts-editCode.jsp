@@ -120,6 +120,7 @@
 		    oDS.responseSchema = {fields : ["value"]}; 
 		 
 		    var oAC = new YAHOO.widget.AutoComplete("glCode", "myContainer", oDS); 
+		    oAC.queryMatchContains = true
 		    oAC.prehighlightClassName = "yui-ac-prehighlight"; 
 			oAC.queryDelay = 0;
 		    oAC.useShadow = true;
@@ -132,7 +133,10 @@
             query,
             results,
             function (item) {
-                return item.toLowerCase().indexOf(query) !== -1;
+                return (
+                item.glcode.toLowerCase().indexOf(query) !== -1 ||
+                item.name.toLowerCase().indexOf(query) !== -1
+            );
             }
         );
     };

@@ -248,7 +248,7 @@ public class BudgetVarianceReportAction extends BaseFormAction {
         if (shouldShowHeaderField(Constants.FUND) && queryParamMap.containsKey("fundId")) {
             miscQuery.append(String.format(" and %s.fundId=bd.fund ", detail));
             miscQuery.append(" and bd.fund=:fundId");
-            params.put("fundId", queryParamMap.get("fundId"));
+            params.put("fundId", Long.parseLong(queryParamMap.get("fundId")));
         }
         if (shouldShowHeaderField(Constants.SCHEME) && queryParamMap.containsKey("schemeId")) {
             miscQuery.append(String.format(" and %s.schemeid=bd.scheme ", mis));
@@ -452,8 +452,8 @@ public class BudgetVarianceReportAction extends BaseFormAction {
         if (budgetVarianceEntries != null && budgetVarianceEntries.size() != 0) {
             setQueryParams();
             final Map.Entry<String, Map<String, Object>> vimsQueryMapEntry = formMiscQuery("vmis", "gl", "vh").entrySet().iterator().next();
-            final List<Object[]> resultForVoucher = budgetDetailService.fetchActualsForFYWithParams(fromDate, "'"
-                    + Constants.DDMMYYYYFORMAT2.format(asOnDate) + "'", new StringBuffer(vimsQueryMapEntry.getKey()), vimsQueryMapEntry.getValue());
+            final List<Object[]> resultForVoucher = budgetDetailService.fetchActualsForFYWithParams(fromDate, 
+                    Constants.DDMMYYYYFORMAT2.format(asOnDate) , new StringBuffer(vimsQueryMapEntry.getKey()), vimsQueryMapEntry.getValue());
             extractData(resultForVoucher);
             final Map.Entry<String, Map<String, Object>> bmisQueryMapEntry = formMiscQuery("bmis", "bdetail", "bmis").entrySet().iterator().next();
             final List<Object[]> resultForBill = budgetDetailService.fetchActualsForBillWithVouchersParams(fromDate, "'"

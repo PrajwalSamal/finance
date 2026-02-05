@@ -50,6 +50,7 @@ package org.egov.egf.autonumber.impl;
 
 import java.io.Serializable;
 
+
 import org.egov.commons.CFinancialYear;
 import org.egov.commons.dao.FinancialYearDAO;
 import org.egov.egf.autonumber.ExpenseBillNumberGenerator;
@@ -66,6 +67,7 @@ public class ExpenseBillNumberGeneratorImpl implements ExpenseBillNumberGenerato
 
     @Autowired
     private FinancialYearDAO financialYearDAO;
+    
 
     @Autowired
     private GenericSequenceNumberGenerator genericSequenceNumberGenerator;
@@ -87,7 +89,7 @@ public class ExpenseBillNumberGeneratorImpl implements ExpenseBillNumberGenerato
             throw new ValidationException(FinancialConstants.EMPTY_STRING, "Financial Year is not defined for the voucher date" );
         sequenceName = "seq_expense_billnumber_" + financialYear.getFinYearRange();
         Serializable nextSequence = genericSequenceNumberGenerator.getNextSequence(sequenceName);
-        expenseBillNumber = String.format("%s/%s/%04d/%s", br.getEgBillregistermis().getDepartmentcode(), "EJV",nextSequence, financialYear.getFinYearRange());
+        expenseBillNumber = String.format("%s/%s/%s/%06d",financialYear.getFinYearRange(), br.getEgBillregistermis().getDepartmentcode(), br.getEgBillregistermis().getFunction().getCode(),nextSequence);
         return expenseBillNumber;
     }
 }
