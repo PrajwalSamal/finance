@@ -112,15 +112,7 @@ public class ApplicationTenantResolverFilter implements Filter {
                 tenantId = (String) session.getAttribute("ulb");
             }
         }
-//        else {
-//        	
-//        	req.getSession().setAttribute("ulb", tenantId);
-//        	
-//        }
-//        String[] spDomain=domainName.split("-");
-//        spDomain[0]=tenantId;
-//        domainName=Arrays.asList(spDomain).stream().collect(Collectors.joining("-"));
-        //environmentSettings.schemaName(tenantId)
+
         ApplicationThreadLocals.setTenantID(environmentSettings.schemaName(tenantId));
         LOGGER.info(" *** Schema name  :"+ApplicationThreadLocals.getTenantID());
         LOGGER.info(" *** domainName  :"+domainName);
