@@ -70,9 +70,9 @@ public class DomainBasedSchemaTenantIdentifierResolver implements CurrentTenantI
     public String resolveCurrentTenantIdentifier() {
 
     	if(ApplicationThreadLocals.getTenantID()==null) {
-    		LOGGER.info("defaultSchema is lodded");
+    		LOGGER.info("defaultSchema is lodded: "+defaultSchema);
     	}else {
-    		LOGGER.info("Got TenantId from ApplicationThreadLocals"+ApplicationThreadLocals.getTenantID());
+    		LOGGER.info("Got TenantId from ApplicationThreadLocals: "+ApplicationThreadLocals.getTenantID());
     	}
         return defaultIfBlank(ApplicationThreadLocals.getTenantID(), defaultSchema);
     }
