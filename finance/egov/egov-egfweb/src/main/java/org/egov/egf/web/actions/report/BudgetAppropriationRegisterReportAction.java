@@ -60,7 +60,6 @@ import org.egov.commons.Fund;
 import org.egov.commons.dao.FinancialYearDAO;
 import org.egov.dao.budget.BudgetDetailsDAO;
 import org.egov.egf.model.BudgetAppDisplay;
-import org.egov.egf.web.controller.microservice.exception.CustomBindException;
 import org.egov.infra.admin.master.entity.AppConfigValues;
 import org.egov.infra.admin.master.service.AppConfigValueService;
 import org.egov.infra.config.persistence.datasource.routing.annotation.ReadOnly;
@@ -625,7 +624,7 @@ public class BudgetAppropriationRegisterReportAction extends BaseFormAction {
 			query.setParameter("glCodeId", budgetGroup.getMinCode().getId(), LongType.INSTANCE);
 		}else {
 			query.setParameter("glCodeId", 615L, LongType.INSTANCE);
-			throw new IllegalArgumentException("GL Code Id is mandatory but not set. budgetGroupMinCode"+budgetGroup.getMinCode() +"budgetGroupMinCodeId"+budgetGroup.getMinCode().getId());
+			LOGGER.info("GL Code Id is mandatory but not set. budgetGroupMinCode"+budgetGroup.getMinCode() +"budgetGroupMinCodeId"+budgetGroup.getMinCode().getId());
 		}
 		if (asOnDate != null) {
 			query.setParameter("strAODate", asOnDate, DateType.INSTANCE);
