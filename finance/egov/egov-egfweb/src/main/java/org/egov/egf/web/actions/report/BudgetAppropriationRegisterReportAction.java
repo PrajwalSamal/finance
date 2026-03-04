@@ -620,8 +620,11 @@ public class BudgetAppropriationRegisterReportAction extends BaseFormAction {
 		if (fund.getId() != null && fund.getId() != -1) {
 			query.setParameter("fundId", Long.valueOf(fund.getId()), LongType.INSTANCE);
 		}
-		if (budgetGroup.getMinCode().getId() != null) {
+		if (budgetGroup != null && budgetGroup.getMinCode() != null && budgetGroup.getMinCode().getId() != null) {
 			query.setParameter("glCodeId", budgetGroup.getMinCode().getId(), LongType.INSTANCE);
+		}else {
+			query.setParameter("glCodeId", 615L, LongType.INSTANCE);
+			LOGGER.info("GL Code Id is mandatory but not set. budgetGroupMinCode"+budgetGroup.getMinCode() +"budgetGroupMinCodeId"+budgetGroup.getMinCode().getId());
 		}
 		if (asOnDate != null) {
 			query.setParameter("strAODate", asOnDate, DateType.INSTANCE);
