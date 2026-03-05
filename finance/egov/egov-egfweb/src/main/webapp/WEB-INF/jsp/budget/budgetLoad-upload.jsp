@@ -101,13 +101,13 @@
             try {
                 const tenantId = localStorage.getItem("tenant-id");
                 const empTenantId = localStorage.getItem("employee-tenant-id");
-                const municipalityName = empTenantId || tenantId || "";
+                const municipalityName = empTenantId || tenantId || "Enter Name of ULB";
 
                 if (municipalityName) {
                     const municipalityField = document.getElementById("municipalityName");
                     if (municipalityField) {
                         municipalityField.value = municipalityName;
-                        municipalityField.readOnly = true;   
+                        municipalityField.readOnly = false;   
                         municipalityField.style.background = "#edeaea"; 
                         municipalityField.style.cursor = "not-allowed";
                     }
