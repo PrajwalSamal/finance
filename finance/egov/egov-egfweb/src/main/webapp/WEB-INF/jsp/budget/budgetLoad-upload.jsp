@@ -106,7 +106,7 @@
                     const municipalityField = document.getElementById("municipalityName");
                     if (municipalityField) {
                         municipalityField.value = municipalityName;
-                        municipalityField.readOnly = true;   
+                        municipalityField.readOnly = false;   
                         municipalityField.style.background = "#edeaea"; 
                         municipalityField.style.cursor = "not-allowed";
                     }

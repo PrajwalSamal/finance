@@ -62,6 +62,14 @@
 	#bankcodescontainer li {padding:0 5px;cursor:default;white-space:nowrap;}
 	#bankcodescontainer li.yui-ac-highlight {background:#ff0;}
 	#bankcodescontainer li.yui-ac-prehighlight {background:#FFFFCC;}
+	.inputTd {
+    width: 220px;
+}
+
+.fixedInput {
+    width: 200px;
+    background-color: #eeeeee;
+}
 </style>
 <script type="text/javascript">
 
@@ -1192,7 +1200,9 @@ function showHideMandataryMark(obj){
 	</table>
 	<!--  Table to hold all modes of payment -->
 	<table width="100%" border="0" cellpadding="0" cellspacing="0" >
+	      <tr>
 			<%@include file="receipt-instrumentdetails.jsp" %>
+		  </tr>
 		<!-- Paid by details -->
 		<s:if test="%{!isBillSourcemisc()}">
 		<tr >
@@ -1214,10 +1224,10 @@ function showHideMandataryMark(obj){
 			 <s:if test="%{manualReceiptNumberAndDateReq}">
 				<tr>
 				    <td class="bluebox" width="3%" ></td>
-					<td class="bluebox"><s:text name="billreceipt.manualreceipt.receiptnumber"/></td>
-					<td class="bluebox" ><s:textfield style="background-color: #eeeeee;" label="manualReceiptNumber" id="manualReceiptNumber" maxlength="50" name="manualReceiptNumber" size="18" /></td>
-					<td class="bluebox"><s:text name="billreceipt.manualreceipt.receiptdate"/></td>
-					<td class="bluebox" ><s:textfield style="background-color: #eeeeee;" id="manualReceiptDate" name="manualReceiptDate" size="18" cssClass="datepicker"  styleId="manualReceiptDate" onblur="validateManualReceiptDate(this);" data-inputmask="'mask': 'd/m/y'"/><div>(DD/MM/YYYY)</div></td>
+					<td class="bluebox inputTd"><s:text name="billreceipt.manualreceipt.receiptnumber"/></td>
+					<td class="bluebox" ><s:textfield style="background-color: #eeeeee;" label="manualReceiptNumber" id="manualReceiptNumber" cssClass="fixedInput" maxlength="50" name="manualReceiptNumber" size="18" /></td>
+					<td class="bluebox inputTd"><s:text name="billreceipt.manualreceipt.receiptdate"/></td>
+					<td class="bluebox" ><s:textfield style="background-color: #eeeeee;" id="manualReceiptDate" name="manualReceiptDate" size="18" cssClass="datepicker fixedInput"  styleId="manualReceiptDate" onblur="validateManualReceiptDate(this);" data-inputmask="'mask': 'd/m/y'"/><div>(DD/MM/YYYY)</div></td>
 				</tr>
 			 </s:if>
 		

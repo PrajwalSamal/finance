@@ -530,7 +530,7 @@ function onChangeServiceClass(obj)
 <display:column headerClass="bluebgheadtd" class="blueborderfortd" title="Amount (Rs.)" property="totalAmount" style="width:8%; text-align: right" format="{0, number, #,##0.00}" />
 <display:column headerClass="bluebgheadtd" class="blueborderfortd" title="Mode of Payment" style="width:8%"  property="modOfPayment"/>
 <display:column headerClass="bluebgheadtd" class="blueborderfortd"
-    title="FundName" style="width:10%;text-align:left"
+    title="Fund Name" style="width:10%;text-align:left"
     property="fund" />
 
 <display:column headerClass="bluebgheadtd" class="blueborderfortd"
