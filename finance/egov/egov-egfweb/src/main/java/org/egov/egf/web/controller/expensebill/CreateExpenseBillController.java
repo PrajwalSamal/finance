@@ -71,6 +71,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts2.dispatcher.multipart.MultiPartRequestWrapper;
 import org.apache.struts2.dispatcher.multipart.UploadedFile;
+import org.egov.commons.Accountdetailtype;
 import org.egov.egf.budget.model.BudgetControlType;
 import org.egov.egf.budget.service.BudgetControlTypeService;
 import org.egov.egf.commons.CommonsUtil;
@@ -153,9 +154,30 @@ public class CreateExpenseBillController extends BaseBillController {
 	@Override
 	protected void setDropDownValues(final Model model) {
 		super.setDropDownValues(model);
+//		Doing this for Subledger type
+	    List<Accountdetailtype> list =
+	            (List<Accountdetailtype>) model.asMap().get("subLedgerTypes");
+
+	    if (list == null) return;
+
+	    List<Accountdetailtype> filtered = new ArrayList<>();
+
+	    for (Accountdetailtype type : list) {
+	        String name = type.getName();
+
+	        if ("Employee".equalsIgnoreCase(name)
+	                || "Supplier".equalsIgnoreCase(name)
+	                || "Contractor".equalsIgnoreCase(name)) {
+
+	            filtered.add(type);
+	        }
+	    }
+
+	    model.addAttribute("subLedgerTypes", filtered);
 	}
 
 	@PostMapping(value = "/newform")
+//	@GetMapping(value = "/newform")
 	public String showNewForm(@ModelAttribute("egBillregister") final EgBillregister egBillregister, final Model model,
 			HttpServletRequest request) {
 		LOGGER.info("New expensebill creation request created");
@@ -166,6 +188,7 @@ public class CreateExpenseBillController extends BaseBillController {
 			}
 		}
 		setDropDownValues(model);
+		System.out.println("Controller method executed");
 		model.addAttribute(STATE_TYPE, egBillregister.getClass().getSimpleName());
 		prepareWorkflow(model, egBillregister, new WorkflowContainer());
 		prepareValidActionListByCutOffDate(model);
