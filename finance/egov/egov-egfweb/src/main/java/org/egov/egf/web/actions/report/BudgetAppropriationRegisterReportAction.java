@@ -215,7 +215,7 @@ public class BudgetAppropriationRegisterReportAction extends BaseFormAction {
 
                     function = (CFunction) persistenceService.find(
                             "from CFunction where id=?", function.getId());
-
+                    budgetGroup = (BudgetGroup) persistenceService.find("from BudgetGroup where id=?", budgetGroup.getId());
                     List<BudgetDetail> budgetDetailList =
                         budgetDetailService
                             .getBudgetDetailByFunctionId(function.getId());
@@ -611,9 +611,6 @@ public class BudgetAppropriationRegisterReportAction extends BaseFormAction {
 
 		if (budgetGroup != null && budgetGroup.getMinCode() != null && budgetGroup.getMinCode().getId() != null) {
 			query.setParameter("glCodeId", budgetGroup.getMinCode().getId(), LongType.INSTANCE);
-		}else {
-			query.setParameter("glCodeId", 615L, LongType.INSTANCE);
-			LOGGER.info("GL Code Id is mandatory but not set. budgetGroupMinCode"+budgetGroup.getMinCode() +"budgetGroupMinCodeId"+budgetGroup.getMinCode().getId());
 		}
 		if (asOnDate != null) {
 			query.setParameter("strAODate", asOnDate, DateType.INSTANCE);
