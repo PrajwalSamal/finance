@@ -52,7 +52,7 @@
 <style>
 	.w20{width:20% !important}
 	.w30{width:30% !important}
-	input {width:75% !important}
+	.w75{width:75% !important}
 	select{width:75% !important}
 </style>
 <tr>
