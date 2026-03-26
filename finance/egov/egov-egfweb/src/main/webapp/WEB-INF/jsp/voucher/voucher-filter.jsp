@@ -151,6 +151,7 @@
 	<%} %>
 	<s:if test="%{shouldShowHeaderField('department')}">
 		<% count++; %>
+		<td class="bluebox w5">&nbsp;</td>
 		<td class="bluebox"><s:text name="voucher.department" /> <s:if
 				test="%{isFieldMandatory('department')}">
 				<span class="mandatory1">*</span>
