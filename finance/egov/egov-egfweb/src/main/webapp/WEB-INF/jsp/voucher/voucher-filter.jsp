@@ -170,8 +170,8 @@ select { width:100% !important}
 	<%} %>
 	<s:if test="%{shouldShowHeaderField('department')}">
 		<% count++; %>
-		<td class="w5"></td>
-		<td class="bluebox w15"><s:text name="voucher.department" /> <s:if
+		<td class="bluebox w5">&nbsp;</td>
+		<td class="bluebox"><s:text name="voucher.department" /> <s:if
 				test="%{isFieldMandatory('department')}">
 				<span class="mandatory1">*</span>
 			</s:if></td>
