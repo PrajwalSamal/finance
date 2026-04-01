@@ -284,9 +284,11 @@ public class ReceiptAction extends BaseFormAction {
 	
 	private String fund;
     private String wardNo;
+    private String referenceDesc;
 
 	@Autowired
 	private transient FundHibernateDAO fundDAO;
+
 
 	@Autowired
 	private transient FunctionHibernateDAO functionDAO;
@@ -743,6 +745,7 @@ public class ReceiptAction extends BaseFormAction {
 			receiptHeader.setModOfPayment(instrumentType);
 			receiptHeader.setWardNo(wardNo);
 			receiptHeader.setFund(fund);
+			receiptHeader.setReferenceDesc(referenceDesc);
 			
 
 			if (setInstrument) {
@@ -1101,8 +1104,13 @@ public class ReceiptAction extends BaseFormAction {
 			throw new ApplicationRuntimeException("Service Type is missing");
 
 		receipts = new ReceiptHeader[selectedReceipts.length];
-
-		List<Receipt> receiptlist = this.microserviceUtils.searchReciepts(null, null, null, getServiceTypeId(),
+		String sTypeId;
+		if(getServiceTypeId().contains(".")) 
+			sTypeId=getServiceTypeId();
+		else
+			sTypeId=getServiceCategory()+"."+getServiceTypeId();
+		
+		List<Receipt> receiptlist = this.microserviceUtils.searchReciepts(null, null, null, sTypeId,
 				Arrays.asList(selectedReceipts));
 
 		receiptlist.stream().forEach(receipt -> {
@@ -1122,7 +1130,7 @@ public class ReceiptAction extends BaseFormAction {
 					String businessServiceCode = billDetail.getBusinessService();
 					receiptHeader.setService(microserviceUtils.getBusinessServiceNameByCode(businessServiceCode));
 					receiptHeader.setReferencenumber(billDetail.getBillNumber());
-					receiptHeader.setReferenceDesc(billDetail.getBillDescription());
+					receiptHeader.setReferenceDesc(additionalDetails.get("narration")!=null?additionalDetails.get("narration").asText():null);
 					receiptHeader.setPaidBy(bill.getPaidBy());
 					receiptHeader.setPayeeName(bill.getPayerName());
 					receiptHeader.setPayeeAddress(bill.getPayerAddress());
@@ -2159,6 +2167,14 @@ public class ReceiptAction extends BaseFormAction {
 
 	public void setWardNo(String wardNo) {
 		this.wardNo = wardNo;
+	}
+	
+	public String getReferenceDesc() {
+		return referenceDesc;
+	}
+
+	public void setReferenceDesc(String referenceDesc) {
+		this.referenceDesc = referenceDesc;
 	}
 	
 	
