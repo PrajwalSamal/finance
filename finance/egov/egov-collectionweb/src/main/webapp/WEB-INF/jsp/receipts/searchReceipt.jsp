@@ -52,6 +52,13 @@
 <link rel="stylesheet" type="text/css" href="<egov:url path='/yui/assets/skins/sam/autocomplete.css'/>" />
 <head>
 	<title><s:text name="searchreceipts.title"/></title>
+	<style>
+		 select { width:100% !important}
+		.w5{width:5% !important}
+		.w15{width:15% !important}
+		.w25{width:25% !important}
+		.w100{width:100% !important}
+</style>
 <script  >
 
 jQuery.noConflict();
@@ -413,35 +420,55 @@ function onChangeServiceClass(obj)
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
 
 	    <tr>
-	      <td width="4%" class="bluebox">&nbsp;</td>
-	      <td class="bluebox"><s:text name="service.master.classification"/> <span class="mandatory"></td>
-			<td class="bluebox"> 
+	      <td class="bluebox w5">&nbsp;</td>
+	      <td class="bluebox w15"><s:text name="service.master.classification"/> <span class="mandatory"></td>
+			<td class="bluebox w25"> 
 				<%-- <s:select list="serviceClassMap" headerKey="-1" headerValue="%{getText('miscreceipt.select')}"
 				name="serviceClass" id="serviceClass" onchange="onChangeServiceClass(this);"></s:select> --%>
 				<s:select name='type' list="#{'type':'MISCELLANEOUS' }"></s:select>
 			</td>
+			<td class="bluebox w5">&nbsp;</td>
 			<%--  <egov:ajaxdropdown id="serviceTypeDropdown" fields="['Text','Value']" dropdownId='serviceType'
                 url='receipts/ajaxReceiptCreate-ajaxLoadServiceByClassification.action' /> --%>
-	      <td width="21%" class="bluebox"><s:text name="searchreceipts.criteria.servicetype"/> <span class="mandatory"></td>
-	      <td width="24%" class="bluebox"><s:select headerKey="-1"  headerValue="%{getText('searchreceipts.servicetype.select')}"  name="serviceTypeId" id="serviceType" cssClass="selectwk" list="dropdownData.serviceTypeList" listKey="code" listValue="businessService" value="%{serviceTypeId}" /> </td>
-	      
+	      <td class="bluebox w15"><s:text name="searchreceipts.criteria.servicetype"/> <span class="mandatory"></td>
+	      <td class="bluebox w25"><s:select headerKey="-1"  headerValue="%{getText('searchreceipts.servicetype.select')}"  name="serviceTypeId" id="serviceType" cssClass="selectwk" list="dropdownData.serviceTypeList" listKey="code" listValue="businessService" value="%{serviceTypeId}" /> </td>
+	      <td class="bluebox w5">&nbsp;</td>
 	      <%-- <td width="21%" class="bluebox"><s:text name="searchreceipts.criteria.counter"/></td>
 	      <td width="30%" class="bluebox"><s:select headerKey="-1" headerValue="%{getText('searchreceipts.counter.select')}" name="counterId" id="counter" cssClass="selectwk" list="dropdownData.counterList" listKey="id" listValue="name" value="%{counterId}" /> </td> --%>
 	    </tr>
 	     <tr>
-	      <td width="4%" class="bluebox">&nbsp;</td>
-	      <td width="21%" class="bluebox"><s:text name="searchreceipts.criteria.fromdate"/></td>
-		  <s:date name="fromDate" var="cdFormat" format="dd/MM/yyyy"/>
-		  <td width="24%" class="bluebox"><s:textfield id="fromDate" name="fromDate" value="%{cdFormat}" onfocus="javascript:vDateType='3';" onkeyup="DateFormat(this,this.value,event,false,'3')"/><a href="javascript:show_calendar('forms[0].fromDate');" onmouseover="window.status='Date Picker';return true;"  onmouseout="window.status='';return true;"  ><img src="/services/egi/resources/erp2/images/calendaricon.gif" alt="Date" width="18" height="18" border="0" align="absmiddle" /></a><div class="highlight2" style="width: 80px">DD/MM/YYYY</div></td>
-	      <td width="21%" class="bluebox"><s:text name="searchreceipts.criteria.todate"/></td>
-	      <s:date name="toDate" var="cdFormat1" format="dd/MM/yyyy"/>
-		  <td width="30%" class="bluebox"><s:textfield id="toDate" name="toDate" value="%{cdFormat1}" onfocus="javascript:vDateType='3';" onkeyup="DateFormat(this,this.value,event,false,'3')"/><a href="javascript:show_calendar('forms[0].toDate');" onmouseover="window.status='Date Picker';return true;"  onmouseout="window.status='';return true;"  ><img src="/services/egi/resources/erp2/images/calendaricon.gif" alt="Date" width="18" height="18" border="0" align="absmiddle" /></a><div class="highlight2" style="width: 80px">DD/MM/YYYY</div></td>
+	      <td class="bluebox w5">&nbsp;</td>
+	      <td class="bluebox w15"><s:text name="searchreceipts.criteria.fromdate"/></td>
+	      		  <td class="greybox w25"><s:textfield id="fromDate" name="fromDate"
+				value= "%{cdFormat}"
+				onkeyup="DateFormat(this,this.value,event,false,'3')"
+				placeholder="DD/MM/YYYY" cssClass="form-control datepicker w100"
+				data-inputmask="'mask': 'd/m/y'" /></td>
+		 <%--  <s:date name="fromDate" var="cdFormat" format="dd/MM/yyyy"/>
+		  <td class="bluebox w25"><s:textfield id="fromDate" name="fromDate" value="%{cdFormat}" onfocus="javascript:vDateType='3';" onkeyup="DateFormat(this,this.value,event,false,'3')"/><a href="javascript:show_calendar('forms[0].fromDate');" onmouseover="window.status='Date Picker';return true;"  onmouseout="window.status='';return true;"  ><img src="/services/egi/resources/erp2/images/calendaricon.gif" alt="Date" width="18" height="18" border="0" align="absmiddle" /></a><div class="highlight2" style="width: 80px">DD/MM/YYYY</div></td>
+	       --%>
+	       <td class="bluebox w5">&nbsp;</td>
+	      <td class="bluebox w15"><s:text name="searchreceipts.criteria.todate"/></td>
+		  <td class="greybox w25"><s:textfield id="toDate" name="toDate"
+				value= "%{cdFormat1}"
+				onkeyup="DateFormat(this,this.value,event,false,'3')"
+				placeholder="DD/MM/YYYY" cssClass="form-control datepicker w100"
+				data-inputmask="'mask': 'd/m/y'" /></td>
+	      
+	     <%--  <s:date name="toDate" var="cdFormat1" format="dd/MM/yyyy"/>
+		  <td class="bluebox w25"><s:textfield id="toDate" name="toDate" value="%{cdFormat1}" onfocus="javascript:vDateType='3';"
+		   onkeyup="DateFormat(this,this.value,event,false,'3')"/><a href="javascript:show_calendar('forms[0].toDate');" 
+		   onmouseover="window.status='Date Picker';return true;"  onmouseout="window.status='';return true;"  >
+		   <img src="/services/egi/resources/erp2/images/calendaricon.gif" alt="Date" width="18" height="18" border="0" align="absmiddle" /></a>
+		   <div class="highlight2" style="width: 80px">DD/MM/YYYY</div></td> --%>
+		   
+	      <td class="bluebox w5">&nbsp;</td>
 	    </tr>
 	    <tr>
-	      <td width="4%" class="bluebox">&nbsp;</td>
-	      <td width="21%" class="bluebox"><s:text name="searchreceipts.criteria.receiptno"/></td>
-	      <td width="24%" class="bluebox">
-	      <div class="yui-skin-sam"><s:textfield id="receiptNumber" type="text" name="receiptNumber"/></td>
+	      <td class="bluebox w5">&nbsp;</td>
+	      <td class="bluebox w15"><s:text name="searchreceipts.criteria.receiptno"/></td>
+	      <td class="bluebox w25">
+	      <div class="yui-skin-sam"><s:textfield id="receiptNumber" type="text" name="receiptNumber" class="w100"/></td>
 	     <%--  <td width="21%" class="bluebox"><s:text name="searchreceipts.criteria.user"/></td>
 	      <td width="30%" class="bluebox"><s:select headerKey="-1" headerValue="%{getText('searchreceipts.user.select')}" name="userId" id="user" cssClass="selectwk" list="dropdownData.userList" listKey="id" listValue="name" value="%{userId}" /> </td>
 	    --%>
