@@ -496,14 +496,15 @@ table {
 				<tr>
 					<td width="2%" class="bluebox">&nbsp;</td>
 					<td width="15%" class="bluebox"><s:text
-							name="searchreceipts.criteria.servicetype" /> <span
+							name="searchreceipts.criteria.servicecategory" /> <span
 						class="mandatory"></td>
 					<td width="30%" class="bluebox"><s:select headerKey="-1"
 							headerValue="%{getText('miscreceipt.select')}"
 							name="serviceCategory" id="serviceCategoryid" cssClass="selectwk"
 							list="serviceCategoryNames" value="%{serviceCategory}"
 							onChange="populateServiceType(this.value);" /></td>
-					<td width="15%" class="bluebox" id="serviceTypeLabel"></td>
+					<td width="15%" class="bluebox" id="serviceTypeLabel"><span
+						class="mandatory"></td>
 					<td width="30%" class="bluebox" id="serviceTypeCell"></td>
 				</tr>
 
