@@ -63,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -283,9 +284,11 @@ public class ReceiptAction extends BaseFormAction {
 	
 	private String fund;
     private String wardNo;
+    private String referenceDesc;
 
 	@Autowired
 	private transient FundHibernateDAO fundDAO;
+
 
 	@Autowired
 	private transient FunctionHibernateDAO functionDAO;
@@ -404,6 +407,9 @@ public class ReceiptAction extends BaseFormAction {
 		  wardNo.setWardNoName(appValues.getValue());
 		  wardNos.add(wardNo);
 		}
+		wardNos.sort(Comparator.comparingInt(w -> 
+	    Integer.parseInt(w.getWardNoName().replaceAll("[^0-9]", ""))
+	    ));
 		addDropdownData("wardNoList", wardNos);
 	}
 
@@ -739,6 +745,7 @@ public class ReceiptAction extends BaseFormAction {
 			receiptHeader.setModOfPayment(instrumentType);
 			receiptHeader.setWardNo(wardNo);
 			receiptHeader.setFund(fund);
+			receiptHeader.setReferenceDesc(referenceDesc);
 			
 
 			if (setInstrument) {
@@ -779,9 +786,16 @@ public class ReceiptAction extends BaseFormAction {
         System.out.println(receiptResponse);
 		message = "Receipt created with receipt number: "
 				+ receiptResponse.getReceipts().get(0).getBill().get(0).getBillDetails().get(0).getReceiptNumber();
+		
+		String businessService = receiptResponse.getReceipts().get(0)
+		        .getBill().get(0).getBillDetails().get(0).getBusinessService();
+		if (serviceTypeId == null || serviceTypeId.isEmpty() || serviceTypeId.equals("-1")) {
+		    serviceTypeId = businessService;
+		}
 		// populate all receipt header ids except the cancelled receipt
 		// (in effect the newly created receipts)
 		selectedReceipts = new String[noOfNewlyCreatedReceipts];
+		selectedReceipts[0]=receiptResponse.getReceipts().get(0).getBill().get(0).getBillDetails().get(0).getReceiptNumber();
 		int i = 0;
 		if (receiptHeader.getId() != null && !receiptHeader.getId().equals(oldReceiptId)) {
 			selectedReceipts[i] = receiptHeader.getReceiptnumber();
@@ -1090,25 +1104,33 @@ public class ReceiptAction extends BaseFormAction {
 			throw new ApplicationRuntimeException("Service Type is missing");
 
 		receipts = new ReceiptHeader[selectedReceipts.length];
-
-		List<Receipt> receiptlist = this.microserviceUtils.searchReciepts(null, null, null, getServiceTypeId(),
+		String sTypeId;
+		if(getServiceTypeId().contains(".")) 
+			sTypeId=getServiceTypeId();
+		else
+			sTypeId=getServiceCategory()+"."+getServiceTypeId();
+		
+		List<Receipt> receiptlist = this.microserviceUtils.searchReciepts(null, null, null, sTypeId,
 				Arrays.asList(selectedReceipts));
 
 		receiptlist.stream().forEach(receipt -> {
-			JsonNode additionalDetails=receipt.getAdditionalDetails();
-			receiptHeader.setWardNo(additionalDetails.get("wardNo").asText());
-			receiptHeader.setFund(additionalDetails.get("fundName").asText());
+			
 			receipt.getBill().forEach(bill -> {
 				LOGGER.info("bill:"+bill);
 				BigDecimal totalAmountPaid = BigDecimal.ZERO;
                 		for (BillDetail billDetail : bill.getBillDetails()) {
 					ReceiptHeader header = new ReceiptHeader();
+					JsonNode additionalDetails=receipt.getAdditionalDetails();
+					receiptHeader.setWardNo(additionalDetails.get("wardNo").asText());
+					receiptHeader.setFund(additionalDetails.get("fundName").asText());
+					header.setWardNo(additionalDetails.get("wardNo").asText());
+					header.setFund(additionalDetails.get("fundName").asText());
 					receiptHeader.setReceiptnumber(billDetail.getReceiptNumber());
 					receiptHeader.setReceiptdate(new Date(billDetail.getReceiptDate()));
 					String businessServiceCode = billDetail.getBusinessService();
 					receiptHeader.setService(microserviceUtils.getBusinessServiceNameByCode(businessServiceCode));
 					receiptHeader.setReferencenumber(billDetail.getBillNumber());
-					receiptHeader.setReferenceDesc(billDetail.getBillDescription());
+					receiptHeader.setReferenceDesc(additionalDetails.get("narration")!=null?additionalDetails.get("narration").asText():null);
 					receiptHeader.setPaidBy(bill.getPaidBy());
 					receiptHeader.setPayeeName(bill.getPayerName());
 					receiptHeader.setPayeeAddress(bill.getPayerAddress());
@@ -2145,6 +2167,14 @@ public class ReceiptAction extends BaseFormAction {
 
 	public void setWardNo(String wardNo) {
 		this.wardNo = wardNo;
+	}
+	
+	public String getReferenceDesc() {
+		return referenceDesc;
+	}
+
+	public void setReferenceDesc(String referenceDesc) {
+		this.referenceDesc = referenceDesc;
 	}
 	
 	

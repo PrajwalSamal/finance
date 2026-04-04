@@ -61,6 +61,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -102,6 +103,7 @@ import org.egov.infra.microservice.models.AuditDetails;
 import org.egov.infra.microservice.models.Bank;
 import org.egov.infra.microservice.models.Bill;
 import org.egov.infra.microservice.models.BillDetailAdditional;
+import org.egov.infra.microservice.models.BillDetailV2;
 import org.egov.infra.microservice.models.BillResponse;
 import org.egov.infra.microservice.models.BillV2;
 import org.egov.infra.microservice.models.BusinessDetails;
@@ -1635,7 +1637,11 @@ public class ReceiptHeaderService extends PersistenceService<ReceiptHeader, Long
         ObjectNode emptyJsonNode = new ObjectMapper().createObjectNode();
         emptyJsonNode.put("wardNo", receiptHeader.getWardNo());
         emptyJsonNode.put("fundName", receiptHeader.getFund());
+        emptyJsonNode.put("narration", receiptHeader.getReferenceDesc());
         billList.stream().forEach(bill -> {
+        	for(BillDetailV2 bd:bill.getBillDetails()) {
+        		bd.setBillDescription(receiptHeader.getReferenceDesc());
+        	}
             PaymentDetail pd = PaymentDetail.builder()
                     .billId(bill.getId())
                     .businessService(bill.getBusinessService())
