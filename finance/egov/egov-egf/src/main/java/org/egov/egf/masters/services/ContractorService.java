@@ -48,6 +48,7 @@
 package org.egov.egf.masters.services;
 
 import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -104,10 +105,21 @@ public class ContractorService implements EntityTypeService {
         return contractorRepository.findOne(id);
     }
 
+
+    private Long getNextSequence(String schema) {
+        String sql = "SELECT nextval('" +ApplicationThreadLocals.getTenantID()+ ".con_seq')";
+        return ((Number) entityManager.createNativeQuery(sql)
+                .getSingleResult()).longValue();
+    }
+
     @Transactional
     public Contractor create(Contractor contractor) {
 
         setAuditDetails(contractor);
+        String ulb=ApplicationThreadLocals.getTenantID().toUpperCase();
+        Long seq = getNextSequence("public");
+        String code=String.format("%s/%s/%s", "CON",ulb,String.format("%06d", seq));
+        contractor.setCode(code);
         contractor = contractorRepository.save(contractor);
         saveAccountDetailKey(contractor);
         return contractor;
