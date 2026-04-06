@@ -106,7 +106,23 @@ public class ContractorService implements EntityTypeService {
     }
 
 
-    private Long getNextSequence(String schema) {
+    private Long getNextSequence() {
+    	
+
+        // Check if sequence exists
+        String checkSql = "SELECT COUNT(*) FROM information_schema.sequences " +
+                          "WHERE sequence_schema = '" + ApplicationThreadLocals.getTenantID() + "' " +
+                          "AND sequence_name = 'con_seq'";
+
+        Number count = (Number) entityManager.createNativeQuery(checkSql)
+                .getSingleResult();
+
+        // Create sequence if not exists
+        if (count.intValue() == 0) {
+            String createSql = "CREATE SEQUENCE " + ApplicationThreadLocals.getTenantID() + ".con_seq" + " START WITH 1 INCREMENT BY 1";
+            entityManager.createNativeQuery(createSql).executeUpdate();
+        }
+    	
         String sql = "SELECT nextval('" +ApplicationThreadLocals.getTenantID()+ ".con_seq')";
         return ((Number) entityManager.createNativeQuery(sql)
                 .getSingleResult()).longValue();
@@ -117,8 +133,8 @@ public class ContractorService implements EntityTypeService {
 
         setAuditDetails(contractor);
         String ulb=ApplicationThreadLocals.getTenantID().toUpperCase();
-        Long seq = getNextSequence("public");
-        String code=String.format("%s/%s/%s", "CON",ulb,String.format("%06d", seq));
+        Long seq = getNextSequence();
+        String code=String.format("%s/%s/%s", ulb,"CON",String.format("%06d", seq));
         contractor.setCode(code);
         contractor = contractorRepository.save(contractor);
         saveAccountDetailKey(contractor);
