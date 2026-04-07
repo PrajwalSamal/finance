@@ -2169,13 +2169,5 @@ public class ReceiptAction extends BaseFormAction {
 		this.wardNo = wardNo;
 	}
 	
-	public String getReferenceDesc() {
-		return referenceDesc;
-	}
-
-	public void setReferenceDesc(String referenceDesc) {
-		this.referenceDesc = referenceDesc;
-	}
-	
 	
 }

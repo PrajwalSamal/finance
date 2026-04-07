@@ -515,6 +515,7 @@ table {
 	      <td width="21%" class="bluebox"><s:text name="searchreceipts.criteria.receiptno"/></td>
 	      <td width="24%" class="bluebox">
 	      <div class="yui-skin-sam"><s:textfield id="receiptNumber" type="text" name="receiptNumber"/></td>
+
 	     <%--  <td width="21%" class="bluebox"><s:text name="searchreceipts.criteria.user"/></td>
 	      <td width="30%" class="bluebox"><s:select headerKey="-1" headerValue="%{getText('searchreceipts.user.select')}" name="userId" id="user" cssClass="selectwk" list="dropdownData.userList" listKey="id" listValue="name" value="%{userId}" /> </td>
 	    --%>
