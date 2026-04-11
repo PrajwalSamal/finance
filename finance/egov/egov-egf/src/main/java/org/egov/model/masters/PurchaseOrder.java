@@ -121,9 +121,7 @@ public class PurchaseOrder extends AbstractAuditable implements EntityType {
     @SafeHtml
     private String department;
 
-    @ManyToOne
-    @JoinColumn(name = "scheme")
-    private Scheme scheme;
+    private Integer scheme;
 
     @ManyToOne
     @JoinColumn(name = "subScheme")
@@ -270,16 +268,17 @@ public class PurchaseOrder extends AbstractAuditable implements EntityType {
     public void setDepartment(String department) {
         this.department = department;
     }
+    
 
-    public Scheme getScheme() {
-        return scheme;
-    }
+    public Integer getScheme() {
+		return scheme;
+	}
 
-    public void setScheme(Scheme scheme) {
-        this.scheme = scheme;
-    }
+	public void setScheme(Integer scheme) {
+		this.scheme = scheme;
+	}
 
-    public SubScheme getSubScheme() {
+	public SubScheme getSubScheme() {
         return subScheme;
     }
 
