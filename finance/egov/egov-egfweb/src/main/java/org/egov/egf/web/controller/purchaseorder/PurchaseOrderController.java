@@ -185,6 +185,10 @@ public class PurchaseOrderController {
 			String scm = purchaseOrderService.getSchemeById(purchaseOrder.getScheme());
 			model.addAttribute("scheme", scm);
 		}
+		if (purchaseOrder != null && purchaseOrder.getSubScheme() != null) {
+			String sscm = purchaseOrderService.getSchemeById(purchaseOrder.getSubScheme());
+			model.addAttribute("subScheme", sscm);
+		}
 		model.addAttribute(PURCHASE_ORDER, purchaseOrder);
 		model.addAttribute("mode", "view");
 		return VIEW;
@@ -223,6 +227,10 @@ public class PurchaseOrderController {
 		if (purchaseOrder != null && purchaseOrder.getScheme() != null) {
 			String scm = purchaseOrderService.getSchemeById(purchaseOrder.getScheme());
 			model.addAttribute("scheme", scm);
+		}
+		if (purchaseOrder != null && purchaseOrder.getSubScheme() != null) {
+			String sscm = purchaseOrderService.getSchemeById(purchaseOrder.getSubScheme());
+			model.addAttribute("subScheme", sscm);
 		}
 		return RESULT;
 	}
