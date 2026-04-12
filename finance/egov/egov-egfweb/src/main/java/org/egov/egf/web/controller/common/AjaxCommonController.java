@@ -204,6 +204,12 @@ public class AjaxCommonController {
     public List<WorkOrder> getAllWorkOrderByOrderNumber(@RequestParam("orderNumber") @SafeHtml final String orderNumber)
             throws ApplicationException {
         WorkOrder wo = workOrderService.getByOrderNumber(orderNumber);
+        if(wo != null && wo.getScheme() != null) {
+        	wo.setSchemeName(workOrderService.getSchemeById(wo.getScheme()));
+        }
+        if(wo != null && wo.getSubScheme() != null) {
+        	wo.setSubSchemeName(workOrderService.getsubSchemeById(wo.getSubScheme()));
+        }
         Department dept = microserviceUtils.getDepartmentByCode(wo.getDepartment());
         wo.setDescription(dept.getName());
         return Collections.singletonList(wo);

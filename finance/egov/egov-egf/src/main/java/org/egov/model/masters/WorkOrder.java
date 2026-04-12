@@ -73,6 +73,8 @@ import org.egov.utils.FinancialConstants;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.SafeHtml;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Entity
 @Table(name = "EGF_WORKORDER")
 @Unique(fields = { "orderNumber" }, id = "id", tableName = "EGF_WORKORDER", enableDfltMsg = true)
@@ -132,6 +134,13 @@ public class WorkOrder extends AbstractAuditable implements EntityType {
 
     private Integer subScheme;
     
+    @Transient
+    @JsonProperty
+    private String schemeName;
+    
+    @Transient
+    @JsonProperty
+    private String subSchemeName;
     
     @SafeHtml
     private String sanctionNumber;
@@ -147,6 +156,22 @@ public class WorkOrder extends AbstractAuditable implements EntityType {
     @Transient
     private Boolean editAllFields;
     
+	public String getSchemeName() {
+		return schemeName;
+	}
+
+	public void setSchemeName(String schemeName) {
+		this.schemeName = schemeName;
+	}
+	
+	public String getSubSchemeName() {
+		return subSchemeName;
+	}
+
+	public void setSubSchemeName(String subSchemeName) {
+		this.subSchemeName = subSchemeName;
+	}
+
 	public Integer getScheme() {
 		return scheme;
 	}
