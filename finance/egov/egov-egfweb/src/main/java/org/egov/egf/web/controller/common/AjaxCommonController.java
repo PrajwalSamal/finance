@@ -177,6 +177,9 @@ public class AjaxCommonController {
     public List<PurchaseOrder> getAllPurchaseOrderByOrderNumber(@RequestParam("orderNumber") @SafeHtml final String orderNumber)
             throws ApplicationException {
         PurchaseOrder po = purchaseOrderService.getByOrderNumber(orderNumber);
+        if (po != null && po.getScheme() != null) {
+        	po.setSchemeName(purchaseOrderService.getSchemeById(po.getScheme()));
+        }
         Department dept = microserviceUtils.getDepartmentByCode(po.getDepartment());
         po.setDescription(dept.getName());
         return Collections.singletonList(po);

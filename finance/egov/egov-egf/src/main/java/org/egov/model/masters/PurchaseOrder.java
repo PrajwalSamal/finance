@@ -74,6 +74,8 @@ import org.egov.utils.FinancialConstants;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.SafeHtml;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Entity
 @Table(name = "EGF_PURCHASEORDER")
 @Unique(fields = { "orderNumber" }, id = "id", tableName = "EGF_PURCHASEORDER", enableDfltMsg = true)
@@ -122,6 +124,10 @@ public class PurchaseOrder extends AbstractAuditable implements EntityType {
     private String department;
 
     private Integer scheme;
+    
+    @Transient
+    @JsonProperty
+    private String schemeName;
 
     @ManyToOne
     @JoinColumn(name = "subScheme")
@@ -135,6 +141,7 @@ public class PurchaseOrder extends AbstractAuditable implements EntityType {
     private Boolean active;
 
     @Transient
+    @JsonProperty
     private String departmentName;
 
     @Transient
@@ -329,5 +336,14 @@ public class PurchaseOrder extends AbstractAuditable implements EntityType {
     public void setEditAllFields(Boolean editAllFields) {
         this.editAllFields = editAllFields;
     }
+
+	public String getSchemeName() {
+		return schemeName;
+	}
+
+	public void setSchemeName(String schemeName) {
+		this.schemeName = schemeName;
+	}
+    
 
 }
