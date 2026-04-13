@@ -141,11 +141,12 @@ public class PurchaseOrderService implements EntityTypeService {
 		} else {
 			purchaseOrder.setScheme(null);
 		}*/
-		if (purchaseOrder.getSubScheme() != null && purchaseOrder.getSubScheme().getId() != null) {
-			purchaseOrder.setSubScheme(subSchemeService.findById(purchaseOrder.getSubScheme().getId(), false));
-		} else {
-			purchaseOrder.setSubScheme(null);
-		}
+	/*
+	 * if (purchaseOrder.getSubScheme() != null &&
+	 * purchaseOrder.getSubScheme().getId() != null) {
+	 * purchaseOrder.setSubScheme(subSchemeService.findById(purchaseOrder.
+	 * getSubScheme().getId(), false)); } else { purchaseOrder.setSubScheme(null); }
+	 */
 		if (purchaseOrder.getSupplier() != null && purchaseOrder.getSupplier().getId() != null) {
 			purchaseOrder.setSupplier(supplierService.getById(purchaseOrder.getSupplier().getId()));
 		}
@@ -180,11 +181,12 @@ public class PurchaseOrderService implements EntityTypeService {
 			} else {
 				purchaseOrder.setScheme(null);
 			}*/
-			if (purchaseOrder.getSubScheme() != null && purchaseOrder.getSubScheme().getId() != null) {
-				purchaseOrder.setSubScheme(subSchemeService.findById(purchaseOrder.getSubScheme().getId(), false));
-			} else {
-				purchaseOrder.setSubScheme(null);
-			}
+		/*
+		 * if (purchaseOrder.getSubScheme() != null &&
+		 * purchaseOrder.getSubScheme().getId() != null) {
+		 * purchaseOrder.setSubScheme(subSchemeService.findById(purchaseOrder.
+		 * getSubScheme().getId(), false)); } else { purchaseOrder.setSubScheme(null); }
+		 */
 			if (purchaseOrder.getSupplier() != null && purchaseOrder.getSupplier().getId() != null) {
 				purchaseOrder.setSupplier(supplierService.getById(purchaseOrder.getSupplier().getId()));
 			}
@@ -284,6 +286,10 @@ public class PurchaseOrderService implements EntityTypeService {
 
 	public String getSchemeById(Integer scheme) {
 		return purchaseOrderRepository.getSchemeById(scheme);
+	}
+	
+	public String getSubSchemeById(Integer scheme) {
+		return purchaseOrderRepository.getSubSchemeById(scheme);
 	}
 
 }

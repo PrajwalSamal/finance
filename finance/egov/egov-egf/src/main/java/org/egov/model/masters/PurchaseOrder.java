@@ -129,9 +129,8 @@ public class PurchaseOrder extends AbstractAuditable implements EntityType {
     @JsonProperty
     private String schemeName;
 
-    @ManyToOne
-    @JoinColumn(name = "subScheme")
-    private SubScheme subScheme;
+
+    private Integer subScheme;
 
     @SafeHtml
     private String sanctionNumber;
@@ -285,11 +284,11 @@ public class PurchaseOrder extends AbstractAuditable implements EntityType {
 		this.scheme = scheme;
 	}
 
-	public SubScheme getSubScheme() {
+	public Integer getSubScheme() {
         return subScheme;
     }
 
-    public void setSubScheme(SubScheme subScheme) {
+    public void setSubScheme(Integer subScheme) {
         this.subScheme = subScheme;
     }
 
