@@ -557,7 +557,6 @@ public class BudgetAppropriationRegisterReportAction extends BaseFormAction {
 		paramMapForReportFile.put("deptName", department.getName());
 		paramMapForReportFile.put("function", function.getName());
 		paramMapForReportFile.put("fund", fund.getName());
-
 		final String rBEorREAmountForm = " - (" + finYearRange + ") (Rs.)  : ";
 		paramMapForReportFile.put("rAsOnDate", strAsOnDate);
 		if (isBeDefined) {
