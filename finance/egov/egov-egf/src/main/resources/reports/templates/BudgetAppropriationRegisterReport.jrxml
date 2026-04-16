@@ -64,7 +64,7 @@
 				<text><![CDATA[Housing and Urban Development Department]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="0" y="45" width="752" height="20" forecolor="#1F4E79" uuid="f7ad4c36-baf2-4489-ae14-6b04148bdc87"/>
+				<reportElement x="0" y="42" width="752" height="20" forecolor="#1F4E79" uuid="f7ad4c36-baf2-4489-ae14-6b04148bdc87"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="14" isBold="true"/>
 				</textElement>
