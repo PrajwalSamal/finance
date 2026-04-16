@@ -786,10 +786,10 @@ table {
 			<br />
 			<div class="buttonbottom">
 				<input name="button32" type="button" class="buttonsubmit"
-					id="button32" value="View"
+					id="button32" value="View Receipt"
 					onclick="return checkviewforselectedrecord()" /> 
 					<input name="button32" type="button" class="buttonsubmit" id="button32"
-					value="Print" onclick="return checkprintforselectedrecord()" />
+					value="Print Receipt" onclick="return checkprintforselectedrecord()" />
 					<input type="button" class="buttonsubmit"
                          value="Print PDF"
                          onclick="printResultTable()" />
