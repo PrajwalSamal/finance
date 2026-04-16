@@ -68,18 +68,21 @@
         padding: 5px 0;
         margin-bottom: 5px;
         font-family: Arial, sans-serif;
+        
     }
 
     .header-center h2 {
         margin: 0;
-        font-size: 22px;
+        font-size: 16px;
         font-weight: bold;
+       color: #003366 !important;
     }
 
-    .header-center p {
+    .header-center h1 {
         margin: 2px 0;
-        font-size: 22px;
+        font-size: 18px;
         font-weight: bold;
+        color: #003366 !important;
     }
 
     .header-right {
@@ -186,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
 
     <div class="header-center">
-        <p>Government of Jammu &amp; Kashmir</p>
+        <h1>Government of Jammu &amp; Kashmir</h1>
         <h2>Housing and Urban Development<br/>Department</h2>
     </div>
 
