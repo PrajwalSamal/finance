@@ -17,7 +17,6 @@ import org.egov.collection.repository.rowmapper.PaymentRowMapper;
 import org.egov.collection.web.contract.Bill;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -35,8 +34,6 @@ public class PaymentRepository {
 
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    
-    private JdbcTemplate jdbcTemplate;
 
     private PaymentQueryBuilder paymentQueryBuilder;
 
@@ -45,13 +42,12 @@ public class PaymentRepository {
     private BillRowMapper billRowMapper;
 
     @Autowired
-    public PaymentRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, PaymentQueryBuilder paymentQueryBuilder, JdbcTemplate jdbcTemplate,
+    public PaymentRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, PaymentQueryBuilder paymentQueryBuilder, 
     		PaymentRowMapper paymentRowMapper, BillRowMapper billRowMapper) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.paymentQueryBuilder = paymentQueryBuilder;
         this.paymentRowMapper = paymentRowMapper;
         this.billRowMapper = billRowMapper;
-        this.jdbcTemplate = jdbcTemplate;
     }
 
 
@@ -91,19 +87,17 @@ public class PaymentRepository {
 
 
     public List<Payment> fetchPayments(PaymentSearchCriteria paymentSearchCriteria) {
-        List<Object> preparedStatementValues = new ArrayList<>();
+        Map<String, Object> preparedStatementValues = new HashMap<>();
 
         List<String> ids = fetchPaymentIdsByCriteria(paymentSearchCriteria);
 
         if(CollectionUtils.isEmpty(ids))
             return new LinkedList<>();
 
-//        String query = paymentQueryBuilder.getPaymentSearchQuery(ids, preparedStatementValues);
-        String query = paymentQueryBuilder.getPaymentSearchQuery(paymentSearchCriteria, preparedStatementValues);
+        String query = paymentQueryBuilder.getPaymentSearchQuery(ids, preparedStatementValues);
         log.info("Query: " + query);
         log.info("preparedStatementValues: " + preparedStatementValues);
-//        List<Payment> payments = namedParameterJdbcTemplate.query(query, preparedStatementValues, paymentRowMapper);
-        List<Payment> payments = jdbcTemplate.query(query, preparedStatementValues.toArray(), paymentRowMapper);
+        List<Payment> payments = namedParameterJdbcTemplate.query(query, preparedStatementValues, paymentRowMapper);
         if (!CollectionUtils.isEmpty(payments)) {
             Set<String> billIds = new HashSet<>();
             for (Payment payment : payments) {

@@ -331,33 +331,12 @@ public class PaymentQueryBuilder {
     }
 
 
-    public String getPaymentSearchQuery(PaymentSearchCriteria paymentSearchCriteria,
-                                               List<Object> preparedStmtList) {
+    public String getPaymentSearchQuery(List<String> ids,
+                                               Map<String, Object> preparedStatementValues) {
         StringBuilder selectQuery = new StringBuilder(SELECT_PAYMENT_SQL);
-		/*
-		 * addClauseIfRequired(preparedStatementValues, selectQuery);
-		 * selectQuery.append(" py.id IN (:id)  "); preparedStatementValues.put("id",
-		 * ids);
-		 */
-       
-        
-        if (paymentSearchCriteria.getFromDate() != null) {
-        	addClauseIfRequiredNew(preparedStmtList, selectQuery);
-            selectQuery.append(" py.createdtime >= ? ");
-            preparedStmtList.add(paymentSearchCriteria.getFromDate());
-        }
-
-        if (paymentSearchCriteria.getToDate() != null) {
-        	addClauseIfRequiredNew(preparedStmtList, selectQuery);
-            selectQuery.append(" py.createdtime <= ? ");
-            preparedStmtList.add(paymentSearchCriteria.getToDate());
-        }
-        
-        if (paymentSearchCriteria.getWard() != null) {
-        	addClauseIfRequiredNew(preparedStmtList, selectQuery);
-            selectQuery.append(" py.additionaldetail->>'ward' = ? ");
-            preparedStmtList.add(paymentSearchCriteria.getWard());
-        }
+        addClauseIfRequired(preparedStatementValues, selectQuery);
+        selectQuery.append(" py.id IN (:id)  ");
+        preparedStatementValues.put("id", ids);
         return addOrderByClause(selectQuery);
     }
 
@@ -606,14 +585,6 @@ public class PaymentQueryBuilder {
             queryString.append(" WHERE ");
         else {
             queryString.append(" AND");
-        }
-    }
-    
-    private void addClauseIfRequiredNew(List<Object> preparedStmtList, StringBuilder query) {
-        if (query.toString().contains("WHERE")) {
-            query.append(" AND ");
-        } else {
-            query.append(" WHERE ");
         }
     }
 
