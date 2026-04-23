@@ -56,6 +56,15 @@ public class SearchCriteria {
 	
 	@JsonProperty("status")
     private String status;
+	
+	@JsonProperty("fromDate")
+	private Long fromDate=null;
+	
+	@JsonProperty("toDate")
+	private Long toDate=null;
+	
+	@JsonProperty("ward")
+	private String ward;
  
 	@JsonProperty("receiptNumber")
 	private String receiptNumber;
