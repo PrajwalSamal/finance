@@ -310,7 +310,8 @@ public class BillReceiptInfoImpl implements BillReceiptInfo {
      */
     @Override
     public String getServiceName() {
-        return receiptHeader.getService();
+    	        return receiptHeader.getService().replace(".", ", ");
+
     }
 
     /*
@@ -487,4 +488,14 @@ public class BillReceiptInfoImpl implements BillReceiptInfo {
     public  String getCreatedUser(){
         return receiptHeader.getCreatedUser() == null?"":receiptHeader.getCreatedUser();
     }
+
+	@Override
+	public String getWardNo() {
+		return receiptHeader.getWardNo();
+	}
+
+	@Override
+	public String getFund() {
+		return receiptHeader.getFund();
+	}
 }

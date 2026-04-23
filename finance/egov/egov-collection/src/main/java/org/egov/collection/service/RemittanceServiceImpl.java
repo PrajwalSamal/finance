@@ -163,7 +163,7 @@ public class RemittanceServiceImpl extends RemittanceService {
     @Transactional
     @Override
     public List<Receipt> createCashBankRemittance(List<ReceiptBean> receiptList, final String accountNumberId,
-            final Date remittanceDate) {
+            final Date remittanceDate, String bankTokenNumber, Date tokenDate) {
 
         final Set<Receipt> bankRemittanceList = new HashSet<>();
         final SimpleDateFormat dateFomatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
@@ -312,7 +312,7 @@ public class RemittanceServiceImpl extends RemittanceService {
         final Remittance remittance = populateAndPersistRemittance(totalCashAmt, BigDecimal.ZERO, fundCode,
                 cashInHandGLCode, null, serviceGlCode, functionCode, bankRemittanceList, createVoucher,
                 voucherDate, depositedBankAccount, totalCashVoucherAmt, BigDecimal.ZERO, Collections.EMPTY_LIST,
-                receiptInstrumentMap);
+                receiptInstrumentMap, bankTokenNumber, tokenDate);
 
         switch (ApplicationThreadLocals.getCollectionVersion().toUpperCase()) {
         case "V2":
@@ -406,7 +406,7 @@ public class RemittanceServiceImpl extends RemittanceService {
             final String serviceGLCode, final String functionCode, final Set<Receipt> receiptHeadList,
             final String createVoucher, final Date voucherDate, final Bankaccount depositedBankAccount,
             final BigDecimal totalCashVoucherAmt, final BigDecimal totalChequeVoucherAmt, List<String> instrumentId,
-            Map<String, Set<Instrument>> receiptInstrumentMap) {
+            Map<String, Set<Instrument>> receiptInstrumentMap , String bankTokenNumber, Date tokenDate) {
         CVoucherHeader voucherHeader;
         final CFinancialYear financialYear = collectionsUtil.getFinancialYearforDate(new Date());
         BigDecimal totalAmount = BigDecimal.ZERO;
@@ -418,6 +418,13 @@ public class RemittanceServiceImpl extends RemittanceService {
                 CollectionConstants.MODULE_NAME_REMITTANCE, CollectionConstants.REMITTANCE_STATUS_CODE_APPROVED);
         remittance.setStatus(receiptStatusApproved);
         remittance.setReferenceNumber(collectionsNumberGenerator.generateRemittanceNumber(financialYear));
+//        Tested for Bank Token Number & Token Date 
+        if(bankTokenNumber != null && !bankTokenNumber.isEmpty() && tokenDate !=null) {
+        	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        	String tokenInfo = "Token No: " + bankTokenNumber + " | Token Date: " + sdf.format(tokenDate);
+        	remittance.setRemarks(tokenInfo);
+        	LOGGER.info("Saved Token Remarks: " + remittance.getRemarks());
+        }
         remittance.setFund(fundHibernateDAO.fundByCode(fundCode));
         remittance.setFunction(functionHibernateDAO.getFunctionByCode(functionCode));
         remittance.setCollectionRemittance(new HashSet<ReceiptHeader>());
@@ -436,6 +443,7 @@ public class RemittanceServiceImpl extends RemittanceService {
         }
         remittanceDetailsList.addAll(getRemittanceDetailsList(BigDecimal.ZERO, totalAmount, serviceGLCode, remittance));
         remittance.setRemittanceDetails(new HashSet<RemittanceDetail>(remittanceDetailsList));
+        remittance.setRemarks(bankTokenNumber+"-"+tokenDate);
         HashSet<RemittanceInstrument> remittanceInstrumentSet = new HashSet<RemittanceInstrument>();
         if (CollectionConstants.YES.equalsIgnoreCase(createVoucher)
                 && (totalCashVoucherAmt.compareTo(BigDecimal.ZERO) > 0
@@ -469,6 +477,7 @@ public class RemittanceServiceImpl extends RemittanceService {
             remittance.setRemittanceInstruments(remittanceInstrumentSet);
             RemittanceResponse response = create(remittance, receiptHeadList);
         }
+        LOGGER.info("Final Remittance Remarks before return: " + remittance.getRemarks());
         return remittance;
     }
 
@@ -511,6 +520,7 @@ public class RemittanceServiceImpl extends RemittanceService {
             rr.setTenantId(microserviceUtils.getTenentId());
             r.getRemittanceReceipts().add(rr);
         }
+        LOGGER.info("Sending to API - Token Remarks: " + r.getRemarks());
         return microserviceUtils.createRemittance(Collections.singletonList(r));
     }
 
@@ -586,24 +596,34 @@ public class RemittanceServiceImpl extends RemittanceService {
                 }
         }
         List<ReceiptBean> resultList = new ArrayList<>();
-        if(!receiptIds.isEmpty()){
+       
         List<Receipt> receipts = Collections.EMPTY_LIST;
         switch (ApplicationThreadLocals.getCollectionVersion().toUpperCase()) {
         case "V2":
-        case "VERSION2":    
+        case "VERSION2":   
+            LOGGER.info("In V2/ VERSION2  with receipt Id==" + receiptIds.size());
+
+        	 if(!receiptIds.isEmpty())
             receipts = microserviceUtils.getReceipts(StringUtils.join(receiptIds, ","), PaymentStatusEnum.NEW.name(), serviceCodes,startDate, endDate);
+            else
+            receipts = microserviceUtils.getReceiptsAll(PaymentStatusEnum.NEW.name(), serviceCodes,startDate, endDate);
+	
             break;
 
         default:
             receipts = microserviceUtils.getReceipts(StringUtils.join(receiptIds, ","), CollectionConstants.RECEIPT_STATUS_APPROVED, serviceCodes,startDate, endDate);
             break;
         }
+        LOGGER.info("Outside Switch with receipt Id==" + receipts.size());
+
+        
         Map<String, List<Receipt>> receiptDateWiseMap = new HashMap<>();
         Map<String, List<Receipt>> serviceWiseMap = new HashMap<>();
         Map<String, List<Receipt>> instrumentWiseMap = new HashMap<>();
         Map<String, List<Receipt>> fundWiseMap = new HashMap<>();
         Map<String, List<Receipt>> departmentWiseMap = new HashMap<>();
 
+        if(!receipts.isEmpty()) {
         groupByReceiptDate(receiptDateWiseMap, receipts);
 
         for (String key : receiptDateWiseMap.keySet()) {
@@ -937,7 +957,7 @@ public class RemittanceServiceImpl extends RemittanceService {
     @Transactional
     @Override
     public List<Receipt> createChequeBankRemittance(List<ReceiptBean> receiptBeanList, String accountNumberId,
-            Date remittanceDate, String[] instrumentIdArray) {
+            Date remittanceDate,String bankTokenNumber, Date tokenDate, String[] instrumentIdArray) {
 
         List<Receipt> receiptList = new ArrayList<>();
         final SimpleDateFormat dateFomatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
@@ -1056,7 +1076,7 @@ public class RemittanceServiceImpl extends RemittanceService {
         final Remittance remittance = populateAndPersistRemittance(BigDecimal.ZERO, totalChequeAmount, fundCode, null,
                 chequeInHandGlcode, serviceGlCode, functionCode, new HashSet(receiptList), createVoucher,
                 voucherDate, depositedBankAccount, BigDecimal.ZERO, totalChequeVoucherAmt,
-                instrumentIdList, receiptInstrumentMap);
+                instrumentIdList, receiptInstrumentMap, bankTokenNumber, tokenDate);
 
         // For cheque update instrument status to deposited.
         for (final RemittanceInstrument bankRemitInstrument : remittance.getRemittanceInstruments()) {

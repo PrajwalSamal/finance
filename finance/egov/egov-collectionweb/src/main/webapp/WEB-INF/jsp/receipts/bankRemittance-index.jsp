@@ -70,6 +70,7 @@
 			<th class="bluebgheadtd" width="20%" ><s:text name="bankremittance.receiptnumber"/></th>
 			<th class="bluebgheadtd" width="20%" ><s:text name="bankremittance.receiptdate"/></th>
 			<th class="bluebgheadtd" width="20%" ><s:text name="bankremittance.servicename"/></th>
+			<th class="bluebgheadtd" width="20%" ><s:text name="banktoken.date"/></th>
 		</tr>
 		<s:iterator value="%{bankRemittanceList}" status="s"> 
 		<tr>
@@ -77,6 +78,7 @@
 			<td class="blueborderfortd"><div align="center"><s:property value="%{receiptNumber}" /></div></td>
 			<td class="blueborderfortd"><div align="center"><s:date name="%{receiptDate}" format="dd/MM/yyyy" /></div></td>
 			<td class="blueborderfortd"><div align="center"><s:property value="%{serviceName}" /></div></td>
+			<td class="blueborderfortd"><div align="center"><s:property value="%{bankTokenNumber}" />-<s:date name="%{tokenDate}" format="dd/MM/yyyy"/></div></td>
 			
 		</s:iterator>
 		<s:hidden name="totalCashAmount" value="%{totalCashAmount}"/>
@@ -91,7 +93,7 @@
 <div class="buttonbottom">
 <input name="button2" type="button" class="button" id="button" onclick="window.close()" value="Close"/>
 <input type="button" class="buttonsubmit" id="buttonCashReport" value="<s:text name='bankremittance.print.bankchallan'/>"
-			onclick="window.open('${pageContext.request.contextPath}/receipts/bankRemittance-printBankChallan.action?totalCashAmount=<s:property value="%{totalCashAmount}"/>&totalChequeAmount=<s:property value="%{totalChequeAmount}"/>&totalOnlineAmount=<s:property value="%{totalOnlineAmount}"/>&bank=<s:property value="%{bank}"/>&bankAccount=<s:property value="%{bankAccount}"/>&remittanceDate=<s:property value="%{remittanceDate}"/>', '_blank', 'height=650,width=980,scrollbars=yes,left=0,top=0,status=yes');"/> &nbsp;
+			onclick="window.open('${pageContext.request.contextPath}/receipts/bankRemittance-printBankChallan.action?totalCashAmount=<s:property value="%{totalCashAmount}"/>&totalChequeAmount=<s:property value="%{totalChequeAmount}"/>&totalOnlineAmount=<s:property value="%{totalOnlineAmount}"/>&bank=<s:property value="%{bank.replaceAll('&', '%26')}"/>&bankAccount=<s:property value="%{bankAccount}"/>&remittanceDate=<s:property value="%{remittanceDate}"/>', '_blank', 'height=650,width=980,scrollbars=yes,left=0,top=0,status=yes');"/> &nbsp;
 	
 </div>
 </s:form>

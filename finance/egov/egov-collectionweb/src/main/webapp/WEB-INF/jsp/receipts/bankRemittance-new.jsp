@@ -106,6 +106,25 @@
 										isDatepickerOpened = false;
 									}
 								}).data('datepicker');
+						
+						jQuery("#tokenDate")
+						.datepicker(
+								{
+									format : 'dd/mm/yyyy',
+									endDate : nowTemp,
+									autoclose : true,
+									onRender : function(date) {
+										return date.valueOf() < now
+												.valueOf() ? 'disabled'
+												: '';
+									}
+								}).on('changeDate', function(ev) {
+							var string = jQuery(this).val();
+							if (!(string.indexOf("_") > -1)) {
+								isDatepickerOpened = false;
+							}
+						}).data('datepicker');
+						
 						jQuery("#fromDate")
 								.datepicker(
 										{
@@ -143,6 +162,8 @@
 								}).data('datepicker');
 						doLoadingMask();
 					});
+
+				
 
 	jQuery(window).load(function() {
 		undoLoadingMask();
@@ -252,6 +273,19 @@
 				 alert("Account number for which search result has displayed and selected account number in search drop down are different. \n Please make sure account number in drop down and account number for which search has done are same.");
 				 return false;
 			}
+		// Bank Token Number validation
+		if (document.getElementById("bankTokenNumber") != null &&
+		    document.getElementById("bankTokenNumber").value.trim() == "") {
+		    bootbox.alert("Please Enter Bank Token Number");
+		    return false;
+		}
+
+		// Token Date validation
+		if (document.getElementById("tokenDate") != null &&
+		    document.getElementById("tokenDate").value == "") {
+		    bootbox.alert("Please Enter Token Date");
+		    return false;
+		}
 		var flag=confirm('Receipts once remitted cannot be modified, please verify before you proceed.');
         if(flag==false)
         {
@@ -437,6 +471,13 @@
 		</s:if>
 	}
 </script>
+<style>
+		 select { width:100% !important}
+		.w5{width:5% !important}
+		.w15{width:15% !important}
+		.w25{width:25% !important}
+		.w100{width:100% !important}
+</style>
 </head>
 <body>
 	<div class="errorstyle" id="error_area" style="display: none;"></div>
@@ -476,9 +517,9 @@
 				<div align="center">
 					<table width="100%" border="0" cellspacing="0" cellpadding="0">
 						<tr>
-							<td width="4%" class="bluebox">&nbsp;</td>
-							<td class="bluebox"><s:text name="bankremittance.accountnumber" /> : <span class="mandatory1">*</span></td>
-							<td class="bluebox">
+							<td class="bluebox w5">&nbsp;</td>
+							<td class="bluebox w15"><s:text name="bankremittance.accountnumber" /> : <span class="mandatory1">*</span></td>
+							<td class="bluebox w25">
 								<select id="accountNumberId" name="accountNumberId" value="%{accountNumberId}">
 									<option value="-1">Select</option>
 									<c:forEach items="${dropdownData.accountNumberList}" var="accNum">
@@ -493,20 +534,22 @@
 							</td>
 						</tr>
 						<tr>
-							<td width="4%" class="bluebox">&nbsp;</td>
-							<td class="bluebox"><s:text name="bankremittance.financialyear" />:</td>
-							<td class="bluebox"><s:select headerKey="-1" headerValue="--Select--" list="dropdownData.financialYearList" listKey="id" id="finYearId" listValue="finYearRange" label="finYearRange" name="finYearId" value="%{finYearId}" /></td>
+							<td class="bluebox w5">&nbsp;</td>
+							<td class="bluebox w15"><s:text name="bankremittance.financialyear" />:</td>
+							<td class="bluebox w25"><s:select headerKey="-1" headerValue="--Select--" list="dropdownData.financialYearList" listKey="id" id="finYearId" listValue="finYearRange" label="finYearRange" name="finYearId" value="%{finYearId}" /></td>
 							<td class="bluebox">&nbsp;</td>
 							<td class="bluebox">&nbsp;</td>
 						</tr>
 						<tr id="dateDiv">
-							<td width="4%" class="bluebox">&nbsp;</td>
-							<td class="bluebox"><s:text name="bankremittance.fromdate" /></td>
+							<td class="bluebox w5">&nbsp;</td>
+							<td class="bluebox w15"><s:text name="bankremittance.fromdate" /></td>
 							<s:date name="fromDate" var="fromFormat" format="dd/MM/yyyy" />
-							<td class="bluebox"><s:textfield id="fromDate" name="fromDate" data-inputmask="'mask': 'd/m/y'" value="%{fromFormat}" placeholder="DD/MM/YYYY" /></td>
-							<td class="bluebox"><s:text name="bankremittance.todate" /></td>
+							<td class="bluebox w25"><s:textfield id="fromDate" name="fromDate" data-inputmask="'mask': 'd/m/y'" value="%{fromFormat}" placeholder="DD/MM/YYYY" class="w100" /></td>
+							<td class="bluebox w5">&nbsp;</td>
+							<td class="bluebox w15"><s:text name="bankremittance.todate" /></td>
 							<s:date name="toDate" var="toFormat" format="dd/MM/yyyy" />
-							<td class="bluebox"><s:textfield id="toDate" name="toDate" value="%{toFormat}" data-inputmask="'mask': 'd/m/y'" placeholder="DD/MM/YYYY" /></td>
+							<td class="bluebox w25"><s:textfield id="toDate" name="toDate" value="%{toFormat}" data-inputmask="'mask': 'd/m/y'" placeholder="DD/MM/YYYY" class="w100" /></td>
+							<td class="bluebox w5">&nbsp;</td>
 						</tr>
 					</table>
 					</div>
@@ -557,7 +600,14 @@
 							<td class="bluebox"><s:text name="bankremittance.remittanceamount" /></td>
 							<td class="bluebox"><s:textfield id="remittanceAmount" name="remittanceAmount" readonly="true" /></td>								
 							<td class="bluebox"><s:text name="bankremittance.accountnumber" /></td>
-							<td class="bluebox"><input type="text" name="remitAccountNumber" readonly="readonly" id="remitAccountNumber" value="${accountNumberId}" /></td>		
+							<td class="bluebox"><input type="text" name="remitAccountNumber" readonly="readonly" id="remitAccountNumber" value="${accountNumberId}" /></td>	
+							
+							<!--Adding the row for the Bank Token Number & Date field-->
+							<td class="bluebox"><s:text name="bank.token.number" /></td>
+							<td class="bluebox"><s:textfield id="bankTokenNumber" name="bankTokenNumber" /></td>								
+							<td class="bluebox"><s:text name="token.date" /><span class="mandatory"></span></td> <s:date name="tokenDate" var="tokenDateFormat" format="dd/MM/yyyy" />
+							<td class="bluebox"> <s:textfield id="tokenDate" name="tokenDate" value="%{tokenDateFormat}"   data-inputmask="'mask': 'd/m/y'" placeholder="DD/MM/YYYY" /></td>	
+								
 						</tr>
 					</table>
 				</div>

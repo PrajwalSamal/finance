@@ -99,8 +99,8 @@ public class PurchaseOrderJsonAdaptor implements JsonSerializer<PurchaseOrder> {
                 jsonObject.addProperty("scheme", purchaseOrder.getScheme());
             else
                 jsonObject.addProperty("scheme", "");
-            if (purchaseOrder.getSubScheme() != null && purchaseOrder.getSubScheme().getName() != null)
-                jsonObject.addProperty("subScheme", purchaseOrder.getSubScheme().getName());
+            if (purchaseOrder.getSubScheme() != null && purchaseOrder.getSubScheme() != null)
+                jsonObject.addProperty("subScheme", purchaseOrder.getSubScheme());
             else
                 jsonObject.addProperty("subScheme", "");
             if (purchaseOrder.getDepartmentName() != null)

@@ -46,115 +46,245 @@
   ~
   --%>
 
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="/WEB-INF/tags/cdn.tld" prefix="cdn" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
-<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
-<%@ taglib prefix="s" uri="/struts-tags" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ taglib uri="/WEB-INF/tags/cdn.tld" prefix="cdn"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib prefix="s" uri="/struts-tags"%>
 <style>
-    .position_alert {
-        position: fixed;
-        z-index: 9999;
-        top: 85px;
+.print-header {
+    display: none;
+}
+
+@media print {
+   @page {
+        margin: 0;
+    }
+   .print-header {
+        display: block;
+        text-align: center;
+        border-bottom: 2px solid #000;
+        padding: 5px 0;
+        margin-bottom: 5px;
+        font-family: Arial, sans-serif;
+        
+    }
+
+    .header-center h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: bold;
+       color: #003366 !important;
+    }
+
+    .header-center h1 {
+        margin: 2px 0;
+        font-size: 18px;
+        font-weight: bold;
+        color: #003366 !important;
+    }
+
+    .header-right {
+        position: absolute;
         right: 20px;
-        background: #F2DEDE;
-        padding: 10px 20px;
-        border-radius: 5px;
+        top: 10px;
+        text-align: right;
+        font-size: 14px;
+    }
+    
+    .header-right p {
+        margin: 0;         
+        padding: 0;
     }
 
-    .position_alert1 {
-        position: fixed;
-        z-index: 9999;
-        top: 85px;
-        right: 520px;
-        background: #F2DEDE;
-        padding: 10px 20px;
-        border-radius: 5px;
-    }
+	.position_alert {
+		display: none;
+	}
+	.position_alert1 {
+		display: none;
+	}
+	.position_alert2 {
+		display: none;
+	}
+	.nav-tabs {
+		display: none;
+	}
+	#printButton {
+		display: none;
+	}
+	#closeButton {
+		display: none;
+	}
+	header {
+		display: none;
+	}
+	footer {
+		display: none;
+	}
+	nav {
+		display: none;
+	}
+	.navbar {
+		display: none;
+	}
+	.sidebar {
+		display: none;
+	}
+}
 
-    .position_alert2 {
-        position: fixed;
-        z-index: 9999;
-        top: 85px;
-        right: 270px;
-        background: #F2DEDE;
-        padding: 10px 20px;
-        border-radius: 5px;
-    }
+.position_alert {
+	position: fixed;
+	z-index: 9999;
+	top: 85px;
+	right: 20px;
+	background: #F2DEDE;
+	padding: 10px 20px;
+	border-radius: 5px;
+}
+
+.position_alert1 {
+	position: fixed;
+	z-index: 9999;
+	top: 85px;
+	right: 520px;
+	background: #F2DEDE;
+	padding: 10px 20px;
+	border-radius: 5px;
+}
+
+.position_alert2 {
+	position: fixed;
+	z-index: 9999;
+	top: 85px;
+	right: 270px;
+	background: #F2DEDE;
+	padding: 10px 20px;
+	border-radius: 5px;
+}
 </style>
-<form:form name="expenseBillForm" role="form" action="" modelAttribute="egBillregister" id="egBillregister"
-           class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
-    <div class="position_alert">
-        <spring:message code="lbl.netpayable.amount" text="Net Payable Amount"/> : &#8377 <span id="expenseNetPayableAmount"><c:out
-            value="${expenseNetPayableAmount}" default="0.0"></c:out></span>
-    </div>
-    <div class="position_alert1">
-        <spring:message code="lbl.total.debit.amount" text="Total Debit Amount"/> : &#8377 <span id="expenseBillTotalDebitAmount"> <c:out
-            value="${expenseBillTotalDebitAmount}" default="0.0"></c:out></span>
-    </div>
-    <div class="position_alert2">
-        <spring:message code="lbl.total.credit.amount" text="Total Credit Amount"/> : &#8377 <span id="expenseBillTotalCreditAmount"> <c:out
-            value="${expenseBillTotalCreditAmount}" default="0.0"></c:out></span>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function () {
+    var now = new Date();
+
+    var date = now.toLocaleDateString('en-GB');
+    var time = now.toLocaleTimeString();
+
+    var d = document.getElementById("printDate");
+    var t = document.getElementById("printTime");
+
+    if (d) d.innerText = date;
+    if (t) t.innerText = time;
+});
+</script>
+<form:form name="expenseBillForm" role="form" action=""
+	modelAttribute="egBillregister" id="egBillregister"
+	class="form-horizontal form-groups-bordered"
+	enctype="multipart/form-data">
+	<div class="print-header">
+
+    <div class="header-right">
+        <p>Date: <span id="printDate"></span></p>
+        <p>Time: <span id="printTime"></span></p>
     </div>
 
-    <div>
-        <spring:hasBindErrors name="egBillregister">
-            <div class="alert alert-danger col-md-10 col-md-offset-1">
-                <form:errors path="*"/><br/>
-            </div>
-        </spring:hasBindErrors>
+    <div class="header-center">
+        <h1>Government of Jammu &amp; Kashmir</h1>
+        <h2>Housing and Urban Development<br/>Department</h2>
     </div>
-    <input type="hidden" id="id" value="${egBillregister.id }"/>
-    <input type="hidden" name="mode" id="mode" value="${mode }"/>
-    <input type="hidden" name="budgetDetails" id="budgetDetails" value="${budgetDetails}" />
-    <%--<form:hidden path="budgetDetails" id="budgetDetails" class="budgetDetail" value="${budgetDetails}"/>--%>
-    <form:hidden path="billamount" id="billamount" class="billamount" value="${egBillregister.billamount }"/>
-    <form:hidden path="" name="netPayableAmount" id="netPayableAmount" value="${netPayableAmount}"/>
-    <div class="panel-title text-center" style="color: green;">
-        <c:out value="${message}"/><br/>
-    </div>
-    <ul class="nav nav-tabs" id="settingstab">
-        <li class="active"><a data-toggle="tab" href="#expensebillheader"
-                              data-tabidx=0><spring:message code="lbl.header" text="Header"/></a></li>
-        <li><a data-toggle="tab" href="#checklist" data-tabidx=1><spring:message
-                code="lbl.checklist" text="CheckList"/> </a></li>
-    </ul>
 
-    <div class="tab-content">
-        <div class="tab-pane fade in active" id="expensebillheader">
-            <jsp:include page="expensebill-view-header.jsp"/>
-            <jsp:include page="expensebill-view-subledgerdetails.jsp"/>
-            <jsp:include page="expensebill-view-accountdetails.jsp"/>
-            <jsp:include page="expensebill-view-subledgeraccountdetails.jsp"/>
-            <c:if test="${egBillregister.documentDetail != null &&  !egBillregister.documentDetail.isEmpty()}">
-                <jsp:include page="billdocument-upload.jsp"/>
-            </c:if>
-            <%-- <jsp:include page="expensebill-budgetdetails.jsp"/> --%>
-        </div>
-        <div class="tab-pane fade" id="checklist">
-            <jsp:include page="expensebill-view-checklist.jsp"/>
-        </div>
-        <c:if test="${!workflowHistory.isEmpty() && mode != 'readOnly'}">
-            <jsp:include page="../common/commonworkflowhistory-view.jsp"></jsp:include>
-        </c:if>
-        <c:if test="${mode != 'readOnly'}">
-            <jsp:include page="../common/commonworkflowmatrix.jsp"/>
-            <div class="buttonbottom" align="center">
-                <jsp:include page="../common/commonworkflowmatrix-button.jsp"/>
-            </div>
-        </c:if>
-        <c:if test="${mode == 'readOnly'}">
-            <div class="row">
-                <div class="col-sm-12 text-center">
-                    <input type="submit" name="closeButton" id="closeButton" value='<spring:message code="lbl.close" text="Close"/>' Class="btn btn-default"
-                           onclick="window.close();"/>
-                </div>
-            </div>
-        </c:if>
-    </div>
+</div>
+
+	<div class="position_alert">
+		<spring:message code="lbl.netpayable.amount" text="Net Payable Amount" />
+		: &#8377 <span id="expenseNetPayableAmount"><c:out
+				value="${expenseNetPayableAmount}" default="0.0"></c:out></span>
+	</div>
+	<div class="position_alert1">
+		<spring:message code="lbl.total.debit.amount"
+			text="Total Debit Amount" />
+		: &#8377 <span id="expenseBillTotalDebitAmount"> <c:out
+				value="${expenseBillTotalDebitAmount}" default="0.0"></c:out></span>
+	</div>
+	<div class="position_alert2">
+		<spring:message code="lbl.total.credit.amount"
+			text="Total Credit Amount" />
+		: &#8377 <span id="expenseBillTotalCreditAmount"> <c:out
+				value="${expenseBillTotalCreditAmount}" default="0.0"></c:out></span>
+	</div>
+
+	<div>
+		<spring:hasBindErrors name="egBillregister">
+			<div class="alert alert-danger col-md-10 col-md-offset-1">
+				<form:errors path="*" />
+				<br />
+			</div>
+		</spring:hasBindErrors>
+	</div>
+	<input type="hidden" id="id" value="${egBillregister.id }" />
+	<input type="hidden" name="mode" id="mode" value="${mode }" />
+	<input type="hidden" name="budgetDetails" id="budgetDetails"
+		value="${budgetDetails}" />
+	<%--<form:hidden path="budgetDetails" id="budgetDetails" class="budgetDetail" value="${budgetDetails}"/>--%>
+	<form:hidden path="billamount" id="billamount" class="billamount"
+		value="${egBillregister.billamount }" />
+	<form:hidden path="" name="netPayableAmount" id="netPayableAmount"
+		value="${netPayableAmount}" />
+	<div class="panel-title text-center" style="color: green;">
+		<c:out value="${message}" />
+		<br />
+	</div>
+	<ul class="nav nav-tabs" id="settingstab">
+		<li class="active"><a data-toggle="tab" href="#expensebillheader"
+			data-tabidx=0><spring:message code="lbl.header" text="Header" /></a></li>
+		<li><a data-toggle="tab" href="#checklist" data-tabidx=1><spring:message
+					code="lbl.checklist" text="CheckList" /> </a></li>
+	</ul>
+
+	<div class="tab-content">
+		<div class="tab-pane fade in active" id="expensebillheader">
+			<jsp:include page="expensebill-view-header.jsp" />
+			<jsp:include page="expensebill-view-subledgerdetails.jsp" />
+			<jsp:include page="expensebill-view-accountdetails.jsp" />
+			<jsp:include page="expensebill-view-subledgeraccountdetails.jsp" />
+			<c:if
+				test="${egBillregister.documentDetail != null &&  !egBillregister.documentDetail.isEmpty()}">
+				<jsp:include page="billdocument-upload.jsp" />
+			</c:if>
+			<%-- <jsp:include page="expensebill-budgetdetails.jsp"/> --%>
+		</div>
+		<div class="tab-pane fade" id="checklist">
+			<jsp:include page="expensebill-view-checklist.jsp" />
+		</div>
+		<c:if test="${!workflowHistory.isEmpty() && mode != 'readOnly'}">
+			<jsp:include page="../common/commonworkflowhistory-view.jsp"></jsp:include>
+		</c:if>
+		<c:if test="${mode != 'readOnly'}">
+			<jsp:include page="../common/commonworkflowmatrix.jsp" />
+			<div class="buttonbottom" align="center">
+				<jsp:include page="../common/commonworkflowmatrix-button.jsp" />
+			</div>
+		</c:if>
+		<c:if test="${mode == 'readOnly'}">
+			<div class="row">
+				<div class="col-sm-12 text-center">
+
+					<input type="button" name="printButton" id="printButton"
+						value='<spring:message code="lbl.print" text="Print"/>'
+						class="btn btn-primary" style="margin-right: 10px;"
+						onclick="window.print();" /> <input type="submit"
+						name="closeButton" id="closeButton"
+						value='<spring:message code="lbl.close" text="Close"/>'
+						class="btn btn-default" onclick="window.close();" />
+				</div>
+			</div>
+		</c:if>
+	</div>
 
 </form:form>
-<script src="<cdn:url value='/resources/app/js/expensebill/viewexpensebill.js?rnd=${app_release_no}'/>"></script>
-<script src="<cdn:url value='/resources/global/js/egov/patternvalidation.js?rnd=${app_release_no}' context='/services/egi'/>"></script>
-<script src="<cdn:url value='/resources/global/js/egov/inbox.js?rnd=${app_release_no}' context='/services/egi'/>"></script>
+<script
+	src="<cdn:url value='/resources/app/js/expensebill/viewexpensebill.js?rnd=${app_release_no}'/>"></script>
+<script
+	src="<cdn:url value='/resources/global/js/egov/patternvalidation.js?rnd=${app_release_no}' context='/services/egi'/>"></script>
+<script
+	src="<cdn:url value='/resources/global/js/egov/inbox.js?rnd=${app_release_no}' context='/services/egi'/>"></script>

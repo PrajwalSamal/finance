@@ -159,10 +159,27 @@ public class BankRemittanceAction extends BaseFormAction {
     private List<ReceiptBean> resultList = new ArrayList<>();
     private List<ReceiptBean> finalList = new ArrayList<>();
     final SimpleDateFormat dateFomatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+//    for bank token number and token date 
+    private String bankTokenNumber;
+    private Date tokenDate;
+    
+    public String getBankTokenNumber() {
+		return bankTokenNumber;
+	}
 
+	public void setBankTokenNumber(String bankTokenNumber) {
+		this.bankTokenNumber = bankTokenNumber;
+	}
 
+	public Date getTokenDate() {
+		return tokenDate;
+	}
 
-    /**
+	public void setTokenDate(Date tokenDate) {
+		this.tokenDate = tokenDate;
+	}
+
+	/**
      * @param collectionsUtil the collectionsUtil to set
      */
     public void setCollectionsUtil(final CollectionsUtil collectionsUtil) {
@@ -264,6 +281,7 @@ public class BankRemittanceAction extends BaseFormAction {
 	@Action(value = "/receipts/bankRemittance-printBankChallan")
     @SkipValidation
     public String printBankChallan() {
+		getSession().put("REMITTANCE_BANK", bank);         
         return PRINT_BANK_CHALLAN;
     }
 
@@ -284,7 +302,7 @@ public class BankRemittanceAction extends BaseFormAction {
             throw new ValidationException(Arrays.asList(new ValidationError("Please select Account number",
                     "bankremittance.error.noaccountNumberselected")));
         // voucherHeaderValues =
-        List<Receipt> receipts = remittanceService.createCashBankRemittance(finalList, accountNumberId, remittanceDate);
+        List<Receipt> receipts = remittanceService.createCashBankRemittance(finalList, accountNumberId, remittanceDate, bankTokenNumber, tokenDate);
         final long elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis;
         LOGGER.info("$$$$$$ Time taken to persist the remittance list (ms) = " + elapsedTimeMillis);
         bankRemittanceList = remittanceService.prepareCashRemittanceReport(receipts);
@@ -602,6 +620,7 @@ public class BankRemittanceAction extends BaseFormAction {
     public String getBank() {
         return bank;
     }
+    
 
     public void setBank(final String bank) {
         this.bank = bank;

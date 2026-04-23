@@ -697,8 +697,8 @@ var totaldbamt=0,totalcramt=0;
         	isServiceTypeExist = true;
         	addServiceTypeDropdown('serviceTable');
  			<s:iterator value="serviceTypeMap[#obj.key]" status="stat" var="names">
- 				var stKey = '<s:property value="#names.key"/>';
- 				var stValue = '<s:property value="#names.value"/>';
+ 				var stKey = '<s:property value="#names.key" />';
+ 				var stValue = '<s:property value="#names.value" escapeHtml="false"/>';
  				document.getElementById('serviceId').options[<s:property value="#stat.index+1"/>]= new Option(stValue,stKey);
 			</s:iterator>
         }
@@ -755,7 +755,7 @@ var totaldbamt=0,totalcramt=0;
 					<td class="bluebox" style="table-layout: fixed;width:30%"><s:select headerKey=""
 							headerValue="----Choose----" name="fund" id="fundId"
 							cssClass="selectwk" list="fundNames"
-							value="%{fund}" /></td>
+							value="%{fund}" required="true" /></td>
 							
 					<td class="bluebox" style="width:15%"><s:text
 							name="billreceipt.counter.paidby" /><span class="mandatory1">*</span></td>
@@ -765,7 +765,7 @@ var totaldbamt=0,totalcramt=0;
 				<tr>
 					<td class="bluebox2" style="width:5%">&nbsp;</td>
 					<td class="bluebox" style="width:15%"><s:text
-							name="viewReceipt.wardno" /><span class="mandatory1">*</span></td>
+							name="viewReceipt.wardno" /></td>
 					<td class="bluebox" style="width:30%"><s:select headerKey=""
 							headerValue="----Choose----" name="wardNo" id="wardNoCode"
 							cssClass="selectwk" list="dropdownData.wardNoList"

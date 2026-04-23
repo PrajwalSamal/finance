@@ -254,7 +254,7 @@ function showInstrumentDetails(obj){
 		document.getElementById('instrumentTypeCashOrCard').value="cash";
 		document.getElementById('onlinedetails').style.display='none';
 		document.getElementById('payMode').style.paddingLeft = '10px';
-		document.getElementById('payModeInput').style.width="30%";
+		document.getElementById('payModeInput').style.width="40%";
  		document.getElementById('instrHeaderCash.instrumentAmount').value=document.getElementById('totalamountdisplay').value;
  		
  		clearCardDetails();
@@ -271,8 +271,20 @@ function showInstrumentDetails(obj){
 		document.getElementById('instrumentTypeCashOrCard').value="";
 		document.getElementById('payMode').style.paddingLeft="8px";
 		document.getElementById('payMode').style.width="16%";
-		document.getElementById('payModeInput').style.width="30%";
+		document.getElementById('payModeInput').style.width="40%";
 		document.getElementById('instrumentChequeAmount').value = document.getElementById('totalamountdisplay').value;
+
+		var rows = document.querySelectorAll("#chequeDDdetails tr");
+
+		rows.forEach(function(row){
+		    if(row.id === "chequedetailsrow"){
+		        var tds = row.getElementsByTagName("td");
+		        if(tds.length >= 5){
+		            tds[1].innerHTML = 'Cheque/Online Number <span class="mandatory1">*</span>';
+		            tds[3].innerHTML = 'Cheque/Online Date <span class="mandatory1">*</span>';
+		        }
+		    }
+		});
 		clearCashDetails();
 		clearCardDetails();
 		clearBankDetails();
@@ -285,10 +297,23 @@ function showInstrumentDetails(obj){
 		document.getElementById('bankdetails').style.display='none';
 		document.getElementById('onlinedetails').style.display='none';
 		document.getElementById('instrumentTypeCashOrCard').value="";
-		ocument.getElementById('payMode').style.paddingLeft="8px";
+		document.getElementById('payMode').style.paddingLeft="8px";
 		document.getElementById('payMode').style.width="16%";
-		document.getElementById('payModeInput').style.width="30%";
+		document.getElementById('payModeInput').style.width="40%";
 		document.getElementById('instrumentChequeAmount').value = document.getElementById('totalamountdisplay').value;
+
+	    var rows = document.querySelectorAll("#chequeDDdetails tr");
+
+	    rows.forEach(function(row){
+	        if(row.id === "chequedetailsrow"){
+	            var tds = row.getElementsByTagName("td");
+	            if(tds.length >= 5){
+	                tds[1].innerHTML = 'DD Number <span class="mandatory1">*</span>';
+	                tds[3].innerHTML = 'DD Date <span class="mandatory1">*</span>';
+	            }
+	        }
+	    });
+		
 		clearCashDetails();
 		clearCardDetails();
 		clearBankDetails();
@@ -400,7 +425,7 @@ loadBankDetailFailureHandler = function(){
 	<td class="bluebox2" style="width:5%">&nbsp;</td>
 	<td class="bluebox" style="width:15%" id="payMode"><s:text
 			name="billreceipt.payment.mode" />:<span class="mandatory1">*</span></td>
-	<td class="bluebox" colspan="2" style="width:21%" id="payModeInput"><span style="float: left;"
+	<td class="bluebox" colspan="2" style="width:40%" id="payModeInput"><span style="float: left;"
 		id="cashradiobuttonspan"> <input
 			onClick="showInstrumentDetails(this);setinstrumenttypevalue(this);" type="radio" align="absmiddle"
 			value="cash" id="cashradiobutton" name="paytradiobutton" /> Cash &nbsp; <s:hidden
@@ -409,7 +434,7 @@ loadBankDetailFailureHandler = function(){
 	</span> <span style="float: left;" id="chequeradiobuttonspan"> <input
 			onClick="showInstrumentDetails(this);setinstrumenttypevalue(this);"
 			type="radio" value="cheque" align="absmiddle" id="chequeradiobutton"
-			name="paytradiobutton" /> Cheque &nbsp;
+			name="paytradiobutton" /> Cheque/Online &nbsp;
 	</span> <span style="float: left;" id="ddradiobuttonspan"> <input
 			onClick="showInstrumentDetails(this);setinstrumenttypevalue(this);"
 			type="radio" align="absmiddle" id="ddradiobutton"

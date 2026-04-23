@@ -75,5 +75,8 @@ public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Lo
 
 	@Query(value = "SELECT name FROM scheme s WHERE s.id = :id", nativeQuery = true)
 	public String getSchemeById(@Param("id") Integer id);
+	
+	@Query(value = "SELECT name FROM subScheme s WHERE s.id = :id", nativeQuery = true)
+	public String getSubSchemeById(@Param("id") Integer id);
 
 }
