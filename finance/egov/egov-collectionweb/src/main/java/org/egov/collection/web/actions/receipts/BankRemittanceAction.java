@@ -291,6 +291,7 @@ public class BankRemittanceAction extends BaseFormAction {
 	@Action(value = "/receipts/bankRemittance-printBankChallan")
     @SkipValidation
     public String printBankChallan() {
+		getSession().put("REMITTANCE_BANK", bank);         
         return PRINT_BANK_CHALLAN;
     }
 
@@ -635,6 +636,7 @@ public class BankRemittanceAction extends BaseFormAction {
     public String getBank() {
         return bank;
     }
+    
 
     public void setBank(final String bank) {
         this.bank = bank;

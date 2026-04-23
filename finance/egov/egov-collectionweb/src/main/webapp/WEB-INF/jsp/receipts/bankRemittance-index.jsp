@@ -108,7 +108,8 @@ function openVoucher(){
 			
 			<!--for the new button  -->
 		<s:hidden name="voucherId" id="voucherId" value="%{voucherId}" />
-		<input type="button" class="buttonsubmit" id="buttonCashReport" value="Print Voucher" onclick="openVoucher();"/> &nbsp;
+		<input type="button" class="buttonsubmit" id="buttonCashReportt" value="Print Voucher" onclick="openVoucher();"/> &nbsp;
+
 
 	
 </div>

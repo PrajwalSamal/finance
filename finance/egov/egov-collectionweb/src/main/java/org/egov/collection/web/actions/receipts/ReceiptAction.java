@@ -811,6 +811,14 @@ public class ReceiptAction extends BaseFormAction {
 		return returnValue;
 	}
 
+	public String getReferenceDesc() {
+		return referenceDesc;
+	}
+
+	public void setReferenceDesc(String referenceDesc) {
+		this.referenceDesc = referenceDesc;
+	}
+
 	private void validateMiscDetails() {
 		if (StringUtils.isEmpty(serviceCategory))
 			addActionError(getText("error.select.service.category"));
@@ -2167,14 +2175,6 @@ public class ReceiptAction extends BaseFormAction {
 
 	public void setWardNo(String wardNo) {
 		this.wardNo = wardNo;
-	}
-	
-	public String getReferenceDesc() {
-		return referenceDesc;
-	}
-
-	public void setReferenceDesc(String referenceDesc) {
-		this.referenceDesc = referenceDesc;
 	}
 	
 	
