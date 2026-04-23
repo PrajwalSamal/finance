@@ -572,7 +572,6 @@
 								<input type="hidden" name="instrumentAmount" disabled="disabled" id="instrumentAmount" value="${currentRow.instrumentAmount}" />
 							</display:column>
 
-
 							<display:column headerClass="bluebgheadtd" class="blueborderfortd" title="Receipt date" style="width:10%;text-align: left"><c:out value="${fn:substring(currentRow.receiptDate, 0, 10)}" /></display:column> 
 							<display:column headerClass="bluebgheadtd" class="blueborderfortd" title="Receipt number" style="width:10%;text-align: left" value="${currentRow.receiptNumber}" />
 							<%-- <display:column headerClass="bluebgheadtd" class="blueborderfortd" title="Cheque/DD number and date"  style="width:20%;text-align: center" value="${currentRow.instrumentNumber}  ${currentRow.instrumentDate}"  /> --%>
@@ -621,6 +620,7 @@
 							<display:column headerClass="bluebgheadtd" class="blueborderfortd" title="Department" style="width:15%;text-align: left" value="${currentRow.departmentName}" />
 							<display:column headerClass="bluebgheadtd" class="blueborderfortd" title="Cheque /DD Amount (Rs)" style="width:10%;text-align: right">
 									<div style="text-align: right;">
+
 										<c:if test="${not empty currentRow.instrumentAmount}">
 											<c:out value="${currentRow.instrumentAmount}" />
 										</c:if>

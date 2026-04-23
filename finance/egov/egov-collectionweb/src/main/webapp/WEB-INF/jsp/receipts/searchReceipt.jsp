@@ -52,48 +52,144 @@
 <link rel="stylesheet" type="text/css"
 	href="<egov:url path='/yui/assets/skins/sam/autocomplete.css'/>" />
 <head>
-	<title><s:text name="searchreceipts.title"/></title>
-	<style>
-		 select { width:100% !important}
-		.w5{width:5% !important}
-		.w15{width:15% !important}
-		.w25{width:25% !important}
-		.w100{width:100% !important}
-</style>
-<script  >
-
-jQuery.noConflict();
-jQuery(document).ready(function() {
-  	 
-     jQuery(" form ").submit(function( event ) {
-    	 doLoadingMask();
-    });
-     doLoadingMask();
- });
-
-jQuery(window).load(function () {
-	undoLoadingMask();
-});
-
-function isChecked(chk) {
-	if (chk.length == undefined) {
- 	if (chk.checked == true)
-  	return true;
- 	else return false;	
- } else {
- 	for (i = 0; i < chk.length; i++)
-		{
-			if (chk[i].checked == true ) return true;
-		}
-	return false;
- }
-
+<title><s:text name="searchreceipts.title" /></title>
+<style type="text/css">
+table {
+	width: 100%;
 }
 
 #fromDate, #toDate, #receiptNumber, textfield, textarea, select {
 	width: 80% !important;
 }
 </style>
+<script>
+ function printResultTable() {
+    var tableContent = document.getElementById("resultTable").outerHTML;
+
+    /* var today = new Date();
+    var date = today.toLocaleDateString('en-GB'); // DD/MM/YYYY
+    var time = today.toLocaleTimeString(); */
+
+    var printWindow = window.open('', '', 'height=700,width=1000');
+
+    printWindow.document.write('<html><head><title>Print Receipts</title>');
+
+    // CSS
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; }');
+
+    //Blue header styling
+    printWindow.document.write('.header { text-align: center; margin-bottom: 10px; color: #003366; }');
+    printWindow.document.write('.header h2 { margin: 0; font-size: 18px; font-weight: bold; color: #003366; }');
+    printWindow.document.write('.header h3 { margin: 0; font-size: 16px; color: #003366; }');
+    printWindow.document.write('.header h4 { margin: 0; font-size: 14px; color: #003366; }');
+
+    //printWindow.document.write('.datetime { position: absolute; right: 20px; top: 10px; font-size: 12px; }');
+    printWindow.document.write('hr { border: 1px solid black; }');
+
+    printWindow.document.write('table { width:100%; border-collapse: collapse; margin-top:10px;}');
+    printWindow.document.write('table, th, td { border: 1px solid black; }');
+    printWindow.document.write('th, td { padding: 6px; font-size: 12px; }');
+
+    // hide checkbox & hidden fields
+    printWindow.document.write('input { display:none; }');
+
+    printWindow.document.write('</style>');
+    printWindow.document.write('</head><body>');
+
+    // Header
+    printWindow.document.write(`
+       <!-- <div class="datetime">
+            Date: ${date}<br>
+            Time: ${time}
+        </div> -->
+
+        <div class="header">
+            <h2>Government of Jammu & Kashmir</h2>
+            <h3>Housing and Urban Development</h3>
+            <h4>Department</h4>
+        </div>
+
+        <hr/>
+    `);
+
+    // Table
+    printWindow.document.write(tableContent);
+
+    printWindow.document.write('</body></html>');
+
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+}
+
+function exportTableToExcel() {
+    var table = document.getElementById("resultTable");
+
+    if (!table) {
+        alert("Table not found!");
+        return;
+    }
+
+    var rows = table.rows;
+    var excel = "<table border='1'>";
+
+    // Header
+    var today = new Date();
+    var date = today.toLocaleDateString('en-GB');
+    var time = today.toLocaleTimeString();
+
+    excel += `
+        <tr>
+            <td colspan="13" style="text-align:center; font-weight:bold; color: #003366;">
+                Government of Jammu & Kashmir<br>
+                Housing and Urban Development<br>
+                Department
+            </td>
+           <!--<td colspan="3" style="text-align:right;">
+                Date: ${date}<br>
+                Time: ${time}
+            </td> -->
+        </tr>
+        <tr><td colspan="13"></td></tr>
+    `;
+
+    // Loop table rows
+    for (var i = 0; i < rows.length; i++) {
+        excel += "<tr>";
+
+        var cols = rows[i].cells;
+
+        for (var j = 0; j < cols.length; j++) {
+            var data = cols[j].innerText;
+
+            // remove checkbox column (first column)
+            if (j === 0) continue;
+
+            excel += "<td>" + data + "</td>";
+        }
+
+        excel += "</tr>";
+    }
+
+    excel += "</table>";
+
+    var blob = new Blob([excel], { type: "application/vnd.ms-excel" });
+    var url = URL.createObjectURL(blob);
+
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "Receipt_Report.xls";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+} 
+ 
+</script>
+
+
+
 <script type="text/javascript">
 	var serviceTypeMap = {};
 	<s:iterator value="serviceTypeMap" var="entry">
@@ -109,7 +205,7 @@ function isChecked(chk) {
 
 		cell.innerHTML = '';
 
-		label.innerHTML = '<s:text name="searchreceipts.criteria.servicetype" />';
+		label.innerHTML = '<s:text name="searchreceipts.criteria.servicetype" /><span class="mandatory"></span>';
 
 		/* if (selected == -1 || !serviceTypeMap[selected]) return; */
 
@@ -118,7 +214,6 @@ function isChecked(chk) {
 		if (keys.length === 0)
 			return;
 
-		label.innerHTML = 'Service Type:';
 
 		var sel = document.createElement('select');
 		sel.name = 'serviceTypeId';
@@ -145,6 +240,8 @@ function isChecked(chk) {
 			populateServiceType(prevCat);
 		}
 	});
+
+	
 </script>
 
 <script>
@@ -535,8 +632,7 @@ function isChecked(chk) {
 							name="serviceCategory" id="serviceCategoryid" cssClass="selectwk"
 							list="serviceCategoryNames" value="%{serviceCategory}"
 							onChange="populateServiceType(this.value);" /></td>
-					<td width="15%" class="bluebox" id="serviceTypeLabel"><span
-						class="mandatory"></td>
+					<td width="15%" class="bluebox" id="serviceTypeLabel"></td>
 					<td width="30%" class="bluebox" id="serviceTypeCell"></td>
 				</tr>
 
@@ -622,9 +718,10 @@ function isChecked(chk) {
 		<s:if test='%{!resultList.isEmpty()}'>
 
 			<div align="center">
-				<display:table name="searchResult" uid="currentRow"
-					style="width:100%;border-left: 1px solid #DFDFDF;" cellpadding="0"
-					cellspacing="0" export="false" requestURI="">
+				<display:table id="resultTable" htmlId="resultTable" name="searchResult" uid="currentRow" 
+                  style="width:100%;border-left: 1px solid #DFDFDF;" cellpadding="0"
+                     cellspacing="0" export="false" requestURI=""> 
+                     
 					<display:caption media="pdf">&nbsp;</display:caption>
 					<display:column headerClass="bluebgheadtd" class="blueborderfortd"
 						style="width:3%">
@@ -651,6 +748,9 @@ function isChecked(chk) {
 						title="G8 Receipt number/Date" style="width:8%;text-align:right"
 						property="g8data" />
 					<%-- <display:column headerClass="bluebgheadtd" class="blueborderfortd" property="manualreceiptdate" title="G8 Receipt Date" format="{0,date,dd/MM/yyyy}" style="width:8%;text-align: center" /> --%>
+					<display:column headerClass="bluebgheadtd" class="blueborderfortd"
+						title="Category" style="width:12%;text-align:left"
+						property="serviceCat" />
 					<display:column headerClass="bluebgheadtd" class="blueborderfortd"
 						title="Service" style="width:12%;text-align:left"
 						property="service" />
@@ -694,10 +794,16 @@ function isChecked(chk) {
 			<br />
 			<div class="buttonbottom">
 				<input name="button32" type="button" class="buttonsubmit"
-					id="button32" value="View"
+					id="button32" value="View Receipt"
 					onclick="return checkviewforselectedrecord()" /> 
 					<input name="button32" type="button" class="buttonsubmit" id="button32"
-					value="Print" onclick="return checkprintforselectedrecord()" />
+					value="Print Receipt" onclick="return checkprintforselectedrecord()" />
+					<input type="button" class="buttonsubmit"
+                         value="Print PDF"
+                         onclick="printResultTable()" />
+                     <input type="button" class="buttonsubmit"
+                       value="Export to Excel"
+                       onclick="exportTableToExcel()" />    
 				<%-- <egov-authz:authorize actionName="CancelReceipt">
   <input name="button32" type="button" class="buttonsubmit" id="button32" value="Cancel Receipt" onclick="return checkcancelforselectedrecord()"/>
   </egov-authz:authorize> --%>
