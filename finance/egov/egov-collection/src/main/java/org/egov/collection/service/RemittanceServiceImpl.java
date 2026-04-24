@@ -726,7 +726,7 @@ public class RemittanceServiceImpl extends RemittanceService {
             amount = amount.add(r.getInstrument().getAmount());
         }
         
-        String recs=tempList.stream().map(rec->rec.getReceiptNumber()).collect(Collectors.joining(","));
+        String recs=tempList.stream().map(rec->rec.getReceiptNumber()).collect(Collectors.joining(", "));
         
         receipt.setReceipts(recs);
         receipt.setReceiptDate(key.split("-")[0]);
