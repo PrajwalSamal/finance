@@ -63,6 +63,46 @@ table {
 }
 </style>
 <script>
+function validateNew() {
+    var fromdate = dom.get("fromDate").value.trim();
+    var todate = dom.get("toDate").value.trim();
+    var serviceCategory = dom.get("serviceCategoryid").value;
+
+    var serviceTypeObj = dom.get("serviceType");
+    var serviceType = serviceTypeObj ? serviceTypeObj.value : "";
+
+    // Hide previous errors
+    dom.get("error_area").style.display = "none";
+    dom.get("comparedatemessage").style.display = "none";
+
+    // If both Service Category and Service Type are not selected,
+    // then From Date and To Date are mandatory
+    if ((serviceCategory == "-1" || serviceCategory == "")
+            && (serviceType == "" || serviceType == "-1")) {
+
+        if (fromdate == "" || todate == "") {
+            dom.get("error_area").style.display = "block";
+            dom.get("error_area").innerHTML =
+                "From Date and To Date are mandatory when Service Category and Service Type are not selected.<br>";
+            window.scroll(0, 0);
+            return false;
+        }
+    }
+
+    // Date comparison validation
+    if (fromdate !== "" && todate !== "") {
+        if (!checkFdateTdate(fromdate, todate)) {
+            dom.get("comparedatemessage").style.display = "block";
+            window.scroll(0, 0);
+            return false;
+        }
+    }
+
+    doLoadingMask('#loadingMask');
+    return true;
+}
+
+//*********
  function printResultTable() {
     var tableContent = document.getElementById("resultTable").outerHTML;
 
@@ -205,7 +245,7 @@ function exportTableToExcel() {
 
 		cell.innerHTML = '';
 
-		label.innerHTML = '<s:text name="searchreceipts.criteria.servicetype" /><span class="mandatory"></span>';
+		label.innerHTML = '<s:text name="searchreceipts.criteria.servicetype" />';
 
 		/* if (selected == -1 || !serviceTypeMap[selected]) return; */
 
@@ -410,7 +450,8 @@ function exportTableToExcel() {
 	function validate() {
 		var fromdate = dom.get("fromDate").value;
 		var todate = dom.get("toDate").value;
-		var serviceType = dom.get("serviceType").value;
+		var serviceTypeObj = dom.get("serviceType");
+		var serviceType = serviceTypeObj ? serviceTypeObj.value : "";
 		console.log("serviceType : " + serviceType);
 		var valSuccess = true;
 		/* if(null!= document.getElementById('serviceClass') && document.getElementById('serviceClass').value == '-1'){
@@ -421,14 +462,16 @@ function exportTableToExcel() {
 			return false;
 		} */
 
-		if (serviceType == -1) {
+		/* if (serviceType == -1) {
 			valSuccess = false;
 			dom.get("error_area").style.display = "block";
 			dom.get("error_area").innerHTML = '<s:text name="service.servictype.null" />'
 					+ '<br>';
 			window.scroll(0, 0);
 			return false;
-		}
+		} */
+
+		
 
 		if (fromdate != "" && todate != "" && fromdate != todate) {
 			if (!checkFdateTdate(fromdate, todate)) {
@@ -625,8 +668,7 @@ function exportTableToExcel() {
 				<tr>
 					<td width="2%" class="bluebox">&nbsp;</td>
 					<td width="15%" class="bluebox"><s:text
-							name="searchreceipts.criteria.servicecategory" /> <span
-						class="mandatory"></td>
+							name="searchreceipts.criteria.servicecategory" /> </td>
 					<td width="30%" class="bluebox"><s:select headerKey="-1"
 							headerValue="%{getText('miscreceipt.select')}"
 							name="serviceCategory" id="serviceCategoryid" cssClass="selectwk"
@@ -694,7 +736,7 @@ function exportTableToExcel() {
 		</div>
 		<div class="buttonbottom">
 			<label><s:submit type="submit" cssClass="buttonsubmit"
-					id="button" key="lbl.search" onclick="return validate();" /></label> <label><s:submit
+					id="button" key="lbl.search" onclick="return validateNew();" /></label> <label><s:submit
 					type="submit" cssClass="button" key="lbl.reset"
 					onclick="document.searchReceiptForm.action='searchReceipt-reset.action'" /></label>
 			<s:if test="%{results.isEmpty()}">
