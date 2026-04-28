@@ -306,7 +306,7 @@ public class SearchReceiptAction extends SearchFormAction {
                     ReceiptHeader receiptHeader = new ReceiptHeader();
                     JsonNode additionalDetails = receipt.getAdditionalDetails();
                 	receiptHeader.setWardNo(additionalDetails.get("wardNo")!=null?additionalDetails.get("wardNo").asText():null);
-                    receiptHeader.setFund(additionalDetails.get("fundName").asText());
+                    receiptHeader.setFund(additionalDetails.get("fundName")!=null?additionalDetails.get("fundName").asText():null);
                     receiptHeader.setPaymentId(receipt.getPaymentId());
                     receiptHeader.setReceiptnumber(billDetail.getReceiptNumber());
                     receiptHeader.setReceiptdate(new Date(billDetail.getReceiptDate()));
@@ -377,8 +377,10 @@ public class SearchReceiptAction extends SearchFormAction {
     }
 
 	private void validateSearchParams() {
-		if (StringUtils.isEmpty(serviceCategory) || serviceCategory.equals("-1"))
-	        addActionError(getText("error.select.service.category"));
+		/*
+		 * if (StringUtils.isEmpty(serviceCategory) || serviceCategory.equals("-1"))
+		 * addActionError(getText("error.select.service.category"));
+		 */
 		if (fromDate != null && toDate != null && !fromDate.equals(toDate) && !fromDate.before(toDate))
 			addActionError(getText("common.comparedate.errormessage"));
 	}
