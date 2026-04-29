@@ -338,69 +338,67 @@ public class SearchReceiptAction extends SearchFormAction {
 		 * !serviceTypeId.isEmpty() && !serviceTypeId.equals("-1")) ? serviceCategory +
 		 * "." + serviceTypeId : serviceCategory;
 		 */
-		String effectiveServiceId = null;
-		if (serviceCategory != null && !serviceCategory.isEmpty() && !serviceCategory.equals("-1")) {
-			effectiveServiceId = (serviceTypeId != null && !serviceTypeId.isEmpty() && !serviceTypeId.equals("-1"))
-					? serviceCategory + "." + serviceTypeId
-					: serviceCategory;
-		}
+        String effectiveServiceId=null;
+        if (serviceCategory != null && !serviceCategory.isEmpty() && !serviceCategory.equals("-1")) {
+        	effectiveServiceId= (serviceTypeId != null && !serviceTypeId.isEmpty() && !serviceTypeId.equals("-1"))
+                    ? serviceCategory + "." + serviceTypeId
+                    : serviceCategory;
+        }
 
-		List<Receipt> receipts = microserviceUtils.searchReciepts("MISCELLANEOUS", getFromDate(), getToDate(),
-				(effectiveServiceId != null && !effectiveServiceId.isEmpty() && !effectiveServiceId.equals("-1")
-						? effectiveServiceId
-						: null),
-				(getReceiptNumber() != null && !getReceiptNumber().isEmpty()) ? getReceiptNumber() : null);
+        List<Receipt> receipts = microserviceUtils.searchReciepts(
+                "MISCELLANEOUS", getFromDate(), getToDate(),
+                (effectiveServiceId !=null && !effectiveServiceId.isEmpty() && !effectiveServiceId.equals("-1") ?effectiveServiceId:null),
+                (getReceiptNumber() != null && !getReceiptNumber().isEmpty())
+                        ? getReceiptNumber() : null);
+        
 
-		for (Receipt receipt : receipts) {
+        for (Receipt receipt : receipts) {
+        	
+        	
+            for (org.egov.infra.microservice.models.Bill bill : receipt.getBill()) {
 
-			for (org.egov.infra.microservice.models.Bill bill : receipt.getBill()) {
+                for (BillDetail billDetail : bill.getBillDetails()) {
+                	
+                    ReceiptHeader receiptHeader = new ReceiptHeader();
+                    JsonNode additionalDetails = receipt.getAdditionalDetails();
+                	receiptHeader.setWardNo(additionalDetails.get("wardNo")!=null?additionalDetails.get("wardNo").asText():null);
+                    receiptHeader.setFund(additionalDetails.get("fundName")!=null?additionalDetails.get("fundName").asText():null);
+                    receiptHeader.setPaymentId(receipt.getPaymentId());
+                    receiptHeader.setReceiptnumber(billDetail.getReceiptNumber());
+                    receiptHeader.setReceiptdate(new Date(billDetail.getReceiptDate()));
+                    String[] catSer=microserviceUtils.getBusinessServiceNameByCode(billDetail.getBusinessService()).split("\\.");
+                    receiptHeader.setService(catSer[1]);
+                    receiptHeader.setServiceCat(catSer[0]);
+                    receiptHeader.setReferencenumber(billDetail.getBillNumber());
+                    receiptHeader.setReferenceDesc(additionalDetails.get("narration")!=null?additionalDetails.get("narration").asText():null);
+                    receiptHeader.setPaidBy(bill.getPaidBy());
+                    receiptHeader.setTotalAmount(billDetail.getTotalAmount());
+                    receiptHeader.setCurretnStatus(billDetail.getStatus());
+                    receiptHeader.setCurrentreceipttype(billDetail.getReceiptType());
+                    if (null != billDetail.getManualReceiptNumber()) {
+                        receiptHeader.setManualreceiptnumber(billDetail.getManualReceiptNumber());
+                        receiptHeader.setG8data(billDetail.getManualReceiptNumber());
+                    }
+                    if (billDetail.getManualReceiptDate() != null && billDetail.getManualReceiptDate() != 0) {
+                        receiptHeader.setManualreceiptdate(new Date(billDetail.getManualReceiptDate()));
+                        if (null != billDetail.getManualReceiptNumber()) {
+                            receiptHeader.setG8data(billDetail.getManualReceiptNumber()+"/"+new Date(billDetail.getManualReceiptDate()).toString()); 
+                        }
+                        else
+                            receiptHeader.setG8data(new Date(billDetail.getManualReceiptDate()).toString());
+                    }
+                    receiptHeader.setModOfPayment(receipt.getInstrument().getInstrumentType().getName());
 
-				for (BillDetail billDetail : bill.getBillDetails()) {
-
-					ReceiptHeader receiptHeader = new ReceiptHeader();
-					JsonNode additionalDetails = receipt.getAdditionalDetails();
-					receiptHeader.setWardNo(
-							additionalDetails.get("wardNo") != null ? additionalDetails.get("wardNo").asText() : null);
-					receiptHeader.setFund(additionalDetails.get("fundName").asText());
-					receiptHeader.setPaymentId(receipt.getPaymentId());
-					receiptHeader.setReceiptnumber(billDetail.getReceiptNumber());
-					receiptHeader.setReceiptdate(new Date(billDetail.getReceiptDate()));
-					String[] catSer = microserviceUtils.getBusinessServiceNameByCode(billDetail.getBusinessService())
-							.split("\\.");
-					receiptHeader.setService(catSer[1]);
-					receiptHeader.setServiceCat(catSer[0]);
-					receiptHeader.setReferencenumber(billDetail.getBillNumber());
-					receiptHeader.setReferenceDesc(
-							additionalDetails.get("narration") != null ? additionalDetails.get("narration").asText()
-									: null);
-					receiptHeader.setPaidBy(bill.getPaidBy());
-					receiptHeader.setTotalAmount(billDetail.getTotalAmount());
-					receiptHeader.setCurretnStatus(billDetail.getStatus());
-					receiptHeader.setCurrentreceipttype(billDetail.getReceiptType());
-					if (null != billDetail.getManualReceiptNumber()) {
-						receiptHeader.setManualreceiptnumber(billDetail.getManualReceiptNumber());
-						receiptHeader.setG8data(billDetail.getManualReceiptNumber());
-					}
-					if (billDetail.getManualReceiptDate() != null && billDetail.getManualReceiptDate() != 0) {
-						receiptHeader.setManualreceiptdate(new Date(billDetail.getManualReceiptDate()));
-						if (null != billDetail.getManualReceiptNumber()) {
-							receiptHeader.setG8data(billDetail.getManualReceiptNumber() + "/"
-									+ new Date(billDetail.getManualReceiptDate()).toString());
-						} else
-							receiptHeader.setG8data(new Date(billDetail.getManualReceiptDate()).toString());
-					}
-					receiptHeader.setModOfPayment(receipt.getInstrument().getInstrumentType().getName());
-
-					JsonNode jsonNode = billDetail.getAdditionalDetails();
-					BillDetailAdditional additional = null;
-					try {
-						if (null != jsonNode)
-							additional = (BillDetailAdditional) new ObjectMapper().readValue(jsonNode.toString(),
-									BillDetailAdditional.class);
-					} catch (IOException e) {
-						LOGGER.error("error occured reading value from object mapper" + e.getMessage());
-					}
-					if (null != additional) {
+                    JsonNode jsonNode = billDetail.getAdditionalDetails();
+                    BillDetailAdditional additional = null;
+                    try {
+                        if (null != jsonNode)
+                            additional = (BillDetailAdditional) new ObjectMapper().readValue(jsonNode.toString(),
+                                    BillDetailAdditional.class);
+                    } catch (IOException e) {
+                        LOGGER.error("error occured reading value from object mapper" +e.getMessage());
+                    }
+                    if (null != additional) {
 //                        if (null != additional.getBusinessReason()) {
 //                            if (additional.getBusinessReason().contains("-")) {
 //                                receiptHeader.setService(additional.getBusinessReason().split("-")[0]);
@@ -435,9 +433,12 @@ public class SearchReceiptAction extends SearchFormAction {
 	}
 
 	private void validateSearchParams() {
-		if (StringUtils.isEmpty(serviceCategory) || serviceCategory.equals("-1"))
-			addActionError(getText("error.select.service.category"));
-		 
+
+		/*
+		 * if (StringUtils.isEmpty(serviceCategory) || serviceCategory.equals("-1"))
+		 * addActionError(getText("error.select.service.category"));
+		 */
+
 		if (fromDate != null && toDate != null && !fromDate.equals(toDate) && !fromDate.before(toDate))
 			addActionError(getText("common.comparedate.errormessage"));
 	}
