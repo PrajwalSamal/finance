@@ -1298,10 +1298,10 @@ public class BudgetReportAction extends BaseFormAction {
 	protected Map<String, Object> getParamMap() {
 	    Map<String, Object> paramMap = new HashMap<String, Object>();
 
-	    // keep same variable (structure unchanged)
+	    // keeping same 
 	    String ulbGrade = microserviceUtils.getHeaderNameForTenant();
 
-	    // ✅ FIX: directly use it (no uppercase, no property lookup)
+	    // directly use it (no uppercase, no property lookup)
 	    paramMap.put("ulbName", ulbGrade);
 
 	    paramMap.put("finYear", budgetReport.getFinancialYear().getFinYearRange());

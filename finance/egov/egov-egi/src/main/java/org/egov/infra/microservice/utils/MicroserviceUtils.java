@@ -1426,7 +1426,7 @@ public class MicroserviceUtils {
     
 	/* For Testing */
     public String getHeaderNameForTenant() {
-        String ulbGrade = "";      // kept (unused, but not removed as per your request)
+        String ulbGrade = "";     
         String tenantName = "";
         List<ModuleDetail> moduleDetailList = new ArrayList<>();
         String tenentId = getTenentId();
@@ -1458,7 +1458,7 @@ public class MicroserviceUtils {
        
         return (tenantName != null && !tenantName.isEmpty())
                 ? tenantName
-                : tenentId.split(Pattern.quote("."))[1]; // fallback kept
+                : tenentId.split(Pattern.quote("."))[1]; 
     }
 
     private void prepareModuleDetails(List<ModuleDetail> moduleDetailsList, String moduleNme, String masterName,
