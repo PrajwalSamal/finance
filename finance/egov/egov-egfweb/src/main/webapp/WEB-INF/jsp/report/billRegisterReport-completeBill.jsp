@@ -229,7 +229,7 @@
 								property="remittanceChequeNumberAndDate" /> --%>
 							<display:column title="Status"
 								style="width:10%;text-align:center" property="status" />
-							<display:caption media="pdf">
+							<%-- <display:caption media="pdf">
 						  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -239,7 +239,10 @@
 					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Complete Bill Register Report  
 						   
 						   
-				   </display:caption>
+				   </display:caption> --%>
+				   <display:caption media="pdf">
+                             Complete Bill Register Report
+                     </display:caption>
 							<display:caption media="excel">
 						   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
