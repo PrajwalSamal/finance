@@ -193,6 +193,9 @@ public class PaymentService {
 
     public List<Payment> plainSearch(PaymentSearchCriteria paymentSearchCriteria) {
         PaymentSearchCriteria searchCriteria = new PaymentSearchCriteria();
+        searchCriteria.setTenantId(paymentSearchCriteria.getTenantId());
+        searchCriteria.setFromDate(paymentSearchCriteria.getFromDate());
+        searchCriteria.setToDate(paymentSearchCriteria.getToDate());
 
         if (applicationProperties.isPaymentsSearchPaginationEnabled()) {
             searchCriteria.setOffset(isNull(paymentSearchCriteria.getOffset()) ? 0 : paymentSearchCriteria.getOffset());
