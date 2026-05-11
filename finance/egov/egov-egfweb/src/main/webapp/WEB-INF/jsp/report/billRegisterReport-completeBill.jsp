@@ -143,13 +143,13 @@
 			</tr>
 			<tr>
 				<td class="bluebox w5">&nbsp;</td>
-				<td class="bluebox w15"><s:text name="bill.expenditure.type" /></td>
-				<td class="bluebox w25"><s:select name="exptype" id="exptype"
+				<td class="greybox w15"><s:text name="bill.expenditure.type" /></td>
+				<td class="greybox w25"><s:select name="exptype" id="exptype"
 						list="dropdownData.expenditureList" headerKey=""
 						headerValue="%{getText('lbl.choose.options')}" /></td>
 				<td class="bluebox w5">&nbsp;</td>
-				<td class="bluebox w15"><s:text name="bill.type" /></td>
-				<td class="bluebox w25"><s:select name="billType" id="billType"
+				<td class="greybox w15"><s:text name="bill.type" /></td>
+				<td class="greybox w25"><s:select name="billType" id="billType"
 						list="dropdownData.billTypeList" headerKey=""
 						headerValue="%{getText('lbl.choose.options')}" /></td>
 				<td class="bluebox w5">&nbsp;</td>
