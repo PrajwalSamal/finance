@@ -77,6 +77,17 @@
 </script>
 
 <style type="text/css">
+
+		 select { width:100% !important}
+		.w5{width:5% !important}
+		.w15{width:15% !important}
+		.w25{width:25% !important}
+		.w100{width:100% !important}
+		
+		div.subheadnew{
+		 padding : 2px 15px !important;
+		}
+
 .print-header {
 	display: none;
 }
