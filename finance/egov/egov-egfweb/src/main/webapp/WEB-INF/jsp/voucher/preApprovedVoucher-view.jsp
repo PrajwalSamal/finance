@@ -205,6 +205,7 @@
 			<h2>
 				Housing and Urban Development<br />Department
 			</h2>
+			<h2><s:property value="ulbName"/></h2>
 		</div>
 
 	</div>
@@ -228,11 +229,12 @@
 			<div class="subheadnew">Voucher View</div>
 			<table border="0" width="100%" cellspacing="0">
 				<tr>
-					<td width="10%" class="greybox"><b>Voucher Number : </b></td>
-					<td width="25%" class="greybox"><s:property
+				    <td class="bluebox w5">&nbsp;</td>
+					<td width="10%" class="bluebox"><b>Voucher Number : </b></td>
+					<td width="25%" class="bluebox"><s:property
 							value="%{voucherHeader.voucherNumber}" /></td>
-					<td width="10%" class="greybox"><b> Date :</b></td>
-					<td width="25%" class="greybox"><s:date
+					<td width="10%" class="bluebox"><b> Date :</b></td>
+					<td width="25%" class="bluebox"><s:date
 							name="voucherHeader.voucherDate" format="dd/MM/yyyy" /></td>
 				</tr>
 			</table>
