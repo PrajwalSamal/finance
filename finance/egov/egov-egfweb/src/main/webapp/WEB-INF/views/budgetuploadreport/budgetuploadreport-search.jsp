@@ -59,9 +59,7 @@
 		<div class="row">
 			<div class="col-md-12">
 				<div class="panel panel-primary" data-collapsed="0">
-					<div class="panel-heading">
-						<div class="panel-title"><spring:message code="lbl.budget.upload.report" text="Budget Upload Report"/> </div>
-					</div>
+					<div class="subheadnew" style="display: flex;justify-content: center;align-items: center;"><s:text name="lbl.budget.upload.report"/> </div>
 					<div class="panel-body">
 						<div class="form-group">
 							<label class="col-sm-3 control-label text-right"><spring:message
@@ -142,7 +140,7 @@
 	</div>
 </form:form>
 <div class="row display-hide report-section">
-	<div class="col-md-12 table-header text-left"><spring:message code="lbl.budget.upload.report.result" text="Budget Upload Report Result"/> </div>
+	<div class="col-md-12 table-header" style="text-align: center;"><spring:message code="lbl.budget.upload.report.result" text="Budget Upload Report Result"/> </div>
 	<div class="col-md-12 form-group report-table-container">
 		<table class="table table-bordered table-hover multiheadertbl"
 			id="resultTable">
