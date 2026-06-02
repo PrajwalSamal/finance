@@ -6,23 +6,23 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.CredentialsContainer;
+import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.stereotype.Service;
-
-// REMOVED DEPRECATED IMPORT:
-// import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 
 import java.util.List;
 
-@Service("customAuthenticationManager") // Added explicit name for better autowiring
+@Service
 @Slf4j
 public class CustomAuthenticationManager implements AuthenticationManager {
 
     private boolean eraseCredentialsAfterAuthentication = true;
 
+
+    @Autowired
     private List<AuthenticationProvider> authenticationProviders;
 
     @Autowired
-    public CustomAuthenticationManager(List<AuthenticationProvider> authenticationProviders) {
+    CustomAuthenticationManager(List<AuthenticationProvider> authenticationProviders) {
         this.authenticationProviders = authenticationProviders;
     }
 
@@ -30,7 +30,6 @@ public class CustomAuthenticationManager implements AuthenticationManager {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         Class<? extends Authentication> toTest = authentication.getClass();
         Authentication result = null;
-        AuthenticationException lastException = null;
 
         for (AuthenticationProvider provider : authenticationProviders) {
             if (!provider.supports(toTest)) {
@@ -50,28 +49,25 @@ public class CustomAuthenticationManager implements AuthenticationManager {
                 // invalid account status
                 throw e;
             } catch (AuthenticationException e) {
-                lastException = e;
-                log.error("Unable to authenticate with provider " + provider.getClass().getName(), e);
+                log.error("Unable to authenticate", e);
             }
         }
 
+
         if (result != null) {
-            if (eraseCredentialsAfterAuthentication && (result instanceof CredentialsContainer)) {
+            if (eraseCredentialsAfterAuthentication
+                    && (result instanceof CredentialsContainer)) {
                 // Authentication is complete. Remove credentials and other secret data
                 // from authentication
                 ((CredentialsContainer) result).eraseCredentials();
             }
 
             return result;
-        } else {
-            // CHANGED: OAuth2Exception -> BadCredentialsException
-            if (lastException != null) {
-                throw lastException;
-            } else {
-                throw new BadCredentialsException("AUTHENTICATION_FAILURE, unable to authenticate user");
-            }
-        }
+        } else
+            throw new OAuth2Exception("AUTHENTICATION_FAILURE, unable to authenticate user");
+
     }
+
 
     /**
      * Copies the authentication details from a source Authentication object to a
@@ -83,17 +79,9 @@ public class CustomAuthenticationManager implements AuthenticationManager {
     private void copyDetails(Authentication source, Authentication dest) {
         if ((dest instanceof AbstractAuthenticationToken) && (dest.getDetails() == null)) {
             AbstractAuthenticationToken token = (AbstractAuthenticationToken) dest;
+
             token.setDetails(source.getDetails());
         }
     }
 
-    // OPTIONAL: Setter for eraseCredentialsAfterAuthentication if needed
-    public void setEraseCredentialsAfterAuthentication(boolean eraseCredentialsAfterAuthentication) {
-        this.eraseCredentialsAfterAuthentication = eraseCredentialsAfterAuthentication;
-    }
-
-    // OPTIONAL: Getter for debugging/testing
-    public List<AuthenticationProvider> getAuthenticationProviders() {
-        return authenticationProviders;
-    }
 }

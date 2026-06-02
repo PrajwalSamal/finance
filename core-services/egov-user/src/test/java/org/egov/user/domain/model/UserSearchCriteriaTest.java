@@ -1,8 +1,7 @@
 package org.egov.user.domain.model;
 
 import org.egov.user.domain.exception.InvalidUserSearchCriteriaException;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.Test;
 
 public class UserSearchCriteriaTest {
 
@@ -16,7 +15,7 @@ public class UserSearchCriteriaTest {
         searchCriteria.validate(true);
     }
 
-//    @Test(expected = InvalidUserSearchCriteriaException.class)
+    @Test(expected = InvalidUserSearchCriteriaException.class)
     public void test_should_throw_exception_when_tenant_id_is_not_present() {
         final UserSearchCriteria searchCriteria = UserSearchCriteria.builder()
                 .tenantId(null)

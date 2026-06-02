@@ -1,14 +1,13 @@
 package org.egov.user.web.contract;
 
 import lombok.*;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.user.config.UserServiceConstants;
 import org.egov.user.domain.model.enums.UserType;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /*
 	Update password request by non logged in user

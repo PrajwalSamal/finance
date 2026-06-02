@@ -4,27 +4,29 @@ import org.egov.user.Resources;
 import org.egov.user.domain.model.OtpValidationRequest;
 import org.egov.user.web.contract.Otp;
 import org.egov.user.web.contract.OtpValidateRequest;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.springframework.test.web.client.ExpectedCount.once;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-
+@RunWith(MockitoJUnitRunner.class)
 public class OtpRepositoryTest {
 
     private OtpRepository otpRepository;
     private MockRestServiceServer server;
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         server = MockRestServiceServer.bindTo(restTemplate).build();
@@ -34,7 +36,7 @@ public class OtpRepositoryTest {
         this.otpRepository = new OtpRepository(otpHost, otpSearchContext, otpValidateContext, restTemplate);
     }
 
-//    @Test
+    @Test
     public void testShouldReturnTrueWhenOtpHasBeenValidated() throws Exception {
         server.expect(once(), requestTo("http://otp-host.com/otp/_search")).andExpect(method(HttpMethod.POST))
                 .andExpect(content().string(new Resources().getFileContents("otpSearchSuccessRequest.json")))
@@ -49,7 +51,7 @@ public class OtpRepositoryTest {
     }
 
     @Test
-    @Disabled
+    @Ignore
     public void testShouldReturnTrueWhenOtpInValidated() throws Exception {
         server.expect(once(), requestTo("http://otp-host.com/otp/_validate")).andExpect(method(HttpMethod.POST))
                 .andExpect(content().string(new Resources().getFileContents("otpValidationRequest.json")))
@@ -64,7 +66,7 @@ public class OtpRepositoryTest {
     }
 
     @Test
-    @Disabled
+    @Ignore
     public void testShouldReturnTrueWhenOtpValidated() throws Exception {
         server.expect(once(), requestTo("http://otp-host.com/otp/_validate")).andExpect(method(HttpMethod.POST))
                 .andExpect(content().string(new Resources().getFileContents("otpValidationRequest.json")))
@@ -79,7 +81,7 @@ public class OtpRepositoryTest {
     }
 
 
-//    @Test
+    @Test
     public void testShouldReturnFalseWhenOtpHasNotBeenValidated() throws Exception {
         server.expect(once(), requestTo("http://otp-host.com/otp/_search")).andExpect(method(HttpMethod.POST))
                 .andExpect(content().string(new Resources().getFileContents("otpSearchSuccessRequest.json")))
@@ -92,7 +94,7 @@ public class OtpRepositoryTest {
         assertFalse(isOtpValidated);
     }
 
-//    @Test
+    @Test
     public void testShouldReturnFalseWhenOtpIdentityDoesNotMatch() throws Exception {
         server.expect(once(), requestTo("http://otp-host.com/otp/_search")).andExpect(method(HttpMethod.POST))
                 .andExpect(content().string(new Resources().getFileContents("otpSearchSuccessRequest.json")))

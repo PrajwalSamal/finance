@@ -4,18 +4,17 @@ import org.egov.user.domain.exception.InvalidUserCreateException;
 import org.egov.user.domain.exception.InvalidUserUpdateException;
 import org.egov.user.domain.model.enums.Gender;
 import org.egov.user.domain.model.enums.UserType;
-
+import org.junit.Test;
 
 import java.util.*;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UserTest {
 
-//    @Test(expected = InvalidUserCreateException.class)
+    @Test(expected = InvalidUserCreateException.class)
     public void testUserWithEmptyNameIsInvalid() throws Exception {
         User user = User.builder()
                 .mobileNumber("8899776655")
@@ -29,7 +28,7 @@ public class UserTest {
         user.validateNewUser();
     }
 
-//    @Test(expected = InvalidUserCreateException.class)
+    @Test(expected = InvalidUserCreateException.class)
     public void testUserWithEmptyUserNameIsInvalid() throws Exception {
         User user = User.builder()
                 .mobileNumber("8899776655")
@@ -43,7 +42,7 @@ public class UserTest {
         user.validateNewUser();
     }
 
-//    @Test(expected = InvalidUserCreateException.class)
+    @Test(expected = InvalidUserCreateException.class)
     public void testUserWithEmptyMobileIsInvalid() throws Exception {
         User user = User.builder()
                 .username("foolan_devi")
@@ -58,7 +57,7 @@ public class UserTest {
         user.validateNewUser();
     }
 
-//    @Test(expected = InvalidUserCreateException.class)
+    @Test(expected = InvalidUserCreateException.class)
     public void testUserWithEmptyTypeIsInvalid() throws Exception {
         User user = User.builder()
                 .username("foolan_devi")
@@ -72,7 +71,7 @@ public class UserTest {
         user.validateNewUser();
     }
 
-//    @Test(expected = InvalidUserCreateException.class)
+    @Test(expected = InvalidUserCreateException.class)
     public void test_should_throw_exception_when_tenant_id_is_not_present() {
         User user = User.builder()
                 .username("foolan_devi")
@@ -88,7 +87,7 @@ public class UserTest {
         user.validateNewUser();
     }
 
-//    @Test(expected = InvalidUserCreateException.class)
+    @Test(expected = InvalidUserCreateException.class)
     public void test_should_throw_exception_when_roles_is_not_present() {
         User user = User.builder()
                 .username("foolan_devi")
@@ -105,7 +104,7 @@ public class UserTest {
         user.validateNewUser();
     }
 
-//    @Test(expected = InvalidUserCreateException.class)
+    @Test(expected = InvalidUserCreateException.class)
     public void test_should_throw_exception_when_role_code_is_not_present() {
         final Role role1 = Role.builder().code("roleCode1").build();
         final Role role2 = Role.builder().code(null).build();
@@ -143,7 +142,7 @@ public class UserTest {
         assertFalse(user.isIdAbsent());
     }
 
-//    @Test(expected = InvalidUserCreateException.class)
+    @Test(expected = InvalidUserCreateException.class)
     public void test_should_throw_validation_exception_when_otp_reference_is_not_present_and_mandatory_flag_is_enabled() {
         User user = User.builder()
                 .otpReference(null)
@@ -153,7 +152,7 @@ public class UserTest {
         user.validateNewUser();
     }
 
-//    @Test(expected = InvalidUserCreateException.class)
+    @Test(expected = InvalidUserCreateException.class)
     public void test_should_throw_validation_exception_when_permanent_address_is_not_valid() {
         final Address permanentAddress = mock(Address.class);
         when(permanentAddress.isInvalid()).thenReturn(true);
@@ -165,7 +164,7 @@ public class UserTest {
         user.validateNewUser();
     }
 
-//    @Test(expected = InvalidUserCreateException.class)
+    @Test(expected = InvalidUserCreateException.class)
     public void test_should_throw_validation_exception_when_correspondence_address_is_not_valid() {
         final Address correspondence = mock(Address.class);
         when(correspondence.isInvalid()).thenReturn(true);
@@ -177,7 +176,7 @@ public class UserTest {
         user.validateNewUser();
     }
 
-//    @Test(expected = InvalidUserUpdateException.class)
+    @Test(expected = InvalidUserUpdateException.class)
     public void test_should_throw_validation_exception_for_update_when_permanent_address_is_not_valid() {
         final Address permanentAddress = mock(Address.class);
         when(permanentAddress.isInvalid()).thenReturn(true);
@@ -190,7 +189,7 @@ public class UserTest {
         user.validateUserModification();
     }
 
-//    @Test(expected = InvalidUserUpdateException.class)
+    @Test(expected = InvalidUserUpdateException.class)
     public void test_should_throw_validation_exception_for_update_when_correspondence_address_is_not_valid() {
         final Address correspondence = mock(Address.class);
         when(correspondence.isInvalid()).thenReturn(true);
@@ -203,7 +202,7 @@ public class UserTest {
         user.validateUserModification();
     }
 
-//    @Test(expected = InvalidUserUpdateException.class)
+    @Test(expected = InvalidUserUpdateException.class)
     public void test_should_throw_validation_exception_for_update_when_tenant_id_is_absent() {
         User user = User.builder()
                 .tenantId(null)
@@ -326,9 +325,7 @@ public class UserTest {
         assertNull(user.getMobileNumber());
         assertNull(user.getPassword());
         assertNull(user.getPasswordExpiryDate());
-        // Roles should NOT be nullified as they are required for gateway RBAC
-        assertNotNull(user.getRoles());
-        assertEquals(2, user.getRoles().size());
+        assertNull(user.getRoles());
     }
 
     @Test

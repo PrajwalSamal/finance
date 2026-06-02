@@ -1,10 +1,11 @@
 package org.egov.user.domain.model;
 
+import org.junit.Test;
 
 import java.util.Collections;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class AddressTest {
 

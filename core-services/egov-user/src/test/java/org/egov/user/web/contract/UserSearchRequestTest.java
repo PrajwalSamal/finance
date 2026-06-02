@@ -2,7 +2,8 @@ package org.egov.user.web.contract;
 
 import org.egov.user.domain.model.UserSearchCriteria;
 import org.egov.user.domain.model.enums.UserType;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

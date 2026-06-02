@@ -4,13 +4,12 @@ import org.egov.user.domain.model.Address;
 import org.egov.user.domain.model.Role;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.enums.*;
+import org.junit.Test;
 
 import java.util.*;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 public class UserRequestTest {
 

@@ -2,7 +2,8 @@ package org.egov.user.persistence.repository;
 
 import org.egov.user.Resources;
 import org.egov.user.domain.model.Action;
-
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -11,9 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.client.ExpectedCount.once;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -28,7 +27,7 @@ public class ActionRestRepositoryTest {
     private ActionRestRepository actionRestRepository;
     private MockRestServiceServer server;
 
-    @BeforeEach
+    @Before
     public void before() {
         final RestTemplate restTemplate = new RestTemplate();
         actionRestRepository = new ActionRestRepository(restTemplate, HOST, ROLE_ACTION);
@@ -44,7 +43,7 @@ public class ActionRestRepositoryTest {
 				.andRespond(withSuccess(resources.getFileContents("actionsResponse.json"),
 						MediaType.APPLICATION_JSON_UTF8));
 
-		final List<Action> actions = actionRestRepository.getActionByRoleCodes(getRoles(), "default", null);
+		final List<Action> actions = actionRestRepository.getActionByRoleCodes(getRoles(), "default");
 
 		server.verify();
 		assertEquals(2, actions.size());

@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.egov.user.domain.model.Address;
 import org.egov.user.domain.model.Role;
 import org.egov.user.domain.model.User;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Slf4j
 public class UserSearchResponseContent {
 
     private Long id;
@@ -102,8 +100,6 @@ public class UserSearchResponseContent {
         this.lastModifiedDate = user.getLastModifiedDate();
         this.tenantId = user.getTenantId();
         this.roles = convertDomainRolesToContract(user.getRoles());
-        log.info("UserSearchResponseContent - User {} (UUID: {}) converted {} roles to contract",
-                 user.getId(), user.getUuid(), this.roles != null ? this.roles.size() : 0);
         this.fatherOrHusbandName = user.getGuardian();
         this.relationship = user.getGuardianRelation();
         this.uuid = user.getUuid();
@@ -220,11 +216,8 @@ public class UserSearchResponseContent {
                     })
                     .collect(Collectors.toSet());
             user.setRoles(roleEntities);
-        } else {
-            // CRITICAL FIX: Ensure roles is never null, always initialize to empty set
-            user.setRoles(new HashSet<>());
         }
-
+ 
         return user;
     }
 }
