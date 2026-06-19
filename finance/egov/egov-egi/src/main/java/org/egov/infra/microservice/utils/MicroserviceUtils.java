@@ -1569,6 +1569,52 @@ public class MicroserviceUtils {
         }
         return null;
     }
+    
+    public List<BusinessService> getBusinessServiceByBusinessServices(Set<String> businessServices) {
+        List<BusinessService> list = null;
+        List<ModuleDetail> moduleDetailsList = new ArrayList<>();
+
+        try {
+            if (businessServices != null && !businessServices.isEmpty()) {
+                for (String businessService : businessServices) {
+                    this.prepareModuleDetails(
+                            moduleDetailsList,
+                            "BillingService",
+                            "BusinessService",
+                            "businessService", // filter field
+                            businessService,
+                            String.class);
+                }
+            } else {
+                this.prepareModuleDetails(
+                        moduleDetailsList,
+                        "BillingService",
+                        "BusinessService",
+                        "businessService",
+                        null,
+                        String.class);
+            }
+
+            Map postForObject = mapper.convertValue(
+                    this.getMdmsData(moduleDetailsList, true, null, null),
+                    Map.class);
+
+            if (postForObject != null) {
+                return mapper.convertValue(
+                        JsonPath.read(postForObject,
+                                "$.MdmsRes.BillingService.BusinessService"),
+                        new TypeReference<List<BusinessService>>() {
+                        });
+            }
+
+        } catch (RestClientException e) {
+            LOGGER.error(
+                    "ERROR occurred while fetching business service details by businessService: ",
+                    e);
+        }
+
+        return null;
+    }
 
     public List<BusinessService> getBusinessService(String type) {
         List<BusinessService> list = null;

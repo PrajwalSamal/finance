@@ -771,11 +771,13 @@ function exportTableToExcel() {
 						style="width:3%">
 						<s:if test='%{collectionVersion eq "V2"}'>
 							<input name="selectedReceipts" type="checkbox"
-								id="selectedReceipts" value="${currentRow.paymentId}" />
+								id="selectedReceipts" 
+								value="${currentRow.paymentId}|${currentRow.serviceCat}|${currentRow.service}" />
 						</s:if>
 						<s:else>
 							<input name="selectedReceipts" type="checkbox"
-								id="selectedReceipts" value="${currentRow.receiptnumber}" />
+								id="selectedReceipts" 
+								value="${currentRow.receiptnumber}|${currentRow.serviceCat}|${currentRow.service}" />
 						</s:else>
 						<input type="hidden" name="receiptstatus" id="receiptstatus"
 							value="${currentRow.curretnStatus}" />
