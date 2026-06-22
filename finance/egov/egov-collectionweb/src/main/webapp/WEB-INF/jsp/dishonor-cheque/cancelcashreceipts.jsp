@@ -77,14 +77,14 @@
 </style>
 <script>
 var instrumentModeMendatoryMessage = "<spring:message code='msg.please.select.instrument.mode'/>";
-var chequeDDNumberMendatoryMessage = "<spring:message code='msg.please.enter.cheque.dd.number'/>";
+var receiptNumberMandatoryMessage = "<spring:message code='msg.please.enter.receipt.number'/>";
 var chequeDDLimitMessage = "<spring:message code='msg.cheque.dd.number.must.be.six.digit'/>";
-var chequeDDDateMendatoryMessage = "<spring:message code='msg.please.select.cheque.dd.date'/>";
+var receiptDateMandatoryMessage = "<spring:message code='msg.please.enter.receipt.date'/>";
 </script>
 
-<form:form role="form" modelAttribute="dishonoredChequeModel"
+<form:form role="form" modelAttribute="cancelCashReceiptModel"
 	id="dishonorChequeForm"
-	cssClass="form-horizontal form-groups-bordered" action="/services/collection/dishonour/cheque/submit"
+	cssClass="form-horizontal form-groups-bordered" action="/services/collection/cancel/cash_receipt/submit"
 	enctype="multipart/form-data" >
 	<div class="main-content">
 		<div class="row" id="dishonor-cheque-search">
@@ -92,7 +92,7 @@ var chequeDDDateMendatoryMessage = "<spring:message code='msg.please.select.cheq
 				<div class="panel panel-primary" data-collapsed="0">
 					<div class="panel-heading">
 						<div class="subheadnew" style="text-align: center">
-							<spring:message code="title.dishonor.cheque.dd" />
+							<spring:message code="title.cancel.cash.receipts" />
 						<div style="text-align: center;color: red;">${errorMessage }</div>
 						</div>
 					</div>
@@ -146,24 +146,24 @@ var chequeDDDateMendatoryMessage = "<spring:message code='msg.please.select.cheq
 						</div>
 						<div class="form-group">
 							<label class="col-sm-3 control-label text-right"><spring:message
-									code="lbl.cheque.dd.number" /> <span
+									code="lbl.rceipt.number" /> <span
 								class="mandatory"></span>:</label>
 							<div class="col-sm-3 add-margin">
-								<form:input path="instrumentNumber" id="instrumentNumberId"
+								<form:input path="receiptNumber" id="receiptNumberId"
 									class="form-control" required="required" autocomplete="off"
-									maxlength="6" onkeyup="decimalvalue(this);" />
-								<form:errors path="instrumentNumber"
+									maxlength="18" onkeyup="receiptNoValue(this);" />
+								<form:errors path="receiptNumber"
 									cssClass="add-margin error-msg" />
 							</div>
 							<label class="col-sm-2 control-label text-right"><spring:message
-									code="lbl.cheque.dd.date"/> <span
+									code="lbl.receipt.date"/> <span
 								class="mandatory"></span>:</label>
 							<div class="col-sm-3 add-margin">
-								<form:input id="instrumentDateId" path="transactionDate"
+								<form:input id="receiptDateId" path="receiptDate"
 									class="form-control datepicker" data-date-end-date="0d"
 									required="required" autocomplete="off"
 									data-inputmask="'mask': 'd/m/y'" placeholder="DD/MM/YYYY" />
-								<form:errors path="instrumentDate"
+								<form:errors path="receiptDate"
 									cssClass="add-margin error-msg" />
 							</div>
 						</div>
@@ -183,7 +183,7 @@ var chequeDDDateMendatoryMessage = "<spring:message code='msg.please.select.cheq
 						</div>
 						<div class="row display-hide report-section">
 							<div class="subheadnew col-md-12 table-header text-center"
-								id="surrenderChequeHeading"></div>
+								id="surrenderCashHeading"></div>
 							<!-- <div class="alert alert-success" role="alert"></div> -->
 							<div class="col-md-12 form-group report-table-container">
 								<table class="table table-bordered table-hover multiheadertbl"
@@ -352,4 +352,4 @@ var chequeDDDateMendatoryMessage = "<spring:message code='msg.please.select.cheq
 <script type="text/javascript"
 	src="<cdn:url value='/resources/global/js/jquery/plugins/jquery.validate.min.js' context='/services/egi'/>"></script>
 <script type="text/javascript"
-	src="<cdn:url value='/resources/js/dishonour_cheque.js?rnd=${app_release_no}'/>"></script>
+	src="<cdn:url value='/resources/js/cancel_cash_receipts.js?rnd=${app_release_no}'/>"></script>

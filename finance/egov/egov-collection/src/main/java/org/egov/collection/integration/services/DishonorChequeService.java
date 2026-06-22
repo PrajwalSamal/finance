@@ -89,12 +89,14 @@ import org.egov.infra.microservice.models.FinancialStatus;
 import org.egov.infra.microservice.models.Instrument;
 import org.egov.infra.microservice.models.InstrumentSearchContract;
 import org.egov.infra.microservice.models.InstrumentVoucher;
+import org.egov.infra.microservice.models.Payment;
 import org.egov.infra.microservice.models.PaymentWorkflow;
 import org.egov.infra.microservice.models.Receipt;
 import org.egov.infra.microservice.models.ReceiptResponse;
 import org.egov.infra.microservice.models.ReceiptSearchCriteria;
 import org.egov.infra.microservice.models.TransactionType;
 import org.egov.infra.microservice.utils.MicroserviceUtils;
+import org.egov.infra.microservice.utils.PaymentSearchCriteria;
 import org.egov.infra.validation.exception.ValidationError;
 import org.egov.infra.validation.exception.ValidationException;
 import org.egov.infstr.services.PersistenceService;
@@ -613,6 +615,97 @@ public class DishonorChequeService implements FinancialIntegrationService {
             throw e;
         }
     }
+    
+    public List<DishonoredChequeBean> getCollectionListForCancelCashInstrument(String instrumentMode,String bankId, String accountNumber, String receiptNumber,
+            Long receiptDate) {
+        try {
+        	String transactionNumber="";
+        	Long transactionDate = null;
+        	if(instrumentMode.equals("Cash")) {
+        		Set<String> receiptNumberSet = new HashSet<>();
+        		receiptNumberSet.add(receiptNumber);
+                List<Payment> payments = microserviceUtils.getPaymentsForCancelReceipt(
+                        PaymentSearchCriteria.builder()
+                        	.tenantId(ApplicationThreadLocals.getTenantID())
+                            .receiptNumbers(receiptNumberSet)
+                            .receiptDate(receiptDate)
+                            .build()
+                    );
+                if(payments != null && !payments.isEmpty()) {
+                   transactionNumber = payments.get(0).getTransactionNumber();
+                   transactionDate = payments.get(0).getTransactionDate();
+                }
+        	}
+            InstrumentSearchContract insSearchContra = new InstrumentSearchContract();
+            insSearchContra.setBankAccountNumber(accountNumber != null && Long.parseLong(accountNumber)  > 0 ? accountNumber : null);
+            insSearchContra.setInstrumentTypes(instrumentMode);
+            insSearchContra.setFinancialStatuses("Deposited");
+            insSearchContra.setTransactionType(TransactionType.Debit);
+            insSearchContra.setTransactionNumber(transactionNumber);
+            insSearchContra.setTransactionDate(new Date(transactionDate));
+            insSearchContra.setBankId(bankId);
+            List<Instrument> instList = microserviceUtils.getInstrumentsBySearchCriteria(insSearchContra );
+            Map<String, String> receiptInstMap = instList.stream().map(Instrument::getInstrumentVouchers).flatMap(x -> x.stream()).collect(Collectors.toMap(InstrumentVoucher::getReceiptHeaderId, InstrumentVoucher::getInstrument));
+            Set<String> receiptIds = receiptInstMap.keySet();
+            ReceiptSearchCriteria rSearchcriteria=null;
+            if (paymentSearchEndPointEnabled) {
+                final Set<String> serviceCodeLists = new HashSet();
+                final Set<String> accNumberList = new HashSet();
+                instList.stream().forEach(ins -> {
+                    accNumberList.add(ins.getBankAccount().getAccountNumber());
+                });
+                List<BankAccountServiceMapping> mappings = microserviceUtils
+                        .getBankAcntServiceMappingsByBankAcc(StringUtils.join(accNumberList, ","), null);
+                for (BankAccountServiceMapping basm : mappings) {
+                    serviceCodeLists.add(basm.getBusinessDetails());
+                }
+                rSearchcriteria = ReceiptSearchCriteria.builder().receiptNumbers(receiptIds)
+                        .businessCodes(serviceCodeLists).build();
+            } else {
+                rSearchcriteria = ReceiptSearchCriteria.builder().receiptNumbers(receiptIds).build();
+            }
+            List<Receipt> receipt = microserviceUtils.getReceipt(rSearchcriteria);
+            Map<String, Receipt> receiptIdToReceiptMap= null;
+            switch (ApplicationThreadLocals.getCollectionVersion().toUpperCase()) {
+            case "V2":
+                receiptIdToReceiptMap = receipt.stream().collect(Collectors.toMap(Receipt::getPaymentId, Function.identity()));
+                break;
+
+            default:
+                receiptIdToReceiptMap = receipt.stream().collect(Collectors.toMap(Receipt::getReceiptNumber, Function.identity()));
+                break;
+            }
+            final Map<String, Receipt> receiptIdToReceiptMapTemp = receiptIdToReceiptMap;
+            List<DishonoredChequeBean> dishonoredChequeList = new ArrayList<>();
+            instList.stream().filter(ins -> receiptIdToReceiptMapTemp.containsKey(ins.getInstrumentVouchers().get(0).getReceiptHeaderId())).forEach(ins -> {
+                DishonoredChequeBean chequeBean = new DishonoredChequeBean();
+                String voucherNumber = ins.getInstrumentVouchers().get(0).getVoucherHeaderId();
+                CVoucherHeader receiptVoucherHeader = getVoucherByNumber(voucherNumber);
+                CVoucherHeader payInSlipVoucher = getVoucherById(Long.parseLong(ins.getPayinSlipId()));
+                chequeBean.setReceiptNumber(receiptIdToReceiptMapTemp.get(ins.getInstrumentVouchers().get(0).getReceiptHeaderId()).getReceiptNumber());
+                chequeBean.setReceiptDate(receiptIdToReceiptMapTemp.get(ins.getInstrumentVouchers().get(0).getReceiptHeaderId()).getReceiptDate());
+                chequeBean.setVoucherNumber(receiptVoucherHeader.getVoucherNumber());
+                chequeBean.setVoucherHeaderId(receiptVoucherHeader.getId());
+                chequeBean.setReceiptSourceUrl(receiptVoucherHeader.getVouchermis().getSourcePath());
+                chequeBean.setInstrumentNumber(ins.getTransactionNumber());
+                chequeBean.setInstHeaderIds(ins.getId());
+                chequeBean.setInstrumentDate(ins.getTransactionDate().toString());
+                chequeBean.setTransactionDate(ins.getTransactionDate());
+                chequeBean.setInstrumentAmount(ins.getAmount());
+                chequeBean.setBankName(getBankName(ins));
+                chequeBean.setAccountNumber(ins.getBankAccount().getAccountNumber());
+                chequeBean.setPayTo(ins.getPayee());
+                chequeBean.setService(receiptIdToReceiptMapTemp.get(ins.getInstrumentVouchers().get(0).getReceiptHeaderId()).getService());
+                populateReceiptVoucherAccountDetails(receiptVoucherHeader, chequeBean);
+                populateReversalVoucherAccountDetails(receiptVoucherHeader, payInSlipVoucher, chequeBean);
+                dishonoredChequeList.add(chequeBean);
+            });
+            return dishonoredChequeList;
+        } catch (ObjectNotFoundException e) {
+            LOGGER.error("Error in Cheques Dishonoring Listing :: ",e);
+            throw e;
+        }
+    }
 
     private void populateReversalVoucherAccountDetails(CVoucherHeader receiptVoucher, CVoucherHeader payInSlipVoucher, DishonoredChequeBean chequeBean) {
         try {
@@ -870,9 +963,9 @@ public class DishonorChequeService implements FinancialIntegrationService {
     public void validateBeforeSearch(final DishonoredChequeBean chequeBean, final BindingResult resultBinder) {
         if (StringUtils.isEmpty(chequeBean.getInstrumentMode()) || chequeBean.getInstrumentMode() == null)
             resultBinder.reject("msg.please.select.instrument.mode");
-        if (StringUtils.isEmpty(chequeBean.getInstrumentNumber()) || chequeBean.getInstrumentNumber() == null)
-            resultBinder.reject("msg.please.enter.cheque.dd.number");
-        if (chequeBean.getTransactionDate() == null)
-            resultBinder.reject("msg.please.select.cheque.dd.date");
+        if (StringUtils.isEmpty(chequeBean.getReceiptNumber()) || chequeBean.getReceiptNumber() == null)
+            resultBinder.reject("msg.please.enter.receipt.number");
+        if (chequeBean.getReceiptDate() == null)
+            resultBinder.reject("msg.please.select.receipt.date");
     }
 }
