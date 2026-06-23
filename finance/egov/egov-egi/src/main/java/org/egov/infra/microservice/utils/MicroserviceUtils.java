@@ -1791,6 +1791,26 @@ public class MicroserviceUtils {
         }
         return null;
     }
+    
+    public List<Payment> getPaymentsForCancelReceipt(PaymentSearchCriteria searchCriteria) {
+        PaymentResponse response = null;
+        StringBuilder url = new StringBuilder();
+        url = new StringBuilder(appConfigManager.getEgovCollSerHost())
+                        .append(appConfigManager.getCollSerReceiptPaymentSearch()).append("?");
+        		
+        final RequestInfo requestInfo = getRequestInfo();
+        RequestInfoWrapper reqWrapper = new RequestInfoWrapper();
+        reqWrapper.setRequestInfo(requestInfo);
+        try {
+            preparePaymentSearchQueryString(searchCriteria, url);
+            response = restTemplate.postForObject(url.toString(), reqWrapper, PaymentResponse.class);
+            return response!=null ? response.getPayments() : null;
+
+        } catch (RestClientException e) {
+            LOGGER.error("ERROR occurred while fetching the Payment list : ", e);
+        }
+        return null;
+    }
 
     public StorageResponse getFileStorageService(final List<MultipartFile> files, String modulename)
             throws IOException {
@@ -1850,6 +1870,9 @@ public class MicroserviceUtils {
         url.append("tenantId=").append(searchCriteria.getTenantId());
         if (CollectionUtils.isNotEmpty(searchCriteria.getReceiptNumbers())) {
             url.append("&receiptNumbers=").append(StringUtils.join(searchCriteria.getReceiptNumbers(), ","));
+        }
+        if (CollectionUtils.isNotEmpty(searchCriteria.getReceiptNumbers())) {
+            url.append("&receiptDate=").append(searchCriteria.getReceiptDate());
         }
         if (CollectionUtils.isNotEmpty(searchCriteria.getStatus())) {
             url.append("&status=").append(StringUtils.join(searchCriteria.getStatus(), ","));

@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class PaymentService {
 
@@ -210,6 +212,33 @@ public class PaymentService {
             return Collections.emptyList();
 
         PaymentSearchCriteria criteria = PaymentSearchCriteria.builder().ids(new HashSet<String>(ids)).build();
+        return paymentRepository.fetchPaymentsForPlainSearch(criteria);
+    }
+    
+    public List<Payment> receiptSearch(PaymentSearchCriteria paymentSearchCriteria) {
+    	log.info("Payment search criteria in Receipt Search: " + "tenant " + paymentSearchCriteria.getTenantId() + "receipt number " + paymentSearchCriteria.getReceiptNumbers().toString() + "receipt date " + paymentSearchCriteria.getReceiptDate());
+        PaymentSearchCriteria searchCriteria = new PaymentSearchCriteria();
+        searchCriteria.setTenantId(paymentSearchCriteria.getTenantId());
+        searchCriteria.setReceiptNumbers(paymentSearchCriteria.getReceiptNumbers());
+        searchCriteria.setReceiptDate(paymentSearchCriteria.getReceiptDate());
+     
+//        if (applicationProperties.isPaymentsSearchPaginationEnabled()) {
+//            searchCriteria.setOffset(isNull(paymentSearchCriteria.getOffset()) ? 0 : paymentSearchCriteria.getOffset());
+//            searchCriteria.setLimit(isNull(paymentSearchCriteria.getLimit()) ? applicationProperties.getReceiptsSearchDefaultLimit() : paymentSearchCriteria.getLimit());
+//        } else {
+//            searchCriteria.setOffset(0);
+//            searchCriteria.setLimit(applicationProperties.getReceiptsSearchDefaultLimit());
+//        }
+     
+        List<String> ids = paymentRepository.fetchPaymentIdsByReceipt(searchCriteria);
+        if (ids.isEmpty())
+            return Collections.emptyList();
+     
+        PaymentSearchCriteria criteria = PaymentSearchCriteria.builder()
+                .ids(new HashSet<String>(ids))
+                .tenantId(paymentSearchCriteria.getTenantId())
+                .build();
+        
         return paymentRepository.fetchPaymentsForPlainSearch(criteria);
     }
 
