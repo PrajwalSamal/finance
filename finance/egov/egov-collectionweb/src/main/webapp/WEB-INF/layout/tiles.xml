@@ -78,7 +78,10 @@
         <put-attribute name="page-title" value="title.dishonour.surrender.cheque" cascade="true"/>
         <put-attribute name="body" value="/WEB-INF/jsp/dishonor-cheque/dishonor_cheque_form.jsp"/>
     </definition>
-    
+     <definition name="cancelcashreceipts" extends="base_layout">
+        <put-attribute name="page-title" value="title.dishonour.surrender.cheque" cascade="true"/>
+        <put-attribute name="body" value="/WEB-INF/jsp/dishonor-cheque/cancelcashreceipts.jsp"/>
+    </definition>
     <definition name="dishonor_cheque_success" extends="base_layout">
         <put-attribute name="page-title" value="title.dishonour.surrender.cheque" cascade="true"/>
         <put-attribute name="body" value="/WEB-INF/jsp/dishonor-cheque/dishonor_cheque_success.jsp"/>
