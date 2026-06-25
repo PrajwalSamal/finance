@@ -1052,9 +1052,10 @@ class PaymentQueryBuilderTest {
         HashSet<String> paymentModes = new HashSet<>();
         ArrayList<String> payerIds = new ArrayList<>();
         HashSet<String> consumerCodes = new HashSet<>();
+        Long receiptDate=1780252200000L;
         PaymentSearchCriteria paymentSearchCriteria = new PaymentSearchCriteria(ids, billIds, "42", tenantIds,
-                receiptNumbers, status, instrumentStatus, paymentModes, payerIds, consumerCodes, new HashSet<>(), "42", "42",
-                1L, 1L, 2, 1, true);
+                receiptNumbers,receiptDate, status, instrumentStatus, paymentModes, payerIds, consumerCodes, new HashSet<>(), "42", "42",
+                1L, 1L, 2, 1, true,true);
 
         HashMap<String, Object> stringObjectMap = new HashMap<>();
         assertEquals("SELECT py.*,pyd.*,py.id as py_id,py.tenantId as py_tenantId,py.totalAmountPaid as py_totalAmountPaid"

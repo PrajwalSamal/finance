@@ -345,4 +345,35 @@ public class PaymentRepository {
 				emptyAddtlParameterSource.toArray(new MapSqlParameterSource[0]));
 
 	}
+
+          public Long getPaymentCounts(PaymentSearchCriteria paymentSearchCriteria) {
+               Map<String, Object> preparedStatementValues = new HashMap<>();
+       String query = paymentQueryBuilder.getPaymentCountQuery(paymentSearchCriteria, preparedStatementValues);
+       return namedParameterJdbcTemplate.queryForObject(query, preparedStatementValues, Long.class);
+
+       }
+
+
+
+
+       public List<Payment> getPaymentsReport(PaymentSearchCriteria paymentSearchCriteria) {
+               Map<String, Object> preparedStatementValues = new HashMap<>();
+       String query = paymentQueryBuilder.getPaymentReportQuery(paymentSearchCriteria, preparedStatementValues);
+       List<Payment> payments = namedParameterJdbcTemplate.query(query, preparedStatementValues, paymentRowMapper);
+        if (!CollectionUtils.isEmpty(payments)) {
+            Set<String> billIds = new HashSet<>();
+            for (Payment payment : payments) {
+                billIds.addAll(payment.getPaymentDetails().stream().map(detail -> detail.getBillId()).collect(Collectors.toSet()));
+            }
+            Map<String, Bill> billMap = getBills(billIds);
+            for (Payment payment : payments) {
+                payment.getPaymentDetails().forEach(detail -> {
+                    detail.setBill(billMap.get(detail.getBillId()));
+                });
+            }
+            payments.sort(reverseOrder(Comparator.comparingLong(Payment::getTransactionDate)));
+        }
+
+        return payments;
+       }
 }
