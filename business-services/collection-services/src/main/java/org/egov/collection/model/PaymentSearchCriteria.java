@@ -3,7 +3,7 @@ package org.egov.collection.model;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +27,8 @@ public class PaymentSearchCriteria {
     private Set<String> tenantIds;
 
     private Set<String> receiptNumbers;
+    
+    private Long receiptDate;
 
     private Set<String> status;
 

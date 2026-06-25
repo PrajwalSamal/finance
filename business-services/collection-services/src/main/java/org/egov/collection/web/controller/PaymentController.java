@@ -45,7 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 
 import org.egov.collection.model.Payment;
 import org.egov.collection.model.PaymentRequest;
@@ -186,6 +186,19 @@ public class PaymentController {
 
         List<Payment> payments = paymentService.plainSearch(paymentSearchCriteria);
 
+        return getSuccessResponse(payments, requestInfo);
+    }
+    
+    @RequestMapping(value = "/_receiptsearch", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<PaymentResponse> receiptSearch(
+            @ModelAttribute PaymentSearchCriteria paymentSearchCriteria,
+            @RequestBody @Valid final RequestInfoWrapper requestInfoWrapper) {
+        
+        final RequestInfo requestInfo = requestInfoWrapper.getRequestInfo();
+        
+        List<Payment> payments = paymentService.receiptSearch(paymentSearchCriteria);
+        
         return getSuccessResponse(payments, requestInfo);
     }
 

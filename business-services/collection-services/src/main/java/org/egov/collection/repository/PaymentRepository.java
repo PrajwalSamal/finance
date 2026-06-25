@@ -241,42 +241,48 @@ public class PaymentRepository {
 
     }
 
-    public List<String> fetchPaymentIds(PaymentSearchCriteria criteria) {
-		/*
-		 * Map<String, Object> preparedStatementValues = new HashMap<>();
-		 * preparedStatementValues.put("offset", paymentSearchCriteria.getOffset());
-		 * preparedStatementValues.put("limit", paymentSearchCriteria.getLimit());
-		 * 
-		 * return namedParameterJdbcTemplate.
-		 * query("SELECT id from egcl_payment ORDER BY createdtime offset " + ":offset "
-		 * + "limit :limit", preparedStatementValues, new
-		 * SingleColumnRowMapper<>(String.class));
-		 */
-    		Map<String, Object> params = new HashMap<>();
-    	    StringBuilder query = new StringBuilder("SELECT id FROM egcl_payment WHERE 1=1 ");
-    	    if (criteria.getTenantId() != null) {
-    	        query.append(" AND tenantid = :tenantId ");
-    	        params.put("tenantId", criteria.getTenantId());
-    	    }
-    	    if (criteria.getFromDate() != null) {
-    	        query.append(" AND transactiondate >= :fromDate ");
-    	        params.put("fromDate", criteria.getFromDate());
-    	    }
-    	    if (criteria.getToDate() != null) {
-    	        query.append(" AND transactiondate  <= :toDate ");
-    	        params.put("toDate", criteria.getToDate());
-    	    }
-    	    query.append(" ORDER BY createdtime ");
-    	    query.append(" OFFSET :offset LIMIT :limit ");
+    public List<String> fetchPaymentIds(PaymentSearchCriteria paymentSearchCriteria) {
 
-    	    params.put("offset", criteria.getOffset());
-    	    params.put("limit", criteria.getLimit());
+        Map<String, Object> preparedStatementValues = new HashMap<>();
+        preparedStatementValues.put("offset", paymentSearchCriteria.getOffset());
+        preparedStatementValues.put("limit", paymentSearchCriteria.getLimit());
 
-    	    return namedParameterJdbcTemplate.query(
-    	        query.toString(),
-    	        params,
-    	        new SingleColumnRowMapper<>(String.class)
-    	    );
+        return namedParameterJdbcTemplate.query("SELECT id from egcl_payment ORDER BY createdtime offset " + ":offset " + "limit :limit", preparedStatementValues, new SingleColumnRowMapper<>(String.class));   
+}
+    
+    public List<String> fetchPaymentIdsByReceipt(PaymentSearchCriteria criteria) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder query = new StringBuilder(
+            "SELECT DISTINCT py.id FROM egcl_payment py " +
+            "INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid = py.id " +
+            "WHERE 1=1 "
+        );
+        
+        if (criteria.getTenantId() != null) {
+            query.append(" AND py.tenantid = :tenantId ");
+            params.put("tenantId", criteria.getTenantId());
+        }
+        
+        if (!CollectionUtils.isEmpty(criteria.getReceiptNumbers())) {
+            query.append(" AND pyd.receiptnumber IN (:receiptNumbers) ");
+            params.put("receiptNumbers", criteria.getReceiptNumbers());
+        }
+        
+        if (criteria.getReceiptDate() != null) {
+            query.append(" AND DATE(pyd.receiptdate) = DATE(:receiptDate) ");
+            params.put("receiptDate", new java.sql.Date(criteria.getReceiptDate()));
+        }
+        
+//        query.append(" ORDER BY py.createdtime DESC ");
+        query.append(" OFFSET :offset LIMIT :limit ");
+        params.put("offset", criteria.getOffset());
+        params.put("limit", criteria.getLimit());
+        
+        return namedParameterJdbcTemplate.query(
+            query.toString(),
+            params,
+            new SingleColumnRowMapper<>(String.class)
+        );
     }
 
     public List<String> fetchPaymentIdsByCriteria(PaymentSearchCriteria paymentSearchCriteria) {
