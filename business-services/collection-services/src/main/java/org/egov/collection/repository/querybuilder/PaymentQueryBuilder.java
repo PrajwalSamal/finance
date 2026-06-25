@@ -848,11 +848,84 @@ public class PaymentQueryBuilder {
 		return sqlParameterSource;
 
 	}
+    
+public String getPaymentCountQuery(PaymentSearchCriteria paymentSearchCriteria, Map<String, Object> preparedStatementValues) {
+       StringBuilder query = new StringBuilder(
+                   "SELECT count(distinct(py.id)) "+
+                   "FROM egcl_payment py " +
+                   "INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid = py.id " +
+                   "WHERE 1=1 "
+               );
+
+       if (paymentSearchCriteria.getBusinessServices() != null
+               && !paymentSearchCriteria.getBusinessServices().isEmpty()) {
+           query.append(" AND pyd.businessservice IN (:businessservices) ");
+           preparedStatementValues.put("businessservices", paymentSearchCriteria.getBusinessServices());
+       }
+
+       if (paymentSearchCriteria.getTenantId() != null && !paymentSearchCriteria.getTenantId().isEmpty()) {
+                   query.append(" AND py.tenantid = :tenantid ");
+                   preparedStatementValues.put("tenantid", paymentSearchCriteria.getTenantId());
+       }
+
+       if (paymentSearchCriteria.getFromDate() != null) {
+           query.append(" AND py.createdtime >= :fromDate ");
+           preparedStatementValues.put("fromDate", paymentSearchCriteria.getFromDate());
+       }
+
+       if (paymentSearchCriteria.getToDate() != null) {
+           query.append(" AND py.createdtime <= :toDate ");
+           preparedStatementValues.put("toDate", paymentSearchCriteria.getToDate());
+       }
+
+       if (paymentSearchCriteria.getReceiptNumbers() != null && !paymentSearchCriteria.getReceiptNumbers().isEmpty()) {
+               query.append(" AND pyd.receiptnumber IN (:receiptNumber) ");
+               preparedStatementValues.put("receiptNumber", paymentSearchCriteria.getReceiptNumbers());
+       }
+               return new String(query);
+       }
 
 
+       public String getPaymentReportQuery(PaymentSearchCriteria paymentSearchCriteria,
+                       Map<String, Object> preparedStatementValues) {
+//             StringBuilder query = new StringBuilder(
+//                         "SELECT DISTINCT py.id AS py_id, py.* " 
+//                         "FROM egcl_payment py " 
+//                         "INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid = py.id " 
+//                         "WHERE 1=1 "
+//                     );
 
+               StringBuilder query = new StringBuilder(
+                           SELECT_PAYMENT_SQL + " WHERE 1=1 "
+ );
 
+               if (paymentSearchCriteria.getBusinessServices() != null
+                       && !paymentSearchCriteria.getBusinessServices().isEmpty()) {
+                   query.append(" AND pyd.businessservice IN (:businessservices) ");
+                   preparedStatementValues.put("businessservices", paymentSearchCriteria.getBusinessServices());
+               }
 
+               if (paymentSearchCriteria.getTenantId() != null && !paymentSearchCriteria.getTenantId().isEmpty()) {
+                           query.append(" AND py.tenantid = :tenantid ");
+                           preparedStatementValues.put("tenantid", paymentSearchCriteria.getTenantId());
+               }
+
+               if (paymentSearchCriteria.getFromDate() != null) {
+                   query.append(" AND py.createdtime >= :fromDate ");
+                   preparedStatementValues.put("fromDate", paymentSearchCriteria.getFromDate());
+               }
+
+               if (paymentSearchCriteria.getToDate() != null) {
+                   query.append(" AND py.createdtime <= :toDate ");
+                   preparedStatementValues.put("toDate", paymentSearchCriteria.getToDate());
+               }
+
+               if (paymentSearchCriteria.getReceiptNumbers() != null && !paymentSearchCriteria.getReceiptNumbers().isEmpty()) {
+                       query.append(" AND pyd.receiptnumber IN (:receiptNumber) ");
+                       preparedStatementValues.put("receiptNumber", paymentSearchCriteria.getReceiptNumbers());
+               }
+                       return new String(query);
+       }
 
 
 }

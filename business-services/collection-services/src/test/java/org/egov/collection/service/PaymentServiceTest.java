@@ -715,9 +715,10 @@ class PaymentServiceTest {
         HashSet<String> paymentModes = new HashSet<>();
         ArrayList<String> payerIds = new ArrayList<>();
         HashSet<String> consumerCodes = new HashSet<>();
+        Long receiptDate=1780252200000L;
         List<Payment> actualPlainSearchResult = paymentService
-                .plainSearch(new PaymentSearchCriteria(ids, billIds, "42", tenantIds, receiptNumbers, status, instrumentStatus,
-                        paymentModes, payerIds, consumerCodes, new HashSet<>(), "42", "42", 3L, 3L, 2, 3, true));
+                .plainSearch(new PaymentSearchCriteria(ids, billIds, "42", tenantIds, receiptNumbers,receiptDate, status, instrumentStatus,
+                        paymentModes, payerIds, consumerCodes, new HashSet<>(), "42", "42", 3L, 3L, 2, 3, true,true));
         assertSame(paymentList, actualPlainSearchResult);
         assertTrue(actualPlainSearchResult.isEmpty());
 //        verify(paymentRepository).fetchPaymentIds((PaymentSearchCriteria) any());
