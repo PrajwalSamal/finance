@@ -165,6 +165,10 @@ function validateNew() {
     printWindow.close();
 }
 
+ exportAllReportToExcel(){
+		    window.location.href = "/services/receipts/exportAllReceiptExcel-report.action";
+	 }
+
 function exportTableToExcel() {
     var table = document.getElementById("resultTable");
 
@@ -762,9 +766,9 @@ function exportTableToExcel() {
 		<s:if test='%{!resultList.isEmpty()}'>
 
 			<div align="center">
-				<display:table id="resultTable" htmlId="resultTable" name="searchResult" uid="currentRow" 
+				<display:table id="resultTable" htmlId="resultTable" name="searchResult" uid="currentRow" pagesize="20" requestURI="/receipts/searchReceipt-search"
                   style="width:100%;border-left: 1px solid #DFDFDF;" cellpadding="0"
-                     cellspacing="0" export="false" requestURI=""> 
+                     cellspacing="0" export="false"> 
                      
 					<display:caption media="pdf">&nbsp;</display:caption>
 					<display:column headerClass="bluebgheadtd" class="blueborderfortd"
@@ -850,6 +854,9 @@ function exportTableToExcel() {
                      <input type="button" class="buttonsubmit"
                        value="Export to Excel"
                        onclick="exportTableToExcel()" />    
+                     <input type="button" class="buttonsubmit"
+                       value="Export All Receipt Excel"
+                       onclick="exportAllReportToExcel()" />
 				<%-- <egov-authz:authorize actionName="CancelReceipt">
   <input name="button32" type="button" class="buttonsubmit" id="button32" value="Cancel Receipt" onclick="return checkcancelforselectedrecord()"/>
   </egov-authz:authorize> --%>

@@ -1151,11 +1151,11 @@ public class ReceiptAction extends BaseFormAction {
 				sTypeId=getServiceCategory()+"."+getServiceTypeId();
 			
 		receiptlist = this.microserviceUtils.searchReciepts(null, null, null, sTypeId,
-					Arrays.asList(selectedReceipts));
+					Arrays.asList(selectedReceipts),null,null);
 		}else {
 		String receiptNosComma=receiptNos.stream().collect(Collectors.joining(","));
 		receiptlist = this.microserviceUtils.searchReciepts(null, null, null, serviceTypes,
-					Arrays.asList(receiptNosComma));
+					Arrays.asList(receiptNosComma),null,null);
 		}
 		
 		lReceipts=new ArrayList<ReceiptHeader>();
