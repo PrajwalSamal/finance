@@ -53,10 +53,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.log4j.Logger;
 import org.egov.commons.Accountdetailtype;
 import org.egov.commons.CChartOfAccountDetail;
 import org.egov.commons.CChartOfAccounts;
@@ -119,6 +121,8 @@ public class TransactionSummaryController {
 	@Autowired
 	@Qualifier("persistenceService")
 	private PersistenceService persistenceService;
+	
+	private static final Logger LOGGER = Logger.getLogger(TransactionSummaryController.class);
 
 	@Autowired
 	private FunctionDAO functionDAO;
@@ -138,76 +142,130 @@ public class TransactionSummaryController {
 		model.addAttribute("transactionSummaryDto", new TransactionSummaryDto());
 		return TRANSACTIONSUMMARY_NEW;
 	}
-
+	
 	@PostMapping(value = "/create")
-	public @ResponseBody ResponseEntity<?> create(@Valid @ModelAttribute final TransactionSummaryDto transactionSummaryDto,
-			final BindingResult errors, final Model model, final RedirectAttributes redirectAttrs,
-			HttpServletResponse response) {
-		List<TransactionSummary> transactionSummaries = new ArrayList<>();
-		transactionSummaries = removeEmptyRows(transactionSummaryDto.getTransactionSummaryList());
+	public @ResponseBody ResponseEntity<?> create(
+			@Valid @ModelAttribute final TransactionSummaryDto transactionSummaryDto, final BindingResult errors,
+			final Model model, final RedirectAttributes redirectAttrs, HttpServletResponse response) {
+		
 		try {
+			 List<TransactionSummary> transactionSummaries =
+		                removeEmptyRows(transactionSummaryDto.getTransactionSummaryList());
 			for (TransactionSummary ts : transactionSummaries) {
-				TransactionSummary transactionSummary = null;
-				if (ts.getId() != null) {
-					transactionSummary = transactionSummaryService.findOne(ts.getId());
-				} else {
-					transactionSummary = new TransactionSummary();
-				}
-				if (ts.getId() == null && ts.getGlcodeid() == null) {
-					// Ignore ts and move to next
-				} else if (ts.getId() != null && ts.getGlcodeid() == null) {
-					// delete this transaction
-					transactionSummaryService.delete(transactionSummary);
-				} else {
-					transactionSummary.setDepartmentCode(transactionSummaryDto.getDepartmentcode());
-					transactionSummary.setDivisionid(transactionSummaryDto.getDivisionid());
-					transactionSummary.setFinancialyear(
-							financialYearDAO.getFinancialYearById(transactionSummaryDto.getFinancialyear().getId()));
-
-					transactionSummary.setFunctionid((CFunction) persistenceService.find("from CFunction where id=?",
-							transactionSummaryDto.getFunctionid().getId()));
-					transactionSummary
-							.setFund(fundHibernateDAO.fundById(transactionSummaryDto.getFund().getId(), false));
-
-					transactionSummary.setAccountdetailkey(ts.getAccountdetailkey());
-					if (ts.getAccountdetailtype() != null && ts.getAccountdetailtype().getId() != null)
-						transactionSummary.setAccountdetailtype(
-								accountdetailtypeService.findOne(ts.getAccountdetailtype().getId()));
-					else
-						transactionSummary.setAccountdetailtype(null);
-
-					transactionSummary.setGlcodeid(
-							chartOfAccountsDAO.getCChartOfAccountsByGlCode(ts.getGlcodeDetail()));
-					transactionSummary.setNarration(ts.getNarration());
-					transactionSummary.setOpeningcreditbalance(
-							ts.getOpeningcreditbalance() == null ? BigDecimal.ZERO : ts.getOpeningcreditbalance());
-					transactionSummary.setOpeningdebitbalance(
-							ts.getOpeningdebitbalance() == null ? BigDecimal.ZERO : ts.getOpeningdebitbalance());
-					transactionSummaryService.create(transactionSummary);
-				}
+				
+				// Skip completely empty row
+	            if (ts.getId() == null && ts.getGlcodeid() == null) {
+	            	LOGGER.info("Skipping row (NOT SAVED) - Empty transaction row: {} "+ ts);
+	                continue;
+	            }
+	            
+	            // Fetch existing or create new
+	            TransactionSummary transactionSummary =
+	                    (ts.getId() != null)? transactionSummaryService.findOne(ts.getId()) : new TransactionSummary();
+	            
+	            if (ts.getId() != null && ts.getGlcodeid() == null) {
+	            	LOGGER.info("Deleting transaction summary - id: {} " + ts.getId());
+	                transactionSummaryService.delete(transactionSummary);
+	                continue;
+	            }
+				
+	            transactionSummary.setDepartmentCode(transactionSummaryDto.getDepartmentcode());
+	            transactionSummary.setDivisionid(transactionSummaryDto.getDivisionid());
+	            transactionSummary.setFinancialyear(financialYearDAO.getFinancialYearById(transactionSummaryDto.getFinancialyear().getId()));
+	            transactionSummary.setFunctionid((CFunction) persistenceService.find("from CFunction where id=?",transactionSummaryDto.getFunctionid().getId()));
+	            transactionSummary.setFund(fundHibernateDAO.fundById(transactionSummaryDto.getFund().getId(),false));
+	            transactionSummary.setAccountdetailkey(ts.getAccountdetailkey());
+	            transactionSummary.setAccountdetailtype((ts.getAccountdetailtype() != null && ts.getAccountdetailtype().getId() != null)
+	                            ? accountdetailtypeService.findOne(ts.getAccountdetailtype().getId()) : null);
+	            transactionSummary.setGlcodeid(chartOfAccountsDAO.getCChartOfAccountsByGlCode(ts.getGlcodeDetail()) );
+	            transactionSummary.setNarration(ts.getNarration());
+	            transactionSummary.setOpeningcreditbalance( ts.getOpeningcreditbalance() == null ? BigDecimal.ZERO : ts.getOpeningcreditbalance());
+	            transactionSummary.setOpeningdebitbalance( ts.getOpeningdebitbalance() == null ? BigDecimal.ZERO : ts.getOpeningdebitbalance());
+	            transactionSummaryService.create(transactionSummary);
 			}
-		} catch (HttpClientErrorException e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		return new ResponseEntity<>(HttpStatus.OK);
+			return new ResponseEntity<>(HttpStatus.OK);
+			
+		}  catch (HttpClientErrorException e) {
+			LOGGER.error("Error while creating transaction summaries", e);
+	        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
 	}
 
-	private List<TransactionSummary> removeEmptyRows(List<TransactionSummary> transactionSummaries) {
+	/*
+	 * @PostMapping(value = "/create") public @ResponseBody ResponseEntity<?>
+	 * create(
+	 * 
+	 * @Valid @ModelAttribute final TransactionSummaryDto transactionSummaryDto,
+	 * final BindingResult errors, final Model model, final RedirectAttributes
+	 * redirectAttrs, HttpServletResponse response) { List<TransactionSummary>
+	 * transactionSummaries = new ArrayList<>(); transactionSummaries =
+	 * removeEmptyRows(transactionSummaryDto.getTransactionSummaryList()); try { for
+	 * (TransactionSummary ts : transactionSummaries) { TransactionSummary
+	 * transactionSummary = null; if (ts.getId() != null) { transactionSummary =
+	 * transactionSummaryService.findOne(ts.getId()); } else { transactionSummary =
+	 * new TransactionSummary(); } if (ts.getId() == null && ts.getGlcodeid() ==
+	 * null) { // Ignore ts and move to next } else if (ts.getId() != null &&
+	 * ts.getGlcodeid() == null) { // delete this transaction
+	 * transactionSummaryService.delete(transactionSummary); } else {
+	 * transactionSummary.setDepartmentCode(transactionSummaryDto.getDepartmentcode(
+	 * )); transactionSummary.setDivisionid(transactionSummaryDto.getDivisionid());
+	 * transactionSummary.setFinancialyear(
+	 * financialYearDAO.getFinancialYearById(transactionSummaryDto.getFinancialyear(
+	 * ).getId()));
+	 * 
+	 * transactionSummary.setFunctionid((CFunction)
+	 * persistenceService.find("from CFunction where id=?",
+	 * transactionSummaryDto.getFunctionid().getId())); transactionSummary
+	 * .setFund(fundHibernateDAO.fundById(transactionSummaryDto.getFund().getId(),
+	 * false));
+	 * 
+	 * transactionSummary.setAccountdetailkey(ts.getAccountdetailkey()); if
+	 * (ts.getAccountdetailtype() != null && ts.getAccountdetailtype().getId() !=
+	 * null) transactionSummary.setAccountdetailtype(
+	 * accountdetailtypeService.findOne(ts.getAccountdetailtype().getId())); else
+	 * transactionSummary.setAccountdetailtype(null);
+	 * 
+	 * transactionSummary
+	 * .setGlcodeid(chartOfAccountsDAO.getCChartOfAccountsByGlCode(ts.
+	 * getGlcodeDetail())); transactionSummary.setNarration(ts.getNarration());
+	 * transactionSummary.setOpeningcreditbalance( ts.getOpeningcreditbalance() ==
+	 * null ? BigDecimal.ZERO : ts.getOpeningcreditbalance());
+	 * transactionSummary.setOpeningdebitbalance( ts.getOpeningdebitbalance() ==
+	 * null ? BigDecimal.ZERO : ts.getOpeningdebitbalance());
+	 * transactionSummaryService.create(transactionSummary); } } } catch
+	 * (HttpClientErrorException e) { return new
+	 * ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); } return new
+	 * ResponseEntity<>(HttpStatus.OK); }
+	 */
+	
+	private List<TransactionSummary> removeEmptyRows(List<TransactionSummary> list) {
+	    if (list == null) return new ArrayList<>();
 
-		List<TransactionSummary> tempTransactionSummaries = new ArrayList<>();
-		for (TransactionSummary transactionSummary : transactionSummaries)
-			if (transactionSummaries.size() != (tempTransactionSummaries.size() + 1))
-				tempTransactionSummaries.add(transactionSummary);
-
-		/**
-		 * Checking last row : if glcode is not there then delete row . else
-		 * keep the row
-		 **/
-		if (transactionSummaries.get(transactionSummaries.size() - 1).getGlcodeDetail() != null
-				&& !transactionSummaries.get(transactionSummaries.size() - 1).getGlcodeDetail().equals(""))
-			tempTransactionSummaries.add(transactionSummaries.get(transactionSummaries.size() - 1));
-		return tempTransactionSummaries;
+	    return list.stream()
+	        .filter(ts -> ts.getGlcodeDetail() != null && !ts.getGlcodeDetail().trim().isEmpty())
+	        .collect(Collectors.toList());
 	}
+
+	/*
+	 * private List<TransactionSummary> removeEmptyRows(List<TransactionSummary>
+	 * transactionSummaries) {
+	 * 
+	 * List<TransactionSummary> tempTransactionSummaries = new ArrayList<>(); for
+	 * (TransactionSummary transactionSummary : transactionSummaries) if
+	 * (transactionSummaries.size() != (tempTransactionSummaries.size() + 1))
+	 * tempTransactionSummaries.add(transactionSummary);
+	 * 
+	 *//**
+		 * Checking last row : if glcode is not there then delete row . else keep the
+		 * row
+		 **//*
+			 * if (transactionSummaries.get(transactionSummaries.size() -
+			 * 1).getGlcodeDetail() != null &&
+			 * !transactionSummaries.get(transactionSummaries.size() -
+			 * 1).getGlcodeDetail().equals(""))
+			 * tempTransactionSummaries.add(transactionSummaries.get(transactionSummaries.
+			 * size() - 1)); return tempTransactionSummaries; }
+			 */
 
 	@GetMapping(value = "/edit/{id}")
 	public String edit(@PathVariable("id") final Long id, Model model) {
@@ -246,7 +304,7 @@ public class TransactionSummaryController {
 
 	@GetMapping(value = "/ajax/getMajorHeads")
 	public @ResponseBody List<CChartOfAccounts> getMajorHeads(@RequestParam("type") Character type) {
-		return chartOfAccountsDAO.findByType(type); 
+		return chartOfAccountsDAO.findByType(type);
 	}
 
 	@GetMapping(value = "/ajax/getMinorHeads")
@@ -257,7 +315,8 @@ public class TransactionSummaryController {
 
 	@GetMapping(value = "/ajax/getAccounts")
 	public @ResponseBody List<CChartOfAccounts> getAccounts(@RequestParam("term") @SafeHtml String glcode,
-			@RequestParam("majorCode") @SafeHtml String majorCode, @RequestParam("classification") Long classification) {
+			@RequestParam("majorCode") @SafeHtml String majorCode,
+			@RequestParam("classification") Long classification) {
 		List<CChartOfAccounts> accounts = null;
 		if (majorCode != null) {
 			accounts = chartOfAccountsDAO.findByGlcodeLikeIgnoreCaseAndClassificationAndMajorCode(glcode + "%",
@@ -327,7 +386,7 @@ public class TransactionSummaryController {
 		return result;
 	}
 
-	@GetMapping (value = "/ajax/deleteTransaction")
+	@GetMapping(value = "/ajax/deleteTransaction")
 	public @ResponseBody String deleteTransaction(@RequestParam("id") Long id) {
 
 		if (id != null) {
