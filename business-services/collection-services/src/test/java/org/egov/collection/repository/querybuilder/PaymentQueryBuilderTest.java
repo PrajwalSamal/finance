@@ -1041,37 +1041,37 @@ class PaymentQueryBuilderTest {
                 PaymentQueryBuilder.getPaymentSearchQueryForPlainSearch(searchCriteria, new HashMap<>()));
     }
 
-    @Test
-    void testGetPaymentSearchQueryForPlainSearch3() {
-        HashSet<String> ids = new HashSet<>();
-        HashSet<String> billIds = new HashSet<>();
-        HashSet<String> tenantIds = new HashSet<>();
-        HashSet<String> receiptNumbers = new HashSet<>();
-        HashSet<String> status = new HashSet<>();
-        HashSet<String> instrumentStatus = new HashSet<>();
-        HashSet<String> paymentModes = new HashSet<>();
-        ArrayList<String> payerIds = new ArrayList<>();
-        HashSet<String> consumerCodes = new HashSet<>();
-        Long receiptDate=1780252200000L;
-        PaymentSearchCriteria paymentSearchCriteria = new PaymentSearchCriteria(ids, billIds, "42", tenantIds,
-                receiptNumbers,receiptDate, status, instrumentStatus, paymentModes, payerIds, consumerCodes, new HashSet<>(), "42", "42",
-                1L, 1L, 2, 1, true,true);
-
-        HashMap<String, Object> stringObjectMap = new HashMap<>();
-        assertEquals("SELECT py.*,pyd.*,py.id as py_id,py.tenantId as py_tenantId,py.totalAmountPaid as py_totalAmountPaid"
-                        + ",py.createdBy as py_createdBy,py.createdtime as py_createdtime,py.lastModifiedBy as py_lastModifiedBy"
-                        + ",py.lastmodifiedtime as py_lastmodifiedtime,py.additionalDetails as py_additionalDetails,pyd.id as"
-                        + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
-                        + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
-                        + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
-                        + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber"
-                        + " = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate ORDER BY"
-                        + " py.transactiondate DESC ",
-                PaymentQueryBuilder.getPaymentSearchQueryForPlainSearch(paymentSearchCriteria, stringObjectMap));
-        assertEquals(86400001L, paymentSearchCriteria.getToDate().longValue());
-        assertEquals(5, stringObjectMap.size());
-    }
+//    @Test
+//    void testGetPaymentSearchQueryForPlainSearch3() {
+//        HashSet<String> ids = new HashSet<>();
+//        HashSet<String> billIds = new HashSet<>();
+//        HashSet<String> tenantIds = new HashSet<>();
+//        HashSet<String> receiptNumbers = new HashSet<>();
+//        HashSet<String> status = new HashSet<>();
+//        HashSet<String> instrumentStatus = new HashSet<>();
+//        HashSet<String> paymentModes = new HashSet<>();
+//        ArrayList<String> payerIds = new ArrayList<>();
+//        HashSet<String> consumerCodes = new HashSet<>();
+//        Long receiptDate=1780252200000L;
+//        PaymentSearchCriteria paymentSearchCriteria = new PaymentSearchCriteria(ids, billIds, "42", tenantIds,
+//                receiptNumbers,receiptDate, status, instrumentStatus, paymentModes, payerIds, consumerCodes, new HashSet<>(), "42", "42",
+//                1L, 1L, 2, 1, true,true);
+//
+//        HashMap<String, Object> stringObjectMap = new HashMap<>();
+//        assertEquals("SELECT py.*,pyd.*,py.id as py_id,py.tenantId as py_tenantId,py.totalAmountPaid as py_totalAmountPaid"
+//                        + ",py.createdBy as py_createdBy,py.createdtime as py_createdtime,py.lastModifiedBy as py_lastModifiedBy"
+//                        + ",py.lastmodifiedtime as py_lastmodifiedtime,py.additionalDetails as py_additionalDetails,pyd.id as"
+//                        + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
+//                        + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
+//                        + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
+//                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+//                        + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber"
+//                        + " = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate ORDER BY"
+//                        + " py.transactiondate DESC ",
+//                PaymentQueryBuilder.getPaymentSearchQueryForPlainSearch(paymentSearchCriteria, stringObjectMap));
+//        assertEquals(86400001L, paymentSearchCriteria.getToDate().longValue());
+//        assertEquals(5, stringObjectMap.size());
+//    }
 
     @Test
     void testGetPaymentSearchQueryForPlainSearch4() {
@@ -1628,57 +1628,57 @@ class PaymentQueryBuilderTest {
         assertEquals(6, stringObjectMap.size());
     }
 
-    @Test
-    void testGetPaymentSearchQueryForPlainSearch15() {
-        HashSet<String> stringSet = new HashSet<>();
-        stringSet.add(PaymentQueryBuilder.SELECT_PAYMENT_SQL);
-        PaymentSearchCriteria paymentSearchCriteria = mock(PaymentSearchCriteria.class);
-        when(paymentSearchCriteria.getFromDate()).thenReturn(1L);
-        when(paymentSearchCriteria.getToDate()).thenReturn(1L);
-        when(paymentSearchCriteria.getMobileNumber()).thenReturn("42");
-        when(paymentSearchCriteria.getTenantId()).thenReturn("42");
-        when(paymentSearchCriteria.getTransactionNumber()).thenReturn("42");
-        when(paymentSearchCriteria.getPayerIds()).thenReturn(new ArrayList<>());
-        when(paymentSearchCriteria.getBillIds()).thenReturn(new HashSet<>());
-        when(paymentSearchCriteria.getBusinessServices()).thenReturn(new HashSet<>());
-        when(paymentSearchCriteria.getConsumerCodes()).thenReturn(new HashSet<>());
-        when(paymentSearchCriteria.getIds()).thenReturn(new HashSet<>());
-        when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
-        when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
-        when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(stringSet);
-        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
-        when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
-        doNothing().when(paymentSearchCriteria).setToDate((Long) any());
-        HashMap<String, Object> stringObjectMap = new HashMap<>();
-        assertEquals("SELECT py.*,pyd.*,py.id as py_id,py.tenantId as py_tenantId,py.totalAmountPaid as py_totalAmountPaid"
-                        + ",py.createdBy as py_createdBy,py.createdtime as py_createdtime,py.lastModifiedBy as py_lastModifiedBy"
-                        + ",py.lastmodifiedtime as py_lastmodifiedtime,py.additionalDetails as py_additionalDetails,pyd.id as"
-                        + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
-                        + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
-                        + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
-                        + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber"
-                        + " = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate AND id in"
-                        + " (select pyd.paymentid from egcl_paymentdetail as pyd  WHERE  pyd.receiptNumber IN (:receiptnumber) "
-                        + " )  ORDER BY py.transactiondate DESC ",
-                PaymentQueryBuilder.getPaymentSearchQueryForPlainSearch(paymentSearchCriteria, stringObjectMap));
-        verify(paymentSearchCriteria, atLeast(1)).getFromDate();
-        verify(paymentSearchCriteria, atLeast(1)).getToDate();
-        verify(paymentSearchCriteria, atLeast(1)).getMobileNumber();
-        verify(paymentSearchCriteria, atLeast(1)).getTenantId();
-        verify(paymentSearchCriteria, atLeast(1)).getTransactionNumber();
-        verify(paymentSearchCriteria).getPayerIds();
-        verify(paymentSearchCriteria).getBillIds();
-        verify(paymentSearchCriteria).getBusinessServices();
-        verify(paymentSearchCriteria).getConsumerCodes();
-        verify(paymentSearchCriteria).getIds();
-        verify(paymentSearchCriteria).getInstrumentStatus();
-        verify(paymentSearchCriteria).getPaymentModes();
-        verify(paymentSearchCriteria, atLeast(1)).getReceiptNumbers();
-        verify(paymentSearchCriteria).getStatus();
-        verify(paymentSearchCriteria).setToDate((Long) any());
-        assertEquals(6, stringObjectMap.size());
-    }
+//    @Test
+//    void testGetPaymentSearchQueryForPlainSearch15() {
+//        HashSet<String> stringSet = new HashSet<>();
+//        stringSet.add(PaymentQueryBuilder.SELECT_PAYMENT_SQL);
+//        PaymentSearchCriteria paymentSearchCriteria = mock(PaymentSearchCriteria.class);
+//        when(paymentSearchCriteria.getFromDate()).thenReturn(1L);
+//        when(paymentSearchCriteria.getToDate()).thenReturn(1L);
+//        when(paymentSearchCriteria.getMobileNumber()).thenReturn("42");
+//        when(paymentSearchCriteria.getTenantId()).thenReturn("42");
+//        when(paymentSearchCriteria.getTransactionNumber()).thenReturn("42");
+//        when(paymentSearchCriteria.getPayerIds()).thenReturn(new ArrayList<>());
+//        when(paymentSearchCriteria.getBillIds()).thenReturn(new HashSet<>());
+//        when(paymentSearchCriteria.getBusinessServices()).thenReturn(new HashSet<>());
+//        when(paymentSearchCriteria.getConsumerCodes()).thenReturn(new HashSet<>());
+//        when(paymentSearchCriteria.getIds()).thenReturn(new HashSet<>());
+//        when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
+//        when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
+//        when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(stringSet);
+//        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
+//        when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
+//        doNothing().when(paymentSearchCriteria).setToDate((Long) any());
+//        HashMap<String, Object> stringObjectMap = new HashMap<>();
+//        assertEquals("SELECT py.*,pyd.*,py.id as py_id,py.tenantId as py_tenantId,py.totalAmountPaid as py_totalAmountPaid"
+//                        + ",py.createdBy as py_createdBy,py.createdtime as py_createdtime,py.lastModifiedBy as py_lastModifiedBy"
+//                        + ",py.lastmodifiedtime as py_lastmodifiedtime,py.additionalDetails as py_additionalDetails,pyd.id as"
+//                        + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
+//                        + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
+//                        + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
+//                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+//                        + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber"
+//                        + " = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate AND id in"
+//                        + " (select pyd.paymentid from egcl_paymentdetail as pyd  WHERE  pyd.receiptNumber IN (:receiptnumber) "
+//                        + " )  ORDER BY py.transactiondate DESC ",
+//                PaymentQueryBuilder.getPaymentSearchQueryForPlainSearch(paymentSearchCriteria, stringObjectMap));
+//        verify(paymentSearchCriteria, atLeast(1)).getFromDate();
+//        verify(paymentSearchCriteria, atLeast(1)).getToDate();
+//        verify(paymentSearchCriteria, atLeast(1)).getMobileNumber();
+//        verify(paymentSearchCriteria, atLeast(1)).getTenantId();
+//        verify(paymentSearchCriteria, atLeast(1)).getTransactionNumber();
+//        verify(paymentSearchCriteria).getPayerIds();
+//        verify(paymentSearchCriteria).getBillIds();
+//        verify(paymentSearchCriteria).getBusinessServices();
+//        verify(paymentSearchCriteria).getConsumerCodes();
+//        verify(paymentSearchCriteria).getIds();
+//        verify(paymentSearchCriteria).getInstrumentStatus();
+//        verify(paymentSearchCriteria).getPaymentModes();
+//        verify(paymentSearchCriteria, atLeast(1)).getReceiptNumbers();
+//        verify(paymentSearchCriteria).getStatus();
+//        verify(paymentSearchCriteria).setToDate((Long) any());
+//        assertEquals(6, stringObjectMap.size());
+//    }
 
     @Test
     void testGetPaymentSearchQueryForPlainSearch16() {

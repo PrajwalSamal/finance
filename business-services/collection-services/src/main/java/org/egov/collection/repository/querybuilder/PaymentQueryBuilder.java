@@ -805,17 +805,17 @@ public class PaymentQueryBuilder {
             preparedStatementValues.put("toDate", searchCriteria.getToDate());
         }
         
-//        if (!CollectionUtils.isEmpty(searchCriteria.getReceiptNumbers())) {
-//            addClauseIfRequired(preparedStatementValues, selectQuery);
-//            selectQuery.append(" pyd.receiptnumber IN (:receiptNumbers)");
-//            preparedStatementValues.put("receiptNumbers", searchCriteria.getReceiptNumbers());
-//        }
+        if (!CollectionUtils.isEmpty(searchCriteria.getReceiptNumbers())) {
+            addClauseIfRequired(preparedStatementValues, selectQuery);
+            selectQuery.append(" pyd.receiptnumber IN (:receiptNumbers)");
+            preparedStatementValues.put("receiptNumbers", searchCriteria.getReceiptNumbers());
+        }
          
-//        if (searchCriteria.getReceiptDate() != null) {
-//            addClauseIfRequired(preparedStatementValues, selectQuery);
-//            selectQuery.append(" DATE(pyd.receiptdate) = DATE(:receiptDate)");
-//            preparedStatementValues.put("receiptDate", searchCriteria.getReceiptDate());
-//        }
+       if (searchCriteria.getReceiptDate() != null) {
+            addClauseIfRequired(preparedStatementValues, selectQuery);
+           selectQuery.append(" DATE(pyd.receiptdate) = DATE(:receiptDate)");
+            preparedStatementValues.put("receiptDate", searchCriteria.getReceiptDate());
+        }
         
         // && !searchCriteria.getReceiptDate().toString().isBlank()
 //        if (!CollectionUtils.isEmpty(searchCriteria.getReceiptNumbers()) == false
