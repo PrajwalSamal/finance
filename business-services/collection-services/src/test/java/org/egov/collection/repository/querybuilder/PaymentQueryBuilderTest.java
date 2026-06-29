@@ -1089,6 +1089,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(new HashSet<>());
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
@@ -1137,6 +1138,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(new HashSet<>());
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
@@ -1185,6 +1187,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(new HashSet<>());
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
@@ -1232,6 +1235,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(new HashSet<>());
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
@@ -1282,6 +1286,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(new HashSet<>());
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
@@ -1332,6 +1337,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(new HashSet<>());
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
@@ -1383,6 +1389,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(new HashSet<>());
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
@@ -1434,6 +1441,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(new HashSet<>());
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
@@ -1485,6 +1493,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(new HashSet<>());
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
@@ -1535,6 +1544,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(stringSet);
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(new HashSet<>());
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
@@ -1585,6 +1595,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(stringSet);
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(new HashSet<>());
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
@@ -1635,6 +1646,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(stringSet);
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
@@ -1686,6 +1698,7 @@ class PaymentQueryBuilderTest {
         when(paymentSearchCriteria.getInstrumentStatus()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getPaymentModes()).thenReturn(new HashSet<>());
         when(paymentSearchCriteria.getReceiptNumbers()).thenReturn(new HashSet<>());
+        when(paymentSearchCriteria.getReceiptDate()).thenReturn(null);
         when(paymentSearchCriteria.getStatus()).thenReturn(stringSet);
         doNothing().when(paymentSearchCriteria).setToDate((Long) any());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
