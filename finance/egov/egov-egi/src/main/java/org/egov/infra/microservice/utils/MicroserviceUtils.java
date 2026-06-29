@@ -1976,6 +1976,9 @@ public class MicroserviceUtils {
         if(searchCriteria.getIsCountRequest()!=null) {
         	url.append("&isCountRequest=").append(searchCriteria.getIsCountRequest());
         }
+        if(searchCriteria.getIsReport()!=null) {
+        	url.append("&isReport=").append(searchCriteria.getIsReport());
+        }
         if(searchCriteria.getOffset()!=null) {
         	url.append("&offset=").append(searchCriteria.getOffset());
         }

@@ -82,4 +82,6 @@ public class PaymentSearchCriteria {
     private Integer limit;
     
     private Boolean isCountRequest;
+    
+    private Boolean isReport;
 }

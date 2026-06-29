@@ -165,8 +165,8 @@ function validateNew() {
     printWindow.close();
 }
 
- exportAllReportToExcel(){
-		    window.location.href = "/services/receipts/exportAllReceiptExcel-report.action";
+function exportAllReportToExcel(){
+		    window.location.href = "/services/collection/receipts/exportAllReceiptExcel-report.action";
 	 }
 
 function exportTableToExcel() {
@@ -766,9 +766,10 @@ function exportTableToExcel() {
 		<s:if test='%{!resultList.isEmpty()}'>
 
 			<div align="center">
-				<display:table id="resultTable" htmlId="resultTable" name="searchResult" uid="currentRow" pagesize="20" requestURI="/receipts/searchReceipt-search"
+				<display:table id="resultTable" htmlId="resultTable" name="searchResult" uid="currentRow" 
                   style="width:100%;border-left: 1px solid #DFDFDF;" cellpadding="0"
-                     cellspacing="0" export="false"> 
+                     cellspacing="0" export="false" pagesize="20" 
+                      requestURI=""> 
                      
 					<display:caption media="pdf">&nbsp;</display:caption>
 					<display:column headerClass="bluebgheadtd" class="blueborderfortd"

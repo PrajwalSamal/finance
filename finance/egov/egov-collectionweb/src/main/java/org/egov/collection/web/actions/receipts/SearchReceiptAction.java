@@ -566,9 +566,17 @@ public class SearchReceiptAction extends SearchFormAction {
 
         List<Receipt> receipts = microserviceUtils.searchReciepts(
                 "MISCELLANEOUS", getFromDate(), getToDate(),
-                (effectiveServiceId !=null && !effectiveServiceId.isEmpty() && !effectiveServiceId.equals("-1") ?effectiveServiceId:null),
-                (getReceiptNumber() != null && !getReceiptNumber().isEmpty())
-                        ? getReceiptNumber() : null,offset,pageSize);
+                  (effectiveServiceId !=null && !effectiveServiceId.isEmpty() && !effectiveServiceId.equals("-1") ?effectiveServiceId:null),
+                 (getReceiptNumber() != null && !getReceiptNumber().isEmpty())
+                      ? getReceiptNumber() : null,offset,pageSize);
+        
+//        List<Receipt> receipts = microserviceUtils.receiptReport(
+//                "MISCELLANEOUS",
+//                getFromDate(),
+//                getToDate(),
+//                effectiveServiceId,
+//                getReceiptNumber(),
+//                true);
         
         // Get the count 
         boolean isCountRequest=true;
