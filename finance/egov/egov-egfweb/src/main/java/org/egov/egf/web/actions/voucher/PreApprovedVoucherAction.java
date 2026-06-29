@@ -551,9 +551,12 @@ public class PreApprovedVoucherAction extends GenericWorkFlowAction {
         }
 
        //heading = ReportUtil.getCityName();
-       heading = microserviceUtils.getHeaderNameForTenant().toUpperCase();
+//       heading = microserviceUtils.getHeaderNameForTenant().toUpperCase();
        
-       ulbName=cityRepository.findByCode(ApplicationThreadLocals.getTenantID()).getName();
+      
+       
+         ulbName=cityRepository.findByCode(ApplicationThreadLocals.getTenantID()).getName();
+         heading=ulbName;
         getMasterDataForBillVoucher();
         getHeaderMandateFields();
         
