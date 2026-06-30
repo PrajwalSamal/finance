@@ -1943,7 +1943,7 @@ public class MicroserviceUtils {
         if (CollectionUtils.isNotEmpty(searchCriteria.getReceiptNumbers())) {
             url.append("&receiptNumbers=").append(StringUtils.join(searchCriteria.getReceiptNumbers(), ","));
         }
-        if (CollectionUtils.isNotEmpty(searchCriteria.getReceiptNumbers())) {
+        if (CollectionUtils.isNotEmpty(searchCriteria.getReceiptNumbers()) && searchCriteria.getReceiptDate()!=null) {
             url.append("&receiptDate=").append(searchCriteria.getReceiptDate());
         }
         if (CollectionUtils.isNotEmpty(searchCriteria.getStatus())) {
