@@ -183,6 +183,18 @@ public class ApplicationProperties {
     private String fallBackLocale;
 
 
+    //Report
+
+    @Value("${businessservice.filer.isRequired}")
+    private Boolean isBusinessservice;
+
+    @Value("${todate.filter.isRequired}")
+    private Boolean isToDate;
+
+   @Value("${fromdate.filter.isRequired}")
+   private Boolean isFromDate;
+
+
     // Payment properties
 
     @Value("${kafka.topics.payment.create.name}")
