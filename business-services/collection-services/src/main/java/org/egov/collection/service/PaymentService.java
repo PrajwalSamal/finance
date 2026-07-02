@@ -274,6 +274,7 @@ public class PaymentService {
 		                               .toDate(applicationProperties.getIsToDate()?paymentSearchCriteria.getFromDate():toDate)
 		                               .businessServices(applicationProperties.getIsBusinessservice()?paymentSearchCriteria.getBusinessServices():null)
 		                               .receiptNumbers(null)
+		                               .tenantId(paymentSearchCriteria.getTenantId())
 		                               .build();
 		
 		
