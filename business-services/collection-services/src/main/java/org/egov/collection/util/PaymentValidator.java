@@ -573,7 +573,7 @@ public class PaymentValidator {
 	public void validateAndUpdateSearchRequestFromConfig(PaymentSearchCriteria paymentSearchCriteria, RequestInfo requestInfo, String moduleName) {
 
 		Map<String, String> errorMap = new HashMap<>();
-		//validateUserInfo(requestInfo, errorMap);
+		validateUserInfo(requestInfo, errorMap);
 		if (!errorMap.isEmpty())
 			throw new CustomException(errorMap);
 
