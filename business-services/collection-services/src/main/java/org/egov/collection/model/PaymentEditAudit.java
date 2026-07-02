@@ -1,7 +1,6 @@
 package org.egov.collection.model;
 
 
-import org.egov.collection.validation.SanitizeHtml;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -30,7 +29,6 @@ public class PaymentEditAudit {
 	   private String paymentId;
 	   
 	   @NotNull
-	   @SanitizeHtml
 	   @Size(max=64)
 	   @JsonProperty("receiptNumber")
 	   private String receiptNumber;
@@ -38,13 +36,12 @@ public class PaymentEditAudit {
 	   
 	   @NotNull
 	   @Size(max=2048)
-	   @SanitizeHtml
+	   
 	   @JsonProperty("modifiedFields")
 	   private String modifiedFields;
 	   
 	   @NotNull
 	   @Size(max=64)
-	   @SanitizeHtml
 	   @JsonProperty("modifiedBy")
 	   private String modifiedBy;
 	   
