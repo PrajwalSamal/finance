@@ -1710,7 +1710,8 @@ public class MicroserviceUtils {
         PaymentResponse response = null;
         StringBuilder url = new StringBuilder();
         if (paymentSearchEndPointEnabled) {
-        	if(!searchCriteria.getBusinessServices().isEmpty() && searchCriteria.getBusinessServices().size()>0) {
+        	if (searchCriteria.getBusinessServices() != null 
+        	        && !searchCriteria.getBusinessServices().isEmpty()) {
         		url = new StringBuilder(appConfigManager.getEgovCollSerHost())
                         .append(appConfigManager.getCollSerPaymentModuleNameSearch()).append("?");
         	}else {
@@ -1727,7 +1728,8 @@ public class MicroserviceUtils {
         try {
             preparePaymentSearchQueryString(searchCriteria, url);
             if (paymentSearchEndPointEnabled) {
-            	if(!searchCriteria.getBusinessServices().isEmpty() && searchCriteria.getBusinessServices().size()>0) {
+            	if(searchCriteria.getBusinessServices() != null 
+             	        && !searchCriteria.getBusinessServices().isEmpty()) {
             		for (String serviceCode :searchCriteria.getBusinessServices()) {
                         response = restTemplate.postForObject(url.toString(), reqWrapper, PaymentResponse.class,serviceCode);
                         }	
@@ -1746,25 +1748,25 @@ public class MicroserviceUtils {
         return null;
     }
     
-    public List<Payment> getPaymentsForCancelReceipt(PaymentSearchCriteria searchCriteria) {
-        PaymentResponse response = null;
-        StringBuilder url = new StringBuilder();
-        url = new StringBuilder(appConfigManager.getEgovCollSerHost())
-                        .append(appConfigManager.getCollSerReceiptPaymentSearch()).append("?");
-        		
-        final RequestInfo requestInfo = getRequestInfo();
-        RequestInfoWrapper reqWrapper = new RequestInfoWrapper();
-        reqWrapper.setRequestInfo(requestInfo);
-        try {
-            preparePaymentSearchQueryString(searchCriteria, url);
-            response = restTemplate.postForObject(url.toString(), reqWrapper, PaymentResponse.class);
-            return response!=null ? response.getPayments() : null;
-
-        } catch (RestClientException e) {
-            LOGGER.error("ERROR occurred while fetching the Payment list : ", e);
-        }
-        return null;
-    }
+	/*
+	 * public List<Payment> getPaymentsForCancelReceipt(PaymentSearchCriteria
+	 * searchCriteria) { PaymentResponse response = null; StringBuilder url = new
+	 * StringBuilder(); url = new
+	 * StringBuilder(appConfigManager.getEgovCollSerHost())
+	 * .append(appConfigManager.getCollSerReceiptPaymentSearch()).append("?");
+	 * 
+	 * final RequestInfo requestInfo = getRequestInfo(); RequestInfoWrapper
+	 * reqWrapper = new RequestInfoWrapper();
+	 * reqWrapper.setRequestInfo(requestInfo); try {
+	 * preparePaymentSearchQueryString(searchCriteria, url); response =
+	 * restTemplate.postForObject(url.toString(), reqWrapper,
+	 * PaymentResponse.class); return response!=null ? response.getPayments() :
+	 * null;
+	 * 
+	 * } catch (RestClientException e) {
+	 * LOGGER.error("ERROR occurred while fetching the Payment list : ", e); }
+	 * return null; }
+	 */
 
     public StorageResponse getFileStorageService(final List<MultipartFile> files, String modulename)
             throws IOException {
