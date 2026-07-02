@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.egov.collection.model.Payment;
 import org.egov.collection.model.PaymentDetail;
+import org.egov.collection.model.PaymentEditAudit;
 import org.egov.collection.model.PaymentSearchCriteria;
 import org.egov.collection.repository.querybuilder.PaymentQueryBuilder;
 import org.egov.collection.repository.rowmapper.BillRowMapper;
@@ -83,6 +84,29 @@ public class PaymentRepository {
             log.error("Failed to persist payment to database", e);
             throw new CustomException("PAYMENT_CREATION_FAILED", e.getMessage());
         }
+    }
+    
+ // for edit purpose 
+    
+    @Transactional
+    public void saveEditAudit(List<PaymentEditAudit> paymentEditAudits) {
+    	try {
+			
+    		if(CollectionUtils.isEmpty(paymentEditAudits)) 
+    			return;
+    		
+    		List<MapSqlParameterSource> editAuditSource = new ArrayList<>();
+    		
+    		for(PaymentEditAudit paymentEditAudit : paymentEditAudits) {
+    			editAuditSource.add(getParametersForPaymentEditAuditCreate(paymentEditAudit));
+    		}
+    		namedParameterJdbcTemplate.batchUpdate(INSERT_PAYMENT_EDIT_AUDIT_SQL, editAuditSource.toArray(new MapSqlParameterSource[0]));
+    		
+		} catch (Exception e) {
+			// TODO: handle exception
+			log.error("Failed to persist paymentedit audit to database" , e);
+			throw new CustomException("PAYMENT_EDIT_AUDIT_CREATION_FAILED" , e.getMessage());
+		}
     }
 
 
@@ -218,7 +242,7 @@ public class PaymentRepository {
             namedParameterJdbcTemplate.batchUpdate(COPY_PAYMENT_SQL, paymentSource.toArray(new MapSqlParameterSource[0]));
             namedParameterJdbcTemplate.batchUpdate(COPY_PAYMENTDETAIL_SQL, paymentDetailSource.toArray(new MapSqlParameterSource[0]));
             namedParameterJdbcTemplate.batchUpdate(COPY_BILL_SQL, billSource.toArray(new MapSqlParameterSource[0]));
-            namedParameterJdbcTemplate.batchUpdate(COPY_BILLDETAIL_SQL, billDetailSource.toArray(new MapSqlParameterSource[0]));
+//            namedParameterJdbcTemplate.batchUpdate(COPY_BILLDETAIL_SQL, billDetailSource.toArray(new MapSqlParameterSource[0]));
         }catch (Exception e){
             log.error("Failed to update receipt to database", e);
             throw new CustomException("RECEIPT_UPDATION_FAILED", "Unable to update receipt");
