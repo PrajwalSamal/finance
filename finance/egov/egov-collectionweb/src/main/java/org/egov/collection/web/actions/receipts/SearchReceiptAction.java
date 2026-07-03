@@ -172,7 +172,7 @@ public class SearchReceiptAction extends SearchFormAction {
 
 	@Autowired
 	private AppConfigValueService appConfigValuesService;
-	private Integer pageNo=1;
+	private Integer page=1;
 
 	@Override
 	public Object getModel() {
@@ -560,9 +560,9 @@ public class SearchReceiptAction extends SearchFormAction {
         }
         
         Integer pageSize = 20;
-        Integer pageNo = (this.pageNo != null && this.pageNo > 0) ? this.pageNo : 1;
+        Integer pageNo = (this.page != null && this.page > 0) ? this.page : 1;
 
-        Integer offset = (pageNo - 1) * pageSize;
+        Integer offset = (page - 1) * pageSize;
 
         List<Receipt> receipts = microserviceUtils.searchReciepts(
                 "MISCELLANEOUS", getFromDate(), getToDate(),
@@ -658,8 +658,8 @@ public class SearchReceiptAction extends SearchFormAction {
 
 		if (searchResult == null) {
 			
-			Page page = new Page<ReceiptHeader>(pageNo, pageSize, receiptList);
-			searchResult = new EgovPaginatedList(page, totalCount.intValue());
+			Page page1 = new Page<ReceiptHeader>(page, pageSize, receiptList);
+			searchResult = new EgovPaginatedList(page1, totalCount.intValue());
 		} else {
 			searchResult.getList().clear();
 			searchResult.getList().addAll(receiptList);
@@ -1242,5 +1242,8 @@ public class SearchReceiptAction extends SearchFormAction {
 
 	public void setServiceTypeMap(Map<String, Map<String, String>> m) {
 		this.serviceTypeMap = m;
+	}
+	public void setPage(Integer page) {
+	    this.page = page;
 	}
 }
