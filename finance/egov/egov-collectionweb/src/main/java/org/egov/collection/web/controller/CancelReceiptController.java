@@ -136,7 +136,7 @@ public class CancelReceiptController {
    	@GetMapping(value = "/_search")
        public @ResponseBody ResponseEntity getCancelCashReceiptSearch(@Valid @ModelAttribute final DishonoredChequeBean model,final BindingResult errors){
            try {
-               dishonorChequeService.validateBeforeSearch(model, errors);
+               dishonorChequeService.validateBeforeSearchForCash(model, errors);
                if (errors.hasErrors()) {
                    LOGGER.error(errors.getAllErrors().toString());
                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -157,8 +157,8 @@ public class CancelReceiptController {
     @RequestMapping(method = { RequestMethod.GET, RequestMethod.POST }, value = "/submit")
     public String submit(@Valid @ModelAttribute final DishonoredChequeBean chequeBean, final Model model,
             final RedirectAttributes redAttribute,final BindingResult errors) {
-        final String returnPage = "dishonor_cheque_success";
-            dishonorChequeService.validateManadatoryFields(chequeBean,errors);
+        final String returnPage = "cancel_receipt_success";
+            dishonorChequeService.validateManadatoryFieldsForCash(chequeBean,errors);
             if(errors.hasErrors()) {
                 redAttribute.addFlashAttribute(ERROR_MESSAGE,
                         "Error occurred while doing cancelling receipt of Instrument Number " + chequeBean.getInstrumentNumber()
@@ -170,10 +170,10 @@ public class CancelReceiptController {
             model.addAttribute("cancelCashReceiptModel", chequeBean);
             return returnPage;
         } catch (final NoResultException e) {
-            LOGGER.error("Error Occurred while doing cancelling receipt of Instrument Number : {}",
+        	 LOGGER.error("Error Occurred while cancelling receipt of Instrument Number : {}",
                     chequeBean.getInstrumentNumber());
             redAttribute.addFlashAttribute(ERROR_MESSAGE,
-                    "Error occurred while doing dishonoring of Instrument Number " + chequeBean.getInstrumentNumber()
+            		"Error occurred while cancelling receipt of Instrument Number " + chequeBean.getInstrumentNumber()
                             + ". Please contact to Administration.");
             return "redirect:/cancel/cash_receipt/form";
         }

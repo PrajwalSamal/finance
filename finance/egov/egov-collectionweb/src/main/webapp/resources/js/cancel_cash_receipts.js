@@ -49,15 +49,26 @@ $(document).ready(function(){
 	jQuery('#dishonorChequeSubmitButtonId').click(function(e) {
 		var dishonorReason = $("#dishonorReasonId").val();
 		var remarks = $("#remarks").val();
-		if(!$("#dishonorDateId").val()){
-			bootbox.alert('Please Enter Dihonor Date!');
+		var dishonorDate = $("#dishonorDateId").val();
+
+		if(!dishonorDate){
+			bootbox.alert('Please Enter Receipt Cancel Date!');
 			return false;
 		}else if(dishonorReason == ""){
-			bootbox.alert('Please Select Dishonor Reason!');
+			bootbox.alert('Please Select Receipt Cancel Reason!');
 			return false;
 		}else if(remarks < 6){
 			bootbox.alert('Please Enter the Remarks!');
 			return false;
+		}
+		$("#receiptDateId").inputmask("remove"); 
+		var receiptDate = $("#receiptDateId").val();
+
+		if (receiptDate) {
+				var receiptTimestamp = convertDateToLongTimestamp(receiptDate);
+				if (receiptTimestamp) {
+				$("#receiptDateId").val(receiptTimestamp);
+			}
 		}
 		$("#dishonorChequeForm").submit();
 	});
