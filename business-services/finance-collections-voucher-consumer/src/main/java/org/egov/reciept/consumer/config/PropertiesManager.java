@@ -179,7 +179,7 @@ public class PropertiesManager {
     		else if(finCoeErpEnvName != null && !finCoeErpEnvName.isEmpty() && finCoeErpEnvName.equalsIgnoreCase("jk")  ){
     			return httpProtocol+"://jmc-jk."+finCoeErpDomainName+"/";
     		}
-    		if(finCoeErpEnvName != null && !finCoeErpEnvName.isEmpty() ){
+    		else if(finCoeErpEnvName != null && !finCoeErpEnvName.isEmpty() ){
     			return httpProtocol+"://"+tenantId+"-"+finCoeErpEnvName+"."+finCoeErpDomainName+"/";
     		}
     		
