@@ -484,7 +484,7 @@ public class VoucherServiceImpl implements VoucherService {
 //		requestInfo.setAuthToken(propertiesManager.getSiAuthToken());
 		VoucherRequest request = new VoucherRequest(tenantId, requestInfo, null);
 		StringBuilder url = new StringBuilder(propertiesManager.getErpURLBytenantId(tenantId) 
-				+ propertiesManager.getModuleIdSearchUrl() + "?moduleName=" + moduleName);
+				+ propertiesManager.getModuleIdSearchUrl() + "?moduleName=" + moduleName+"&ulb="+ tenantId.split("\\.")[1]);
 		try {
 			return mapper.convertValue(serviceRequestRepository.fetchResult(url, request, tenantId), EgModules.class);
 		} catch (Exception e) {
@@ -531,7 +531,9 @@ public class VoucherServiceImpl implements VoucherService {
 		if(referenceDoc != null & !referenceDoc.isEmpty()){
 			url.append("&referencedocument=").append(URLEncoder.encode(referenceDoc,"UTF-8"));
 		}
-				
+		if(tenantId != null & !tenantId.isEmpty()){
+			url.append("&ulb=").append(tenantId.split("\\.")[1]);
+		}	
 		try {
 			return mapper.convertValue(serviceRequestRepository.fetchResult(url, request, tenantId), VoucherResponse.class);
 		} catch (Exception e) {
