@@ -630,42 +630,70 @@ public class RemittanceServiceImpl extends RemittanceService {
         LOGGER.info("Outside Switch with receipt Id==" + receipts.size());
 
         
-        Map<String, List<Receipt>> receiptDateWiseMap = new HashMap<>();
-        Map<String, List<Receipt>> serviceWiseMap = new HashMap<>();
-        Map<String, List<Receipt>> instrumentWiseMap = new HashMap<>();
-        Map<String, List<Receipt>> fundWiseMap = new HashMap<>();
-        Map<String, List<Receipt>> departmentWiseMap = new HashMap<>();
+//        Map<String, List<Receipt>> receiptDateWiseMap = new HashMap<>();
+//        Map<String, List<Receipt>> serviceWiseMap = new HashMap<>();
+//        Map<String, List<Receipt>> instrumentWiseMap = new HashMap<>();
+//        Map<String, List<Receipt>> fundWiseMap = new HashMap<>();
+//        Map<String, List<Receipt>> departmentWiseMap = new HashMap<>();
+//
+//        if(!receipts.isEmpty()) {
+//        groupByReceiptDate(receiptDateWiseMap, receipts);
+//
+//        for (String key : receiptDateWiseMap.keySet()) {
+//            List<Receipt> tempList = receiptDateWiseMap.get(key);
+//            groupByService(key, serviceWiseMap, tempList);
+//        }
+//
+//        for (String key : serviceWiseMap.keySet()) {
+//            List<Receipt> tempList = serviceWiseMap.get(key);
+//            groupByInstrument(key, instrumentWiseMap, tempList);
+//        }
+//
+//        for (String key : instrumentWiseMap.keySet()) {
+//            List<Receipt> tempList = instrumentWiseMap.get(key);
+//            groupByFund(key, fundWiseMap, tempList);
+//        }
+//
+//        for (String key : fundWiseMap.keySet()) {
+//            List<Receipt> tempList = fundWiseMap.get(key);
+//            groupByDepartment(key, departmentWiseMap, tempList);
+//        }
+//
+//        for (String key : departmentWiseMap.keySet()) {
+//            List<Receipt> tempList = departmentWiseMap.get(key);
+//         populateResultList(key, resultList, tempList);
+//        }
+        
+        for(Receipt receipt:receipts) {
+        	ReceiptBean receiptb = new ReceiptBean();
+//            BigDecimal amount = BigDecimal.ZERO;
+//
+//            for (Receipt r : tempList) {
+//                amount = amount.add(r.getInstrument().getAmount());
+//            }
+            
+//            String recs=tempList.stream().map(rec->rec.getReceiptNumber()).collect(Collectors.joining(", "));
+            
+            receiptb.setReceipts(receipt.getReceiptNumber());
+            Long billDate = receipt.getBill().get(0).getBillDetails().get(0).getBillDate();
 
-        if(!receipts.isEmpty()) {
-        groupByReceiptDate(receiptDateWiseMap, receipts);
-
-        for (String key : receiptDateWiseMap.keySet()) {
-            List<Receipt> tempList = receiptDateWiseMap.get(key);
-            groupByService(key, serviceWiseMap, tempList);
-        }
-
-        for (String key : serviceWiseMap.keySet()) {
-            List<Receipt> tempList = serviceWiseMap.get(key);
-            groupByInstrument(key, instrumentWiseMap, tempList);
-        }
-
-        for (String key : instrumentWiseMap.keySet()) {
-            List<Receipt> tempList = instrumentWiseMap.get(key);
-            groupByFund(key, fundWiseMap, tempList);
-        }
-
-        for (String key : fundWiseMap.keySet()) {
-            List<Receipt> tempList = fundWiseMap.get(key);
-            groupByDepartment(key, departmentWiseMap, tempList);
-        }
-
-        for (String key : departmentWiseMap.keySet()) {
-            List<Receipt> tempList = departmentWiseMap.get(key);
-            populateResultList(key, resultList, tempList);
+            String formattedDate = new SimpleDateFormat("dd/MM/yyyy")
+                    .format(new Date(billDate));
+            receiptb.setReceiptDate(formattedDate);
+            receiptb.setService(receipt.getService());
+            receiptb.setInstrumentType(receipt.getInstrument().getInstrumentType().getName());
+//            if (key.split("-").length > 3)
+//                receipt.setFund(key.split("-")[3]);
+//            if (key.split("-").length > 4)
+//                receipt.setDepartment(key.split("-")[4]);
+            
+            receiptb.setInstrumentAmount(receipt.getInstrument().getAmount());
+            resultList.add(receiptb);	
+        	
         }
 
         populateNames(resultList);
-        }
+//        }
         return resultList;
     }
 

@@ -49,6 +49,7 @@ package org.egov.collection.web.actions.receipts;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.ParentPackage;
 import org.apache.struts2.convention.annotation.Result;
@@ -86,6 +87,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -103,6 +105,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.servlet.http.HttpServletResponse;
 
 @ParentPackage("egov")
 @Results({ @Result(name = SearchReceiptAction.SUCCESS, location = "searchReceipt.jsp"),
@@ -169,6 +172,7 @@ public class SearchReceiptAction extends SearchFormAction {
 
 	@Autowired
 	private AppConfigValueService appConfigValuesService;
+	private Integer page=1;
 
 	@Override
 	public Object getModel() {
@@ -314,6 +318,216 @@ public class SearchReceiptAction extends SearchFormAction {
 		return persistenceService.findAllBy("from EgwStatus s where moduletype=? and code != ? order by description",
 				ReceiptHeader.class.getSimpleName(), CollectionConstants.RECEIPT_STATUS_CODE_PENDING);
 	}
+	
+	@Action(value = "/receipts/exportAllReceiptExcel-report")
+	public String exportAllReceiptExcel() {
+
+	    try {
+
+	        String effectiveServiceId = null;
+	        if (serviceCategory != null && !serviceCategory.isEmpty() && !serviceCategory.equals("-1")) {
+	            effectiveServiceId = (serviceTypeId != null && !serviceTypeId.isEmpty() && !serviceTypeId.equals("-1"))
+	                    ? serviceCategory + "." + serviceTypeId
+	                    : serviceCategory;
+	        }
+
+	        List<Receipt> receipts = microserviceUtils.receiptReport(
+	                "MISCELLANEOUS",
+	                getFromDate(),
+	                getToDate(),
+	                effectiveServiceId,
+	                getReceiptNumber(),
+	                true);
+
+	        byte[] report = generateReport(receipts);
+
+	        HttpServletResponse response = ServletActionContext.getResponse();
+
+	        response.setContentType("application/vnd.ms-excel");
+	        response.setHeader("Content-Disposition",
+	                "attachment; filename=ReceiptReport.xls");
+	        response.setContentLength(report.length);
+
+	        OutputStream os = response.getOutputStream();
+	        os.write(report);
+	        os.flush();
+	        os.close();
+
+	        return NONE;
+
+	    } catch (Exception e) {
+	        LOGGER.error("Error exporting report", e);
+	        return NONE;
+	    }
+	}
+
+	private byte[] generateReport(List<Receipt> receipts) {
+
+	    HSSFWorkbook wb = new HSSFWorkbook();
+	    HSSFSheet sheet = wb.createSheet("Receipt Report");
+
+	    HSSFRow rowhead = sheet.createRow(0);
+
+	    rowhead.createCell(0).setCellValue("Receipt No.");
+	    rowhead.createCell(1).setCellValue("Receipt Date");
+	    rowhead.createCell(2).setCellValue("G8 Receipt number/Date");
+	    rowhead.createCell(3).setCellValue("Category");
+	    rowhead.createCell(4).setCellValue("Service");
+	    rowhead.createCell(5).setCellValue("Narration");
+	    rowhead.createCell(6).setCellValue("Paid By");
+	    rowhead.createCell(7).setCellValue("Amount (Rs.)");
+	    rowhead.createCell(8).setCellValue("Mode of Payment");
+	    rowhead.createCell(9).setCellValue("Fund Name");
+	    rowhead.createCell(10).setCellValue("Ward No");
+	    rowhead.createCell(11).setCellValue("Status");
+
+	    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+	    int rowNum = 1;
+
+	    for (Receipt receipt : receipts) {
+
+	        for (org.egov.infra.microservice.models.Bill bill : receipt.getBill()) {
+
+	            for (BillDetail billDetail : bill.getBillDetails()) {
+
+	                HSSFRow dataRow = sheet.createRow(rowNum++);
+
+	                JsonNode additionalDetails = receipt.getAdditionalDetails();
+
+	                String wardNo = "";
+	                String fundName = "";
+	                String narration = "";
+	                String category = "";
+	                String service = "";
+	                String g8Data = "";
+	                String modeOfPayment = "";
+
+	                if (additionalDetails != null) {
+	                    wardNo = additionalDetails.has("wardNo")
+	                            ? additionalDetails.get("wardNo").asText()
+	                            : "";
+
+	                    fundName = additionalDetails.has("fundName")
+	                            ? additionalDetails.get("fundName").asText()
+	                            : "";
+
+	                    narration = additionalDetails.has("narration")
+	                            ? additionalDetails.get("narration").asText()
+	                            : "";
+	                }
+
+	                if (billDetail.getBusinessService() != null) {
+	                    String[] catSer = microserviceUtils
+	                            .getBusinessServiceNameByCode(billDetail.getBusinessService())
+	                            .split("\\.");
+
+	                    if (catSer.length > 0)
+	                        category = catSer[0];
+
+	                    if (catSer.length > 1)
+	                        service = catSer[1];
+	                }
+
+	                if (billDetail.getManualReceiptNumber() != null) {
+	                    g8Data = billDetail.getManualReceiptNumber();
+	                }
+
+	                if (billDetail.getManualReceiptDate() != null
+	                        && billDetail.getManualReceiptDate() != 0) {
+
+	                    String g8Date = sdf.format(
+	                            new Date(billDetail.getManualReceiptDate()));
+
+	                    if (billDetail.getManualReceiptNumber() != null) {
+	                        g8Data = billDetail.getManualReceiptNumber()
+	                                + "/" + g8Date;
+	                    } else {
+	                        g8Data = g8Date;
+	                    }
+	                }
+
+	                if (receipt.getInstrument() != null
+	                        && receipt.getInstrument().getInstrumentType() != null) {
+	                    modeOfPayment =
+	                            receipt.getInstrument()
+	                                   .getInstrumentType()
+	                                   .getName();
+	                }
+
+	                // Read narration from BillDetail additional details if available
+	                try {
+	                    JsonNode jsonNode = billDetail.getAdditionalDetails();
+
+	                    if (jsonNode != null) {
+	                        BillDetailAdditional additional =
+	                                new ObjectMapper().readValue(
+	                                        jsonNode.toString(),
+	                                        BillDetailAdditional.class);
+
+	                        if (additional.getNarration() != null) {
+	                            narration = additional.getNarration();
+	                        }
+	                    }
+	                } catch (Exception e) {
+	                    LOGGER.error("Error reading bill detail additional details", e);
+	                }
+
+	                // Excel columns
+	                dataRow.createCell(0).setCellValue(
+	                        billDetail.getReceiptNumber() != null
+	                                ? billDetail.getReceiptNumber()
+	                                : "");
+
+	                dataRow.createCell(1).setCellValue(
+	                        billDetail.getReceiptDate() != null
+	                                ? sdf.format(new Date(billDetail.getReceiptDate()))
+	                                : "");
+
+	                dataRow.createCell(2).setCellValue(g8Data);
+
+	                dataRow.createCell(3).setCellValue(category);
+
+	                dataRow.createCell(4).setCellValue(service);
+
+	                dataRow.createCell(5).setCellValue(narration);
+
+	                dataRow.createCell(6).setCellValue(
+	                        bill.getPaidBy() != null
+	                                ? bill.getPaidBy()
+	                                : "");
+
+	                dataRow.createCell(7).setCellValue(
+	                        billDetail.getTotalAmount() != null
+	                                ? billDetail.getTotalAmount().doubleValue()
+	                                : 0);
+
+	                dataRow.createCell(8).setCellValue(modeOfPayment);
+
+	                dataRow.createCell(9).setCellValue(fundName);
+
+	                dataRow.createCell(10).setCellValue(wardNo);
+
+	                dataRow.createCell(11).setCellValue(
+	                        billDetail.getStatus() != null
+	                                ? billDetail.getStatus()
+	                                : "");
+	            }
+	        }
+	    }
+
+	    for (int i = 0; i < 12; i++) {
+	        sheet.autoSizeColumn(i);
+	    }
+
+	    try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+	        wb.write(bos);
+	       // wb.close();
+	        return bos.toByteArray();
+	    } catch (IOException e) {
+	        throw new RuntimeException("Error generating Excel report", e);
+	    }
+	}
 
 	@Override
 	@Action(value = "/receipts/searchReceipt-search")
@@ -344,14 +558,36 @@ public class SearchReceiptAction extends SearchFormAction {
                     ? serviceCategory + "." + serviceTypeId
                     : serviceCategory;
         }
+        
+        Integer pageSize = 20;
+        Integer pageNo = (this.page != null && this.page > 0) ? this.page : 1;
+
+        Integer offset = (page - 1) * pageSize;
 
         List<Receipt> receipts = microserviceUtils.searchReciepts(
                 "MISCELLANEOUS", getFromDate(), getToDate(),
+                  (effectiveServiceId !=null && !effectiveServiceId.isEmpty() && !effectiveServiceId.equals("-1") ?effectiveServiceId:null),
+                 (getReceiptNumber() != null && !getReceiptNumber().isEmpty())
+                      ? getReceiptNumber() : null,offset,pageSize);
+        
+//        List<Receipt> receipts = microserviceUtils.receiptReport(
+//                "MISCELLANEOUS",
+//                getFromDate(),
+//                getToDate(),
+//                effectiveServiceId,
+//                getReceiptNumber(),
+//                true);
+        
+        // Get the count 
+        boolean isCountRequest=true;
+        Integer totalCount=0;
+        totalCount= microserviceUtils.searchReciepts(
+                "MISCELLANEOUS", getFromDate(), getToDate(),
                 (effectiveServiceId !=null && !effectiveServiceId.isEmpty() && !effectiveServiceId.equals("-1") ?effectiveServiceId:null),
                 (getReceiptNumber() != null && !getReceiptNumber().isEmpty())
-                        ? getReceiptNumber() : null);
+                        ? getReceiptNumber() : null,isCountRequest);
         
-
+        
         for (Receipt receipt : receipts) {
         	
         	
@@ -421,8 +657,9 @@ public class SearchReceiptAction extends SearchFormAction {
 		}
 
 		if (searchResult == null) {
-			Page page = new Page<ReceiptHeader>(1, receiptList.size(), receiptList);
-			searchResult = new EgovPaginatedList(page, receiptList.size());
+			
+			Page page1 = new Page<ReceiptHeader>(page, pageSize, receiptList);
+			searchResult = new EgovPaginatedList(page1, totalCount.intValue());
 		} else {
 			searchResult.getList().clear();
 			searchResult.getList().addAll(receiptList);
@@ -486,7 +723,7 @@ public class SearchReceiptAction extends SearchFormAction {
 	            serviceIdToSend,
 	            (getReceiptNumber() != null && !getReceiptNumber().isEmpty())
 	                    ? getReceiptNumber()
-	                    : null
+	                    : null,null,null
 	    );
 	    System.out.println("Receipts size: " + receipts.size());
 
@@ -1005,5 +1242,8 @@ public class SearchReceiptAction extends SearchFormAction {
 
 	public void setServiceTypeMap(Map<String, Map<String, String>> m) {
 		this.serviceTypeMap = m;
+	}
+	public void setPage(Integer page) {
+	    this.page = page;
 	}
 }
