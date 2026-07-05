@@ -85,6 +85,7 @@ public class ReceiptGenerationScheduler {
 			batchSize = DEFAULT_BATCH_SIZE;
 		}
 		LOGGER.info("receiptGenerationScheduler cron started, batchSize : {}", batchSize);
+        ReceiptReq recRequest = ReceiptReq.builder().build();
 
 		try {
 			String voucherNumber = "";
@@ -96,8 +97,9 @@ public class ReceiptGenerationScheduler {
 				FinanceMdmsModel finSerMdms = new FinanceMdmsModel();
 				int updateVoucherIntegLogStatusprogress = updateVoucherIntegLogStatusProgress(voucherIntegrationLog.getReferenceNumber());
 				 String requestJson = voucherIntegrationLog.getRequestJson();
-				 ObjectMapper mapper = new ObjectMapper();
-				 ReceiptReq recRequest = mapper.readValue(requestJson, ReceiptReq.class);
+				 ObjectMapper objectMapper = new ObjectMapper();
+				 recRequest = objectMapper.readValue(requestJson, ReceiptReq.class);
+				 //ReceiptReq recRequest = mapper.readValue(requestJson, ReceiptReq.class);
 				 paymentDetails payRequest = getReceiptPaymentDetails(voucherIntegrationLog.getReferenceNumber());
 //				 VoucherAndMisResponse vmResponse = voucherService.createReceiptVoucherForScheduler(recRequest, finSerMdms, null,payRequest);
 //				 voucherResponse = vmResponse.getVoucherResponse();

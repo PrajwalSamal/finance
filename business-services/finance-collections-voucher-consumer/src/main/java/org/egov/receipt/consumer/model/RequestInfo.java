@@ -48,7 +48,7 @@
 package org.egov.receipt.consumer.model;
 
 import org.springframework.stereotype.Component;
-
+import org.egov.common.contract.request.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
