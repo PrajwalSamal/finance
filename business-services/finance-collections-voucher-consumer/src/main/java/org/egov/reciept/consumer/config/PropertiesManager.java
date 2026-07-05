@@ -167,6 +167,12 @@ public class PropertiesManager {
     @Value("${egov.services.egf.instrument.instruments.search}")
     private String instrumentSearch;
     
+    @Value("${egov.services.payment.url}")
+    private String misCreateUrl;
+
+    @Value("${receipt.generation.scheduler.batch.size}")
+    private int receiptGenerationSchedulerBatchSize;
+    
     public String getErpURLBytenantId(String tenantId) throws VoucherCustomException {
     	try {
     		tenantId = tenantId.split(Pattern.quote("."))[1];

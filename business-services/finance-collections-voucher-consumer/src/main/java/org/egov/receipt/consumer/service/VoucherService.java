@@ -43,12 +43,14 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Set;
 
+import org.egov.receipt.consumer.entity.paymentDetails;
 import org.egov.receipt.consumer.model.FinanceMdmsModel;
 import org.egov.receipt.consumer.model.InstrumentContract;
 import org.egov.receipt.consumer.model.Receipt;
 import org.egov.receipt.consumer.model.ReceiptReq;
 import org.egov.receipt.consumer.model.RequestInfo;
 import org.egov.receipt.consumer.model.Voucher;
+import org.egov.receipt.consumer.model.VoucherAndMisResponse;
 import org.egov.receipt.consumer.model.VoucherResponse;
 import org.egov.receipt.consumer.model.VoucherSearchCriteria;
 import org.egov.receipt.custom.exception.VoucherCustomException;
@@ -66,4 +68,6 @@ public interface VoucherService {
 	VoucherResponse createVoucher(List<Voucher> vouchers, RequestInfo requestInfo, String tenantId)
 			throws VoucherCustomException;
 	VoucherResponse processReversalVoucher(List<InstrumentContract> instruments, RequestInfo requestInfo);
+	
+	public VoucherAndMisResponse createReceiptVoucherForScheduler(ReceiptReq req, FinanceMdmsModel finSerMdms, String collectionVersion, paymentDetails payRequest) throws Exception;
 }
