@@ -103,19 +103,19 @@ public class ReceiptGenerationScheduler {
 				 paymentDetails payRequest = getReceiptPaymentDetails(voucherIntegrationLog.getReferenceNumber());
 //				 VoucherAndMisResponse vmResponse = voucherService.createReceiptVoucherForScheduler(recRequest, finSerMdms, null,payRequest);
 //				 voucherResponse = vmResponse.getVoucherResponse();
-			 boolean misSuccess = false;
+				 boolean misSuccess = false;
 					String description = "";
 	        		ProcessStatus status = ProcessStatus.SUCCESS;
-				 ReceiptReq recRequestTemp = ReceiptReq.builder().requestInfo(recRequest.getRequestInfo()).build();
+	        		ReceiptReq recRequestTemp = ReceiptReq.builder().requestInfo(recRequest.getRequestInfo()).build();
 					for (Receipt recpt : recRequest.getReceipt()) {
 						recRequestTemp.setReceipt(Arrays.asList(recpt));
 						Bill bill = recpt.getBill().get(0);
-						VoucherResponse voucherByServiceAndRefDoc = voucherService.getVoucherByServiceAndRefDoc(recRequestTemp.getRequestInfo(), recpt.getTenantId(), null, recpt.getPaymentId());
+						//VoucherResponse voucherByServiceAndRefDoc = voucherService.getVoucherByServiceAndRefDoc(recRequestTemp.getRequestInfo(), recpt.getTenantId(), null, null);
 						if (voucherService.isVoucherCreationEnabled(recpt, recRequestTemp.getRequestInfo(), finSerMdms)) {
-							if(!voucherByServiceAndRefDoc.getVouchers().isEmpty() && !voucherByServiceAndRefDoc.getVouchers().get(0).getStatus().getCode().equals("4")){
-	        					voucherNumber = voucherByServiceAndRefDoc.getVouchers().get(0).getVoucherNumber();
-	        					throw new VoucherCustomException(ProcessStatus.NA, String.format("Already voucher exists (%1$s) for service %2$s with reference number: %3$s.", voucherNumber, bill.getBusinessService(), recpt.getPaymentId()));
-	        				}
+//							if(!voucherByServiceAndRefDoc.getVouchers().isEmpty() && !voucherByServiceAndRefDoc.getVouchers().get(0).getStatus().getCode().equals("4")){
+//	        					voucherNumber = voucherByServiceAndRefDoc.getVouchers().get(0).getVoucherNumber();
+//	        					throw new VoucherCustomException(ProcessStatus.NA, String.format("Already voucher exists (%1$s) for service %2$s with reference number: %3$s.", voucherNumber, bill.getBusinessService(), recpt.getPaymentId()));
+//	        				}
 	        				VoucherResponse createReceiptVoucher = voucherService.createReceiptVoucher(recRequestTemp, finSerMdms, COLLECTION_VERSION);
 	        				if(voucherResponse == null){
 	        					voucherResponse = createReceiptVoucher;
