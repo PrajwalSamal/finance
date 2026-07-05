@@ -1336,8 +1336,10 @@ public class ReceiptAction extends BaseFormAction {
 					header.addInstrument(instrumentHeader);
 					EmployeeInfo empInfo = this.microserviceUtils
 							.getEmployeeById(Long.parseLong(receipt.getAuditDetails().getCreatedBy()));
-					if (null != empInfo && empInfo.getUser().getUserName() != null)
+					if (null != empInfo && empInfo.getUser().getUserName() != null) {
 						receiptHeader.setCreatedUser(empInfo.getUser().getName());
+						header.setCreatedUser(empInfo.getUser().getName());
+					}
 					receipts[0] = receiptHeader;
 					lReceipts.add(header);
 				};
