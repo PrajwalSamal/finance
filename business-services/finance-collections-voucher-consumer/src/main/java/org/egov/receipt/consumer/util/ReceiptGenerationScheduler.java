@@ -77,7 +77,7 @@ public class ReceiptGenerationScheduler {
 	//@Scheduled(cron = "0 */2 * * * *", zone = "Asia/Calcutta") // 2 minutes
 	@Transactional
 	// @Scheduled(cron = "0 0 */2 * * *", zone = "Asia/Calcutta") // 2 hours
-	@Scheduled(cron = "0 */30 * * * *", zone = "Asia/Calcutta")
+	@Scheduled(cron = "0 */2 * * * *", zone = "Asia/Calcutta")
 	public void receiptGenerationScheduler() {
 		int batchSize = manager.getReceiptGenerationSchedulerBatchSize();
 		if (batchSize <= 0) {
