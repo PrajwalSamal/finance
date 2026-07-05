@@ -110,7 +110,5 @@ public class Voucher {
     private String referenceDocument;
     
     private String serviceName;
-    
-    private String receiptNumber;
-
+   
 }
