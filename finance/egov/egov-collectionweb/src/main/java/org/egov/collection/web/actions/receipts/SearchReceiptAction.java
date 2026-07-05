@@ -62,6 +62,7 @@ import org.egov.collection.utils.CollectionsUtil;
 import org.egov.eis.service.AssignmentService;
 import org.egov.infra.admin.master.service.AppConfigValueService;
 import org.egov.infra.config.core.ApplicationThreadLocals;
+import org.egov.infra.microservice.models.BillAccountDetail;
 import org.egov.infra.microservice.models.BillDetail;
 import org.egov.infra.microservice.models.BillDetailAdditional;
 import org.egov.infra.microservice.models.BusinessService;
@@ -81,6 +82,7 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.RichTextString;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -98,6 +100,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -376,10 +379,13 @@ public class SearchReceiptAction extends SearchFormAction {
 	    rowhead.createCell(5).setCellValue("Narration");
 	    rowhead.createCell(6).setCellValue("Paid By");
 	    rowhead.createCell(7).setCellValue("Amount (Rs.)");
-	    rowhead.createCell(8).setCellValue("Mode of Payment");
-	    rowhead.createCell(9).setCellValue("Fund Name");
-	    rowhead.createCell(10).setCellValue("Ward No");
-	    rowhead.createCell(11).setCellValue("Status");
+	    rowhead.createCell(8).setCellValue("IGST");
+	    rowhead.createCell(9).setCellValue("CGST");
+	    rowhead.createCell(10).setCellValue("SGST");
+	    rowhead.createCell(11).setCellValue("Mode of Payment");
+	    rowhead.createCell(12).setCellValue("Fund Name");
+	    rowhead.createCell(13).setCellValue("Ward No");
+	    rowhead.createCell(14).setCellValue("Status");
 
 	    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -501,14 +507,29 @@ public class SearchReceiptAction extends SearchFormAction {
 	                        billDetail.getTotalAmount() != null
 	                                ? billDetail.getTotalAmount().doubleValue()
 	                                : 0);
+	                
+	               Optional<BillAccountDetail> igst = billDetail.getBillAccountDetails().stream().filter(bad-> bad.getTaxHeadCode().equals("ACC_INTEREST_SMART_SAVER_IGST")).findFirst();
+	               BillAccountDetail igstDetail = igst.orElse(null);
+	               if(igstDetail!=null)
+	                dataRow.createCell(8).setCellValue((RichTextString) igst.get().getAmount());
+	               
+	               Optional<BillAccountDetail> cgst = billDetail.getBillAccountDetails().stream().filter(bad-> bad.getTaxHeadCode().equals("ACC_INTEREST_SMART_SAVER_CGST")).findFirst();
+	               BillAccountDetail cgstDetail = cgst.orElse(null);
+	               if(cgstDetail!=null)
+	                 dataRow.createCell(9).setCellValue((RichTextString) cgst.get().getAmount());
+	               
+	               Optional<BillAccountDetail> sgst = billDetail.getBillAccountDetails().stream().filter(bad-> bad.getTaxHeadCode().equals("ACC_INTEREST_SMART_SAVER_SGST")).findFirst();
+	               BillAccountDetail sgstDetail = cgst.orElse(null);
+	               if(sgstDetail!=null)
+	                dataRow.createCell(10).setCellValue((RichTextString) sgst.get().getAmount());
+	               
+	                dataRow.createCell(11).setCellValue(modeOfPayment);
 
-	                dataRow.createCell(8).setCellValue(modeOfPayment);
+	                dataRow.createCell(12).setCellValue(fundName);
 
-	                dataRow.createCell(9).setCellValue(fundName);
+	                dataRow.createCell(13).setCellValue(wardNo);
 
-	                dataRow.createCell(10).setCellValue(wardNo);
-
-	                dataRow.createCell(11).setCellValue(
+	                dataRow.createCell(14).setCellValue(
 	                        billDetail.getStatus() != null
 	                                ? billDetail.getStatus()
 	                                : "");

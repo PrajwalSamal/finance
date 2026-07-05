@@ -826,7 +826,7 @@ var totaldbamt=0,totalcramt=0;
 							name="challan.narration" /></td>
 					<td class="bluebox" style="width:30%"><s:textarea
 							name="referenceDesc" id="referenceDesc" value="%{referenceDesc}"
-							cols="23" rows="2" maxlength="125"
+							cols="50" rows="5" maxlength="500"
 							onkeyup="return ismaxlength(this)" /></td>
 				</tr>
 
