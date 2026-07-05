@@ -137,7 +137,7 @@ public class ReceiptGenerationScheduler {
 				LOGGER.debug("Processed voucher for referenceNumber : {}, misSuccess : {}, voucherResponse : {}", voucherIntegrationLog.getReferenceNumber(), misSuccess, voucherResponse);
 
 				 if (voucherResponse != null && voucherResponse.getVouchers() != null &&!voucherResponse.getVouchers().isEmpty()) {
-					 int updateVoucherIntegLogStatus = updateVoucherIntegLogStatus(voucherResponse.getVouchers().get(0).getReceiptNumber(),voucherResponse.getVouchers().get(0).getVoucherNumber());
+					 int updateVoucherIntegLogStatus = updateVoucherIntegLogStatus(recRequest.getReceipt().get(0).getReceiptNumber(),voucherResponse.getVouchers().get(0).getVoucherNumber());
 					 LOGGER.info("Updated voucher integration log to SUCCESS for referenceNumber : {}, voucherNumber : {}, rowsUpdated : {}", voucherIntegrationLog.getReferenceNumber(), voucherResponse.getVouchers().get(0).getVoucherNumber(), updateVoucherIntegLogStatus);
 				 }else {
 					 LOGGER.warn("VoucherResponse was null or had empty vouchers for referenceNumber : {}", voucherIntegrationLog.getReferenceNumber());

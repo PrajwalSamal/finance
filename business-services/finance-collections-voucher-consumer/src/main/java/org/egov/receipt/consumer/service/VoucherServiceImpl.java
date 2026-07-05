@@ -805,7 +805,7 @@ public class VoucherServiceImpl implements VoucherService {
 						        
 		        // Voucher creation
 				Voucher voucher = new Voucher();
-				voucher.setReceiptNumber(reciptNumber);
+				//voucher.setReceiptNumber(reciptNumber);
 				voucher.setTenantId(tenantId);
 				this.setVoucherDetailsForScheduler(voucher, receipt, tenantId, receiptRequest.getRequestInfo(), finSerMdms, collectionVersion,paymentRequest);
 				voucherRequest.setVouchers(Collections.singletonList(voucher));
