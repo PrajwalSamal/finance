@@ -21,45 +21,49 @@ import static org.egov.collection.config.CollectionServiceConstants.*;
 @Service
 @Slf4j
 public class IdGenRepository {
-	
+
     @Autowired
     private RestTemplate restTemplate;
-    
-	@Autowired
-	private ApplicationProperties applicationProperties;
+
+    @Autowired
+    private ApplicationProperties applicationProperties;
 
     /**
      * Generates a receipt number
-     *  - If isReceiptNumberByService flag is set to true,
-     *      generates receipt number by business service and tenant id
-     *  - Else generates by tenant id only
+     * - If isReceiptNumberByService flag is set to true,
+     * generates receipt number by business service and tenant id
+     * - Else generates by tenant id only
      *
      * @param requestInfo
      * @param businessService
      * @param tenantId
      * @return
      */
-	public String generateReceiptNumber(RequestInfo requestInfo, String businessService ,String tenantId) {
+    public String generateReceiptNumber(RequestInfo requestInfo, String businessService, String tenantId) {
         String idName = "";
         String format = null;
-	    log.debug("Attempting to generate Receipt Number from ID Gen");
+        log.debug("Attempting to generate Receipt Number from ID Gen");
 
-        if(applicationProperties.isReceiptNumberByService()){
+        if (applicationProperties.isReceiptNumberByTenant()) {
+            String lastSegment = tenantId.contains(".") ? tenantId.substring(tenantId.lastIndexOf(".") + 1) : tenantId;
+            String prefix = lastSegment.substring(0, Math.min(lastSegment.length(), 3)).toUpperCase();
+            idName = applicationProperties.getReceiptNumberIdName();
+            format = prefix + "/" + applicationProperties.getReceiptNumberStateLevelFormat();
+        } else if (applicationProperties.isReceiptNumberByService()) {
             idName = idName + businessService.toLowerCase() + "." + applicationProperties.getReceiptNumberIdName();
-        } else{
+        } else {
             idName = applicationProperties.getReceiptNumberIdName();
             format = applicationProperties.getReceiptNumberStateLevelFormat();
         }
 
         return getId(requestInfo, tenantId, idName, format, 1);
-	}
+    }
 
     public String generateTransactionNumber(RequestInfo requestInfo, String tenantId) {
         log.debug("Attempting to generate Transaction Number from ID Gen");
 
         String splitTenant = tenantId.contains(".") ? tenantId.split("\\.")[1] : tenantId;
         String tenantFormat = COLL_TRANSACTION_FORMAT.replace("{tenant}", splitTenant);
-
 
         return getId(requestInfo, tenantId, COLL_TRANSACTION_ID_NAME, tenantFormat, 1);
 
@@ -86,7 +90,8 @@ public class IdGenRepository {
             throw new ServiceCallException(e.getResponseBodyAsString());
         } catch (Exception e) {
             log.error("ID Gen Service failure", e);
-            throw new org.egov.tracer.model.CustomException("IDGEN_SERVICE_ERROR", "Failed to generate ID, unknown error occurred");
+            throw new org.egov.tracer.model.CustomException("IDGEN_SERVICE_ERROR",
+                    "Failed to generate ID, unknown error occurred");
         }
     }
 }
