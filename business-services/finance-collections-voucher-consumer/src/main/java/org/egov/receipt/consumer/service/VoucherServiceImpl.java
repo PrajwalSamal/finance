@@ -56,6 +56,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.egov.mdms.service.MicroServiceUtil;
+import org.egov.mdms.service.TokenService;
+import org.egov.receipt.consumer.entity.paymentDetails;
 import org.egov.receipt.consumer.model.AccountDetail;
 import org.egov.receipt.consumer.model.AppConfigValues;
 import org.egov.receipt.consumer.model.Bill;
@@ -69,6 +71,8 @@ import org.egov.receipt.consumer.model.Functionary;
 import org.egov.receipt.consumer.model.Fund;
 import org.egov.receipt.consumer.model.InstrumentContract;
 import org.egov.receipt.consumer.model.InstrumentVoucherContract;
+import org.egov.receipt.consumer.model.MisReceiptsDetailsRequest;
+import org.egov.receipt.consumer.model.MisReceiptsDetailsResponse;
 import org.egov.receipt.consumer.model.ProcessStatus;
 import org.egov.receipt.consumer.model.Receipt;
 import org.egov.receipt.consumer.model.ReceiptReq;
@@ -77,6 +81,7 @@ import org.egov.receipt.consumer.model.Scheme;
 import org.egov.receipt.consumer.model.TaxHeadMaster;
 import org.egov.receipt.consumer.model.Tenant;
 import org.egov.receipt.consumer.model.Voucher;
+import org.egov.receipt.consumer.model.VoucherAndMisResponse;
 import org.egov.receipt.consumer.model.VoucherRequest;
 import org.egov.receipt.consumer.model.VoucherResponse;
 import org.egov.receipt.consumer.model.VoucherSearchCriteria;
@@ -90,6 +95,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
@@ -104,6 +111,12 @@ public class VoucherServiceImpl implements VoucherService {
 	private ServiceRequestRepository serviceRequestRepository;
 	@Autowired
 	private ObjectMapper mapper;
+	
+	@Autowired
+	private RestTemplate restTemplate;
+	
+	@Autowired
+	private TokenService tokenService;
 
 	final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
 	final SimpleDateFormat ddMMMyyyyFormatter = new SimpleDateFormat("dd-MMM-yyyy");
@@ -632,4 +645,188 @@ public class VoucherServiceImpl implements VoucherService {
 		reversalVoucher.setReferenceDocument(null);
 		reversalVoucher.setServiceName(null);
 	}
+	
+	/**
+	 * 
+	 * @param voucher
+	 * @param receipt
+	 * @param tenantId
+	 * @param paymentRequest 
+	 * @throws Exception
+	 *             Function is use to set the specific details of voucher which
+	 *             is mendatory to create the voucher.
+	 */
+	private void setVoucherDetailsForScheduler(Voucher voucher, Receipt receipt, String tenantId, RequestInfo requestInfo,
+			FinanceMdmsModel finSerMdms, String collectiobVersion, paymentDetails paymentRequest) throws Exception {
+		BillDetail billDetail = receipt.getBill().get(0).getBillDetails().get(0);
+		String receiptNumber = collectiobVersion != null && collectiobVersion.equalsIgnoreCase("V2") ? receipt.getPaymentId() : billDetail.getReceiptNumber();
+		String bsCode = billDetail.getBusinessService();
+		List<BusinessService> serviceByCode = this.getBusinessServiceByCode(tenantId, bsCode, requestInfo, finSerMdms);
+		List<TaxHeadMaster> taxHeadMasterByBusinessServiceCode = this.getTaxHeadMasterByBusinessServiceCode(tenantId,
+				bsCode, requestInfo, finSerMdms);
+		BusinessService businessService = serviceByCode.get(0);
+		String businessServiceName = microServiceUtil.getBusinessServiceName(tenantId, bsCode, requestInfo, finSerMdms);
+		voucher.setName(businessServiceName);
+		voucher.setType(RECEIPTS_VOUCHER_TYPE);
+		voucher.setFund(new Fund());
+		voucher.getFund().setCode(businessService.getFund());
+		voucher.setFunction(new Function());
+		voucher.getFunction().setCode(businessService.getFunction());
+		voucher.setDepartment(businessService.getDepartment());
+		voucher.setFunctionary(new Functionary());
+		voucher.setServiceName(bsCode);
+		voucher.setReferenceDocument(paymentRequest.getPaymentId());
+		String functionaryCode = businessService.getFunctionary() != null
+				& !StringUtils.isEmpty(businessService.getFunctionary()) ? businessService.getFunctionary() : null;
+		voucher.getFunctionary().setCode(functionaryCode);
+		voucher.setScheme(new Scheme());
+		String schemeCode = businessService.getScheme() != null & !StringUtils.isEmpty(businessService.getScheme())
+				? businessService.getScheme() : null;
+		voucher.getScheme().setCode(schemeCode);
+		voucher.setDescription(paymentRequest.getNarration());
+		// checking Whether manualReceipt date will be consider as
+		// voucherdate
+		if (billDetail.getManualReceiptDate() != null && billDetail.getManualReceiptDate().longValue() != 0
+				&& isManualReceiptDateEnabled(tenantId, requestInfo)) {
+			voucher.setVoucherDate(dateFormatter.format(new Date(billDetail.getManualReceiptDate())));
+		} else {
+			voucher.setVoucherDate(dateFormatter.format(new Date(billDetail.getReceiptDate())));
+		}
+		EgModules egModules = this.getModuleIdByModuleName(COLLECTION_MODULE_NAME, tenantId, requestInfo);
+		voucher.setModuleId(Long.valueOf(egModules != null ? egModules.getId().toString() : COLLECTIONS_EG_MODULES_ID));
+
+		voucher.setSource(
+				propertiesManager.getReceiptViewSourceUrl() + "?selectedReceipts=" + paymentRequest.getPaymentId());
+
+		voucher.setLedgers(new ArrayList<>());
+		amountMapwithGlcode = new LinkedHashMap<>();
+		// Setting glcode and amount in Map as key value pair.
+		for (BillAccountDetail bad : billDetail.getBillAccountDetails()) {
+			if (bad.getAdjustedAmount().compareTo(new BigDecimal(0)) != 0) {
+				String taxHeadCode = bad.getTaxHeadCode();
+				List<TaxHeadMaster> findFirst = taxHeadMasterByBusinessServiceCode.stream()
+						.filter(tx -> tx.getTaxhead().equals(taxHeadCode)).collect(Collectors.toList());
+				if (findFirst != null && findFirst.isEmpty())
+					throw new VoucherCustomException(ProcessStatus.FAILED,
+							"Taxhead code " + taxHeadCode + " is not mapped with BusinessServiceCode " + bsCode);
+				String glcode = findFirst.get(0).getGlcode();
+				if (amountMapwithGlcode.get(glcode) != null) {
+					amountMapwithGlcode.put(glcode, amountMapwithGlcode.get(glcode).add(bad.getAdjustedAmount()));
+				} else {
+					amountMapwithGlcode.put(glcode, bad.getAdjustedAmount());
+				}
+			}
+		}
+
+		this.setNetReceiptAmount(receipt, requestInfo, tenantId, bsCode, finSerMdms);
+		LOGGER.debug("amountMapwithGlcode  ::: {}", amountMapwithGlcode);
+		// Iterating map and setting the ledger details to voucher.
+		if(amountMapwithGlcode.isEmpty()){
+			throw new VoucherCustomException(ProcessStatus.NA, "This receipt does not require voucher creation.");
+		}
+		amountMapwithGlcode.entrySet().stream().forEach(entry -> {
+				AccountDetail accountDetail = new AccountDetail();
+				accountDetail.setGlcode(entry.getKey());
+				if (entry.getValue().compareTo(new BigDecimal(0)) == 1) {
+					accountDetail.setCreditAmount(entry.getValue().doubleValue());
+					accountDetail.setDebitAmount(0d);
+				} else {
+					accountDetail.setDebitAmount(-entry.getValue().doubleValue());
+					accountDetail.setCreditAmount(0d);
+				}
+				accountDetail.setFunction(new Function());
+				accountDetail.getFunction().setCode(businessService.getFunction());
+				voucher.getLedgers().add(accountDetail);
+		});
+	}
+
+	@Override
+	/**
+	 * This method is use to create the voucher specifically for receipt
+	 * request.
+	 */
+	public VoucherAndMisResponse createReceiptVoucherForScheduler(ReceiptReq receiptRequest, FinanceMdmsModel finSerMdms, String collectionVersion,paymentDetails paymentRequest)
+			throws Exception {
+		Receipt receipt = receiptRequest.getReceipt().get(0);
+		String reciptNumber=receipt.getReceiptNumber();
+		String tenantId = receipt.getTenantId();
+		final StringBuilder voucher_create_url = new StringBuilder(propertiesManager.getErpURLBytenantId(tenantId)
+				+ propertiesManager.getVoucherCreateUrl());
+		final StringBuilder voucher_mis_url = new StringBuilder(propertiesManager.getErpURLBytenantId(tenantId)
+				+ propertiesManager.getMisCreateUrl());
+		//misc receipt start
+		System.out.println("misreceipt related changes start");
+		VoucherRequest voucherRequest = new VoucherRequest();
+		MisReceiptsDetailsRequest request = new MisReceiptsDetailsRequest();
+		VoucherResponse convertValue=null;	
+		boolean misSuccess = false;
+		try
+		{
+			if(paymentRequest != null)
+			{
+				org.egov.receipt.consumer.model.MisReceiptsPOJO misreceipt= new org.egov.receipt.consumer.model.MisReceiptsPOJO();
+		        
+		        misreceipt.setBank_branch(paymentRequest.getBankBranch());
+		        misreceipt.setBank_name(paymentRequest.getBankName());
+		        misreceipt.setCollectedbyname(receiptRequest.getRequestInfo().getUserInfo().getName());
+		        misreceipt.setGstno(paymentRequest.getGstno());
+		        misreceipt.setNarration(paymentRequest.getNarration());
+		        misreceipt.setPaid_by(paymentRequest.getPaidBy());
+		        misreceipt.setPayer_address(paymentRequest.getPayerAddress());
+		        misreceipt.setPayment_mode(paymentRequest.getPaymentMode());
+		        misreceipt.setPayment_status(paymentRequest.getPaymentStatus());
+		        misreceipt.setPayments_id(paymentRequest.getPaymentId());
+		        misreceipt.setReceipt_number(paymentRequest.getReceiptNumber());
+		        misreceipt.setReceipt_date(paymentRequest.getReceiptDate());
+		        misreceipt.setServicename(paymentRequest.getServicename());
+		        misreceipt.setSubdivison(paymentRequest.getSubdivison());
+		        misreceipt.setTotal_amt_paid(paymentRequest.getTotalAmountPaid());
+		        misreceipt.setChequeddno(paymentRequest.getInstrumentNumber());
+		        misreceipt.setChequedddate(paymentRequest.getInstrumentDate());
+		        System.out.println("Data ::: "+misreceipt.toString());
+		        LOGGER.info("url------------->> "+voucher_mis_url);
+		        
+		        request.setTenantId(tenantId);
+		        request.setRequestInfo(receiptRequest.getRequestInfo());
+		        request.setMisReceiptsPOJO(misreceipt);
+		        
+		        RequestInfo requestInfo = request.getRequestInfo();
+		        
+		        requestInfo.setAuthToken(tokenService.generateAdminToken(tenantId));
+		        
+		        MisReceiptsDetailsResponse misResponse = restTemplate.postForObject(voucher_mis_url.toString(), request, MisReceiptsDetailsResponse.class);
+		        
+		        // Set MIS success flag based on actual response structure
+	            misSuccess = (misResponse != null);
+		        
+		        System.out.println("misreceipt changes end"+misSuccess);
+				//misc receipt end
+						        
+		        // Voucher creation
+				Voucher voucher = new Voucher();
+				voucher.setReceiptNumber(reciptNumber);
+				voucher.setTenantId(tenantId);
+				this.setVoucherDetailsForScheduler(voucher, receipt, tenantId, receiptRequest.getRequestInfo(), finSerMdms, collectionVersion,paymentRequest);
+				voucherRequest.setVouchers(Collections.singletonList(voucher));
+				voucherRequest.setRequestInfo(receiptRequest.getRequestInfo());
+				voucherRequest.setTenantId(tenantId);
+				
+				convertValue = mapper.convertValue(serviceRequestRepository.fetchResult(voucher_create_url, voucherRequest, tenantId), VoucherResponse.class);
+							    
+			    System.out.println("convertValue new log******************"+convertValue);			    		        	        	    	
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			
+			System.out.println("Exception in createReceiptVoucherForScheduler method******************"+e.getMessage());
+		}
+		
+		 
+	    //return convertValue;
+		
+		return new VoucherAndMisResponse(convertValue, misSuccess);
+	
+	}
+	
+	
 }

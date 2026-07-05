@@ -1,0 +1,190 @@
+package org.egov.receipt.consumer.util;
+
+import java.util.List;
+
+import org.egov.receipt.consumer.entity.VoucherIntegrationLog;
+import org.egov.receipt.consumer.entity.paymentDetails;
+import org.egov.receipt.consumer.model.BillDetail;
+import org.egov.receipt.consumer.model.FinanceMdmsModel;
+import org.egov.receipt.consumer.model.Receipt;
+import org.egov.receipt.consumer.model.ReceiptReq;
+import org.egov.receipt.consumer.model.VoucherAndMisResponse;
+import org.egov.receipt.consumer.model.VoucherResponse;
+import org.egov.receipt.consumer.service.InstrumentService;
+import org.egov.receipt.consumer.service.ReceiptService;
+import org.egov.receipt.consumer.service.VoucherService;
+import org.egov.receipt.consumer.v2.model.PaymentRequest;
+import org.egov.reciept.consumer.config.PropertiesManager;
+import org.egov.receipt.consumer.repository.ReceiptGenerationRowMapper;
+import org.egov.receipt.consumer.repository.builder.ReceiptGenerationBuilder;
+import org.egov.receipt.consumer.repository.PaymentReceiptRowMapper;
+import org.egov.tracer.model.CustomException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.transaction.Transactional;
+
+
+@Service
+public class ReceiptGenerationScheduler {
+	
+
+	@Autowired
+	private ObjectMapper mapper;
+
+	@Autowired
+	private RestTemplate restTemplate;
+	
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	private ReceiptGenerationRowMapper ReceiptGenerationRowMapper ;
+	
+	@Autowired
+	private PaymentReceiptRowMapper paymentReceiptRowMapper ;
+	
+	@Autowired
+	private VoucherService voucherService;
+	
+	@Autowired
+	private ReceiptService receiptService;
+	
+	@Autowired
+	private InstrumentService instrumentService;
+
+	@Autowired
+	private PropertiesManager manager;
+
+	public static final Logger LOGGER = LoggerFactory.getLogger(ReceiptGenerationScheduler.class);
+	private static final int DEFAULT_BATCH_SIZE = 300;
+
+
+	//@Scheduled(cron = "0 */2 * * * *", zone = "Asia/Calcutta") // 2 minutes
+	@Transactional
+	// @Scheduled(cron = "0 0 */2 * * *", zone = "Asia/Calcutta") // 2 hours
+	@Scheduled(cron = "0 */30 * * * *", zone = "Asia/Calcutta")
+	public void receiptGenerationScheduler() {
+		int batchSize = manager.getReceiptGenerationSchedulerBatchSize();
+		if (batchSize <= 0) {
+			LOGGER.warn("Configured receipt.generation.scheduler.batch.size : {} is invalid, falling back to default : {}", batchSize, DEFAULT_BATCH_SIZE);
+			batchSize = DEFAULT_BATCH_SIZE;
+		}
+		LOGGER.info("receiptGenerationScheduler cron started, batchSize : {}", batchSize);
+
+		try {
+			VoucherResponse voucherResponse = null;
+			List<VoucherIntegrationLog> receiptGenerationFailedData = getReceiptGenerationFailedData(batchSize);
+			LOGGER.info("Fetched {} failed receipt generation record(s) for processing", receiptGenerationFailedData.size());
+			for (VoucherIntegrationLog voucherIntegrationLog : receiptGenerationFailedData) {
+			try {
+				FinanceMdmsModel finSerMdms = new FinanceMdmsModel();
+				int updateVoucherIntegLogStatusprogress = updateVoucherIntegLogStatusProgress(voucherIntegrationLog.getReferenceNumber());
+				 String requestJson = voucherIntegrationLog.getRequestJson();
+				 ObjectMapper mapper = new ObjectMapper();
+				 ReceiptReq recRequest = mapper.readValue(requestJson, ReceiptReq.class);
+				 paymentDetails payRequest = getReceiptPaymentDetails(voucherIntegrationLog.getReferenceNumber());
+				 VoucherAndMisResponse vmResponse = voucherService.createReceiptVoucherForScheduler(recRequest, finSerMdms, null,payRequest);
+				 voucherResponse = vmResponse.getVoucherResponse();
+				 boolean misSuccess = vmResponse.isMisSuccess();
+				 Receipt receipt = recRequest.getReceipt().get(0);
+	        	 BillDetail billDetail = receipt.getBill().get(0).getBillDetails().get(0);
+				 LOGGER.debug("Processed voucher for referenceNumber : {}, misSuccess : {}, voucherResponse : {}", voucherIntegrationLog.getReferenceNumber(), misSuccess, voucherResponse);
+
+				 if (misSuccess && voucherResponse != null && voucherResponse.getVouchers() != null &&!voucherResponse.getVouchers().isEmpty()) {
+					 int updateVoucherIntegLogStatus = updateVoucherIntegLogStatus(voucherResponse.getVouchers().get(0).getReceiptNumber(),voucherResponse.getVouchers().get(0).getVoucherNumber());
+					 LOGGER.info("Updated voucher integration log to SUCCESS for referenceNumber : {}, voucherNumber : {}, rowsUpdated : {}", voucherIntegrationLog.getReferenceNumber(), voucherResponse.getVouchers().get(0).getVoucherNumber(), updateVoucherIntegLogStatus);
+				 }else {
+					 LOGGER.warn("VoucherResponse was null or had empty vouchers for referenceNumber : {}", voucherIntegrationLog.getReferenceNumber());
+				 }
+				 } catch (Exception innerEx) {
+		                // Log and continue with next record
+					 LOGGER.error("Exception occurred while processing referenceNumber : {}", voucherIntegrationLog.getReferenceNumber(), innerEx);
+		           updateVoucherIntegLogStatusInProgressToFailed(voucherIntegrationLog.getReferenceNumber());
+		         }
+
+				 //instrumentService.createInstrument(recRequest, voucherReseponse, finSerMdms, null);
+				//receiptService.updateReceipt(recRequest, voucherResponse);
+
+			}
+			LOGGER.info("receiptGenerationScheduler run completed, batchSize : {}, recordsFetched : {}", batchSize, receiptGenerationFailedData.size());
+		} catch (Exception e) {
+			LOGGER.error("Exception in receiptGenerationScheduler method", e);
+			throw new CustomException("Exception in receiptGenerationScheduler method",e.getMessage());
+		}
+
+	}
+		
+	@Transactional
+	public int updateVoucherIntegLogStatusInProgressToFailed(String referenceNumber) {
+		int updatestatus=0;
+        try {
+        	updatestatus = jdbcTemplate.update("UPDATE egf_voucher_integration_log SET status = 'FAILED' WHERE referencenumber = ?", referenceNumber);
+        } catch (Exception e) {
+            LOGGER.error("Exception in updateVoucherIntegLogStatusInProgressToFailed method for referenceNumber : {}", referenceNumber, e);
+            throw new RuntimeException("Exception in updateVoucherIntegLogStatusProgress method: " + e.getMessage());
+        }
+        return updatestatus;
+    }
+
+	public List<VoucherIntegrationLog> getReceiptGenerationFailedData(int batchSize) {
+		try {
+				return jdbcTemplate.query(ReceiptGenerationBuilder.RECEIPT_GENERATION_FAILED_DATA,
+						new Object[] { batchSize
+									 }, ReceiptGenerationRowMapper);
+
+		} catch (Exception e) {
+			LOGGER.error("Exception occurred while fetching receipt generation failed data, batchSize : {}", batchSize, e);
+			throw new CustomException("Exception",e.getMessage());
+		}
+
+	}
+
+	public paymentDetails getReceiptPaymentDetails(String receiptNo) {
+
+		try {
+				return jdbcTemplate.query(ReceiptGenerationBuilder.RECEIPT_PAYMENT_DETAILS_DATA,
+						new Object[] {receiptNo
+									 }, paymentReceiptRowMapper);
+
+		} catch (Exception e) {
+			LOGGER.error("Exception occurred while fetching receipt payment details for receiptNo : {}", receiptNo, e);
+			throw new CustomException("Exception",e.getMessage());
+		}
+
+	}
+
+
+
+	@Transactional
+    public int updateVoucherIntegLogStatus(String receiptNo,String voucherNo) {
+		int updatestatus=0;
+        try {
+        	String description = "Voucher created successfully with VoucherNumber : " + voucherNo;
+        	updatestatus = jdbcTemplate.update("UPDATE egf_voucher_integration_log SET status = 'SUCCESS',vouchernumber='"+voucherNo+"',description='"+description+"' WHERE referencenumber = ?", receiptNo);
+        } catch (Exception e) {
+            LOGGER.error("Failed to update egf_voucher_integration_log to SUCCESS for receiptNo : {}, voucherNo : {}", receiptNo, voucherNo, e);
+            throw new RuntimeException("Failed to update egf_voucher_integration_log: " + e.getMessage());
+        }
+        return updatestatus;
+    }
+	
+	@Transactional
+    public int updateVoucherIntegLogStatusProgress(String receiptNo) {
+		int updatestatus=0;
+        try {
+        	updatestatus = jdbcTemplate.update("UPDATE egf_voucher_integration_log SET status = 'INPROGRESS' WHERE referencenumber = ?", receiptNo);
+        } catch (Exception e) {
+            LOGGER.error("Exception in updateVoucherIntegLogStatusProgress method for receiptNo : {}", receiptNo, e);
+            throw new RuntimeException("Exception in updateVoucherIntegLogStatusProgress method: " + e.getMessage());
+        }
+        return updatestatus;
+    }
+
+}

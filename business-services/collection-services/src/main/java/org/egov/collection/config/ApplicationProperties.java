@@ -130,12 +130,15 @@ public class ApplicationProperties {
 
     @Value("${kafka.topics.filestore}")
     private String fileStore;
-    
+
     @Value("${receiptnumber.idname}")
     private String receiptNumberIdName;
 
     @Value("${receiptnumber.servicebased}")
     private boolean receiptNumberByService;
+
+    @Value("${receiptnumber.tenantbased:false}")
+    private boolean receiptNumberByTenant;
 
     @Value("${receiptnumber.state.level.format}")
     private String receiptNumberStateLevelFormat;
@@ -148,28 +151,28 @@ public class ApplicationProperties {
 
     @Value("${collection.receipts.search.max.size}")
     private Integer receiptsSearchMaxLimit;
-    
+
     @Value("${egov.apportion.service.host}")
     private String apportionHost;
-    
+
     @Value("${egov.apportion.apportion.endpoint}")
     private String apportionURI;
-    
+
     @Value("${collection.is.user.create.enabled}")
     private Boolean isUserCreateEnabled;
-    
+
     @Value("${user.service.host}")
     private String userHost;
-    
+
     @Value("${egov.services.user_by_id}")
     private String userSearchEnpoint;
-    
+
     @Value("${egov.user.create.user}")
     private String userCreateEnpoint;
-    
+
     @Value("${kafka.topics.payment.receiptlink.name}")
     private String paymentReceiptLinkTopic;
-    
+
     @Value("${kafka.topics.payment.receiptlink.key}")
     private String paymentReceiptLinkTopicKey;
 
@@ -182,7 +185,6 @@ public class ApplicationProperties {
     @Value("${coll.notification.fallback.locale}")
     private String fallBackLocale;
 
-
     //Report
 
     @Value("${businessservice.filer.isRequired}")
@@ -194,27 +196,23 @@ public class ApplicationProperties {
    @Value("${fromdate.filter.isRequired}")
    private Boolean isFromDate;
 
-
-    // Payment properties
-
     @Value("${kafka.topics.payment.create.name}")
     private String createPaymentTopicName;
-    
+
     @Value("${kafka.topics.payment.create.key}")
     private String createPaymentTopicKey;
-    
+
     @Value("${collection.payments.search.paginate}")
     private boolean paymentsSearchPaginationEnabled;
 
     @Value("${kafka.topics.payment.cancel.name}")
     private String cancelPaymentTopicName;
-    
+
     @Value("#{'${search.ignore.status}'.split(',')}")
     private List<String> searchIgnoreStatus;
-    
+
     @Value("${is.payment.search.uri.modulename.mandatory}")
     private Boolean isModuleNameMandatoryInSearchUriForEmployee;
-    
 
     @Value("${kafka.topics.payment.cancel.key}")
     private String cancelPaymentTopicKey;
@@ -231,9 +229,7 @@ public class ApplicationProperties {
     @Value("${kafka.topics.notification.sms.key}")
     private String smsTopickey;
 
-
-
-    //MDMS
+    // MDMS
 
     @Value("${egov.mdms.host}")
     private String mdmsHost;
@@ -250,7 +246,7 @@ public class ApplicationProperties {
     @Value("${kafka.topics.collection.migrate.key}")
     private String collectionMigrationTopicKey;
 
-    //Localization
+    // Localization
 
     @Value("${egov.localization.host}")
     private String localizationHost;
@@ -269,9 +265,8 @@ public class ApplicationProperties {
 
     @Value("${egov.url.shortner.endpoint}")
     private String urlShortnerEndpoint;
-    
+
     @Value("${egov.razorpay.url}")
     private String razorPayUrl;
-
 
 }

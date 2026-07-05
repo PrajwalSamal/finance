@@ -48,12 +48,20 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.egov.tracer.config.TracerConfiguration;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootApplication
+@ComponentScan(basePackages = {"org.egov.receipt","org.egov.reciept.consumer.config","org.egov.receipt.consumer.util","org.egov.mdms.service"})
+@Import({TracerConfiguration.class})
+@EnableAsync
+@EnableScheduling
 public class FinanceCollectionsVoucherConsumerApplication{
 	@Value("${app.timezone}")
 	private String timeZone;
