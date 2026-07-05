@@ -8,17 +8,13 @@ import javax.transaction.Transactional;
 import org.egov.receipt.consumer.entity.VoucherIntegrationLog;
 import org.egov.receipt.consumer.entity.paymentDetails;
 import org.egov.receipt.consumer.model.Bill;
-import org.egov.receipt.consumer.model.BillDetail;
 import org.egov.receipt.consumer.model.FinanceMdmsModel;
 import org.egov.receipt.consumer.model.ProcessStatus;
 import org.egov.receipt.consumer.model.Receipt;
 import org.egov.receipt.consumer.model.ReceiptReq;
-import org.egov.receipt.consumer.model.VoucherAndMisResponse;
 import org.egov.receipt.consumer.model.VoucherResponse;
-import org.egov.receipt.consumer.repository.PaymentReceiptRowMapper;
 import org.egov.receipt.consumer.repository.ReceiptGenerationRowMapper;
 import org.egov.receipt.consumer.repository.builder.ReceiptGenerationBuilder;
-import org.egov.receipt.consumer.service.EgfKafkaListener;
 import org.egov.receipt.consumer.service.InstrumentService;
 import org.egov.receipt.consumer.service.ReceiptService;
 import org.egov.receipt.consumer.service.VoucherService;
@@ -28,7 +24,6 @@ import org.egov.tracer.model.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -53,8 +48,6 @@ public class ReceiptGenerationScheduler {
 	@Autowired
 	private ReceiptGenerationRowMapper ReceiptGenerationRowMapper ;
 	
-	@Autowired
-	private PaymentReceiptRowMapper paymentReceiptRowMapper ;
 	
 	@Autowired
 	private VoucherService voucherService;
@@ -100,7 +93,7 @@ public class ReceiptGenerationScheduler {
 				 ObjectMapper objectMapper = new ObjectMapper();
 				 recRequest = objectMapper.readValue(requestJson, ReceiptReq.class);
 				 //ReceiptReq recRequest = mapper.readValue(requestJson, ReceiptReq.class);
-				 paymentDetails payRequest = getReceiptPaymentDetails(voucherIntegrationLog.getReferenceNumber());
+				 //paymentDetails payRequest = getReceiptPaymentDetails(voucherIntegrationLog.getReferenceNumber());
 //				 VoucherAndMisResponse vmResponse = voucherService.createReceiptVoucherForScheduler(recRequest, finSerMdms, null,payRequest);
 //				 voucherResponse = vmResponse.getVoucherResponse();
 				 boolean misSuccess = false;
@@ -181,19 +174,19 @@ public class ReceiptGenerationScheduler {
 
 	}
 
-	public paymentDetails getReceiptPaymentDetails(String receiptNo) {
-
-		try {
-				return jdbcTemplate.query(ReceiptGenerationBuilder.RECEIPT_PAYMENT_DETAILS_DATA,
-						new Object[] {receiptNo
-									 }, paymentReceiptRowMapper);
-
-		} catch (Exception e) {
-			LOGGER.error("Exception occurred while fetching receipt payment details for receiptNo : {}", receiptNo, e);
-			throw new CustomException("Exception",e.getMessage());
-		}
-
-	}
+//	public paymentDetails getReceiptPaymentDetails(String receiptNo) {
+//
+//		try {
+//				return jdbcTemplate.query(ReceiptGenerationBuilder.RECEIPT_PAYMENT_DETAILS_DATA,
+//						new Object[] {receiptNo
+//									 }, paymentReceiptRowMapper);
+//
+//		} catch (Exception e) {
+//			LOGGER.error("Exception occurred while fetching receipt payment details for receiptNo : {}", receiptNo, e);
+//			throw new CustomException("Exception",e.getMessage());
+//		}
+//
+//	}
 
 
 

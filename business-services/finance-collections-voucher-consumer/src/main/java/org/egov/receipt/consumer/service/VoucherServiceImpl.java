@@ -741,93 +741,93 @@ public class VoucherServiceImpl implements VoucherService {
 		});
 	}
 
-	@Override
-	/**
-	 * This method is use to create the voucher specifically for receipt
-	 * request.
-	 */
-	public VoucherAndMisResponse createReceiptVoucherForScheduler(ReceiptReq receiptRequest, FinanceMdmsModel finSerMdms, String collectionVersion,paymentDetails paymentRequest)
-			throws Exception {
-		Receipt receipt = receiptRequest.getReceipt().get(0);
-		String reciptNumber=receipt.getReceiptNumber();
-		String tenantId = receipt.getTenantId();
-		final StringBuilder voucher_create_url = new StringBuilder(propertiesManager.getErpURLBytenantId(tenantId)
-				+ propertiesManager.getVoucherCreateUrl());
-		final StringBuilder voucher_mis_url = new StringBuilder(propertiesManager.getErpURLBytenantId(tenantId)
-				+ propertiesManager.getMisCreateUrl());
-		//misc receipt start
-		System.out.println("misreceipt related changes start");
-		VoucherRequest voucherRequest = new VoucherRequest();
-		MisReceiptsDetailsRequest request = new MisReceiptsDetailsRequest();
-		VoucherResponse convertValue=null;	
-		boolean misSuccess = false;
-		try
-		{
-			if(paymentRequest != null)
-			{
-				org.egov.receipt.consumer.model.MisReceiptsPOJO misreceipt= new org.egov.receipt.consumer.model.MisReceiptsPOJO();
-		        
-		        misreceipt.setBank_branch(paymentRequest.getBankBranch());
-		        misreceipt.setBank_name(paymentRequest.getBankName());
-		        misreceipt.setCollectedbyname(receiptRequest.getRequestInfo().getUserInfo().getName());
-		        misreceipt.setGstno(paymentRequest.getGstno());
-		        misreceipt.setNarration(paymentRequest.getNarration());
-		        misreceipt.setPaid_by(paymentRequest.getPaidBy());
-		        misreceipt.setPayer_address(paymentRequest.getPayerAddress());
-		        misreceipt.setPayment_mode(paymentRequest.getPaymentMode());
-		        misreceipt.setPayment_status(paymentRequest.getPaymentStatus());
-		        misreceipt.setPayments_id(paymentRequest.getPaymentId());
-		        misreceipt.setReceipt_number(paymentRequest.getReceiptNumber());
-		        misreceipt.setReceipt_date(paymentRequest.getReceiptDate());
-		        misreceipt.setServicename(paymentRequest.getServicename());
-		        misreceipt.setSubdivison(paymentRequest.getSubdivison());
-		        misreceipt.setTotal_amt_paid(paymentRequest.getTotalAmountPaid());
-		        misreceipt.setChequeddno(paymentRequest.getInstrumentNumber());
-		        misreceipt.setChequedddate(paymentRequest.getInstrumentDate());
-		        System.out.println("Data ::: "+misreceipt.toString());
-		        LOGGER.info("url------------->> "+voucher_mis_url);
-		        
-		        request.setTenantId(tenantId);
-		        request.setRequestInfo(receiptRequest.getRequestInfo());
-		        request.setMisReceiptsPOJO(misreceipt);
-		        
-		        RequestInfo requestInfo = request.getRequestInfo();
-		        
-		        requestInfo.setAuthToken(tokenService.generateAdminToken(tenantId));
-		        
-		        MisReceiptsDetailsResponse misResponse = restTemplate.postForObject(voucher_mis_url.toString(), request, MisReceiptsDetailsResponse.class);
-		        
-		        // Set MIS success flag based on actual response structure
-	            misSuccess = (misResponse != null);
-		        
-		        System.out.println("misreceipt changes end"+misSuccess);
-				//misc receipt end
-						        
-		        // Voucher creation
-				Voucher voucher = new Voucher();
-				//voucher.setReceiptNumber(reciptNumber);
-				voucher.setTenantId(tenantId);
-				this.setVoucherDetailsForScheduler(voucher, receipt, tenantId, receiptRequest.getRequestInfo(), finSerMdms, collectionVersion,paymentRequest);
-				voucherRequest.setVouchers(Collections.singletonList(voucher));
-				voucherRequest.setRequestInfo(receiptRequest.getRequestInfo());
-				voucherRequest.setTenantId(tenantId);
-				
-				convertValue = mapper.convertValue(serviceRequestRepository.fetchResult(voucher_create_url, voucherRequest, tenantId), VoucherResponse.class);
-							    
-			    System.out.println("convertValue new log******************"+convertValue);			    		        	        	    	
-			}
-		}catch (Exception e) {
-			e.printStackTrace();
-			
-			System.out.println("Exception in createReceiptVoucherForScheduler method******************"+e.getMessage());
-		}
-		
-		 
-	    //return convertValue;
-		
-		return new VoucherAndMisResponse(convertValue, misSuccess);
-	
-	}
+//	@Override
+//	/**
+//	 * This method is use to create the voucher specifically for receipt
+//	 * request.
+//	 */
+//	public VoucherAndMisResponse createReceiptVoucherForScheduler(ReceiptReq receiptRequest, FinanceMdmsModel finSerMdms, String collectionVersion,paymentDetails paymentRequest)
+//			throws Exception {
+//		Receipt receipt = receiptRequest.getReceipt().get(0);
+//		String reciptNumber=receipt.getReceiptNumber();
+//		String tenantId = receipt.getTenantId();
+//		final StringBuilder voucher_create_url = new StringBuilder(propertiesManager.getErpURLBytenantId(tenantId)
+//				+ propertiesManager.getVoucherCreateUrl());
+//		final StringBuilder voucher_mis_url = new StringBuilder(propertiesManager.getErpURLBytenantId(tenantId)
+//				+ propertiesManager.getMisCreateUrl());
+//		//misc receipt start
+//		System.out.println("misreceipt related changes start");
+//		VoucherRequest voucherRequest = new VoucherRequest();
+//		MisReceiptsDetailsRequest request = new MisReceiptsDetailsRequest();
+//		VoucherResponse convertValue=null;	
+//		boolean misSuccess = false;
+//		try
+//		{
+//			if(paymentRequest != null)
+//			{
+//				org.egov.receipt.consumer.model.MisReceiptsPOJO misreceipt= new org.egov.receipt.consumer.model.MisReceiptsPOJO();
+//		        
+//		        misreceipt.setBank_branch(paymentRequest.getBankBranch());
+//		        misreceipt.setBank_name(paymentRequest.getBankName());
+//		        misreceipt.setCollectedbyname(receiptRequest.getRequestInfo().getUserInfo().getName());
+//		        misreceipt.setGstno(paymentRequest.getGstno());
+//		        misreceipt.setNarration(paymentRequest.getNarration());
+//		        misreceipt.setPaid_by(paymentRequest.getPaidBy());
+//		        misreceipt.setPayer_address(paymentRequest.getPayerAddress());
+//		        misreceipt.setPayment_mode(paymentRequest.getPaymentMode());
+//		        misreceipt.setPayment_status(paymentRequest.getPaymentStatus());
+//		        misreceipt.setPayments_id(paymentRequest.getPaymentId());
+//		        misreceipt.setReceipt_number(paymentRequest.getReceiptNumber());
+//		        misreceipt.setReceipt_date(paymentRequest.getReceiptDate());
+//		        misreceipt.setServicename(paymentRequest.getServicename());
+//		        misreceipt.setSubdivison(paymentRequest.getSubdivison());
+//		        misreceipt.setTotal_amt_paid(paymentRequest.getTotalAmountPaid());
+//		        misreceipt.setChequeddno(paymentRequest.getInstrumentNumber());
+//		        misreceipt.setChequedddate(paymentRequest.getInstrumentDate());
+//		        System.out.println("Data ::: "+misreceipt.toString());
+//		        LOGGER.info("url------------->> "+voucher_mis_url);
+//		        
+//		        request.setTenantId(tenantId);
+//		        request.setRequestInfo(receiptRequest.getRequestInfo());
+//		        request.setMisReceiptsPOJO(misreceipt);
+//		        
+//		        RequestInfo requestInfo = request.getRequestInfo();
+//		        
+//		        requestInfo.setAuthToken(tokenService.generateAdminToken(tenantId));
+//		        
+//		        MisReceiptsDetailsResponse misResponse = restTemplate.postForObject(voucher_mis_url.toString(), request, MisReceiptsDetailsResponse.class);
+//		        
+//		        // Set MIS success flag based on actual response structure
+//	            misSuccess = (misResponse != null);
+//		        
+//		        System.out.println("misreceipt changes end"+misSuccess);
+//				//misc receipt end
+//						        
+//		        // Voucher creation
+//				Voucher voucher = new Voucher();
+//				//voucher.setReceiptNumber(reciptNumber);
+//				voucher.setTenantId(tenantId);
+//				this.setVoucherDetailsForScheduler(voucher, receipt, tenantId, receiptRequest.getRequestInfo(), finSerMdms, collectionVersion,paymentRequest);
+//				voucherRequest.setVouchers(Collections.singletonList(voucher));
+//				voucherRequest.setRequestInfo(receiptRequest.getRequestInfo());
+//				voucherRequest.setTenantId(tenantId);
+//				
+//				convertValue = mapper.convertValue(serviceRequestRepository.fetchResult(voucher_create_url, voucherRequest, tenantId), VoucherResponse.class);
+//							    
+//			    System.out.println("convertValue new log******************"+convertValue);			    		        	        	    	
+//			}
+//		}catch (Exception e) {
+//			e.printStackTrace();
+//			
+//			System.out.println("Exception in createReceiptVoucherForScheduler method******************"+e.getMessage());
+//		}
+//		
+//		 
+//	    //return convertValue;
+//		
+//		return new VoucherAndMisResponse(convertValue, misSuccess);
+//	
+//	}
 	
 	
 }
