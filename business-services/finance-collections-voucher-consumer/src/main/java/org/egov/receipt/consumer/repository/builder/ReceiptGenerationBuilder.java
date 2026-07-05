@@ -11,7 +11,7 @@ public class ReceiptGenerationBuilder {
 	
 	public static final String RECEIPT_GENERATION_FAILED_DATA ="SELECT * FROM egf_voucher_integration_log WHERE status = 'FAILED'\r\n"
 			+ "			AND type = 'Receipt' and vouchernumber='' \r\n"
-			+ "			AND createddate >='2026-06-01 00:00:00.00' \r\n"
+			+ "			AND createddate >='2026-06-08' 00:00:00.00' \r\n"
 			+ "			ORDER BY createddate asc LIMIT ?"; //For prod 2 hours
 		 // + "			AND createddate >='2025-02-11 00:00:00.00' AND createddate <='2025-02-11 23:58:00.00' ";
 	
