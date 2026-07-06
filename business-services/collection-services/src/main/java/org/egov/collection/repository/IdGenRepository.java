@@ -46,9 +46,7 @@ public class IdGenRepository {
 
         if (applicationProperties.isReceiptNumberByTenant()) {
             String lastSegment = tenantId.contains(".") ? tenantId.substring(tenantId.lastIndexOf(".") + 1) : tenantId;
-            String prefix = lastSegment.substring(0, Math.min(lastSegment.length(), 3)).toUpperCase();
-            idName = applicationProperties.getReceiptNumberIdName();
-            format = prefix + "/" + applicationProperties.getReceiptNumberStateLevelFormat();
+            idName = applicationProperties.getReceiptNumberIdName() + "." + lastSegment;
         } else if (applicationProperties.isReceiptNumberByService()) {
             idName = idName + businessService.toLowerCase() + "." + applicationProperties.getReceiptNumberIdName();
         } else {
