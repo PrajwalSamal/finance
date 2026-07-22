@@ -34,7 +34,7 @@ public class OtpService {
 
     public void sendOtp(OtpRequest otpRequest) {
         otpRequest.validate();
-        if (otpRequest.isRegistrationRequestType() || otpRequest.isLoginEmployeeRequestType() || otpRequest.isLoginCitizenRequestType()) {
+        if (otpRequest.isRegistrationRequestType() || otpRequest.isLoginRequestType()) {
             sendOtpForUserRegistration(otpRequest);
         } else {
             sendOtpForPasswordReset(otpRequest);
@@ -47,9 +47,7 @@ public class OtpService {
 
         if (otpRequest.isRegistrationRequestType() && null != matchingUser)
             throw new UserAlreadyExistInSystemException();
-        else if (otpRequest.isLoginEmployeeRequestType() && null == matchingUser)
-            throw new UserNotExistingInSystemException();
-        else if ( otpRequest.isLoginCitizenRequestType() && null == matchingUser)
+        else if (otpRequest.isLoginRequestType() && null == matchingUser)
             throw new UserNotExistingInSystemException();
 
         final String otpNumber = otpRepository.fetchOtp(otpRequest);

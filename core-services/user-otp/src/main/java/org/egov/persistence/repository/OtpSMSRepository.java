@@ -26,6 +26,9 @@ public class OtpSMSRepository {
 	private static final String LOCALIZATION_KEY_PWD_RESET_SMS = "sms.pwd.reset.otp.msg";
     private static final String LOCALIZATION_KEY_LOGIN_EMP_SMS = "SMS_EMPLOYEE_TEMPLATE";
     private static final String LOCALIZATION_KEY_LOGIN_CITIZEN_SMS = "SMS_CITIZEN_TEMPLATE";
+    private static final String USER_TYPE_EMPLOYEE = "EMPLOYEE";
+    private static final String USER_TYPE_CITIZEN = "CITIZEN";
+    
 
     @Value("${expiry.time.for.otp: 4000}")
     private long maxExecutionTime=2000L;
@@ -73,9 +76,9 @@ public class OtpSMSRepository {
 
         if (otpRequest.isRegistrationRequestType())
             message = localisedMsgs.get(LOCALIZATION_KEY_REGISTER_SMS);
-        else if (otpRequest.isLoginEmployeeRequestType())
+        else if (otpRequest.isLoginRequestType() && otpRequest.getUserType().equalsIgnoreCase(USER_TYPE_EMPLOYEE))
             message = localisedMsgs.get(LOCALIZATION_KEY_LOGIN_EMP_SMS);
-        else if (otpRequest.isLoginCitizenRequestType())
+        else if (otpRequest.isLoginRequestType() && otpRequest.getUserType().equalsIgnoreCase(USER_TYPE_CITIZEN))
             message = localisedMsgs.get(LOCALIZATION_KEY_LOGIN_CITIZEN_SMS );
         else
             message = localisedMsgs.get(LOCALIZATION_KEY_PWD_RESET_SMS);
