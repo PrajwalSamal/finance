@@ -46,8 +46,12 @@ public class OtpRequest {
     	return OtpRequestType.REGISTER.equals(getType());
 	}
 	
-	public boolean isLoginRequestType() {
-    	return OtpRequestType.LOGIN.equals(getType());
+	public boolean isLoginEmployeeRequestType() {
+    	return OtpRequestType.LOGIN_EMPLOYEE.equals(getType());
+	}
+	
+	public boolean isLoginCitizenRequestType() {
+    	return OtpRequestType.LOGIN_CITIZEN.equals(getType());
 	}
 
 	public boolean isInvalidType() {

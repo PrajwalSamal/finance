@@ -14,7 +14,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class Otp {
     private static final String USER_REGISTRATION = "register";
     private static final String PASSWORD_RESET = "passwordreset";
-    private static final String USER_LOGIN = "login";
+    private static final String EMPLOYEE_LOGIN = "employeelogin";
+    private static final String CITIZEN_LOGIN = "citizenlogin";
     private String mobileNumber;
     private String tenantId;
     private String type;
@@ -28,8 +29,10 @@ public class Otp {
     private OtpRequestType mapToDomainType() {
         if (USER_REGISTRATION.equalsIgnoreCase(type)) {
             return OtpRequestType.REGISTER;
-        } else if (USER_LOGIN.equalsIgnoreCase(type)) {
-            return OtpRequestType.LOGIN;
+        } else if (EMPLOYEE_LOGIN.equalsIgnoreCase(type)) {
+            return OtpRequestType.LOGIN_EMPLOYEE;}
+        else if (CITIZEN_LOGIN.equalsIgnoreCase(type)) {
+            return OtpRequestType.LOGIN_CITIZEN;
         } else if (PASSWORD_RESET.equalsIgnoreCase(type)) {
             return OtpRequestType.PASSWORD_RESET;
         }
