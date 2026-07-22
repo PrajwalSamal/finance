@@ -49,7 +49,7 @@ public class OtpRequest {
 	public boolean isLoginRequestType() {
     	return OtpRequestType.LOGIN.equals(getType());
 	}
-
+	
 	public boolean isInvalidType() {
     	return isEmpty(type);
 	}
