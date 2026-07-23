@@ -35,6 +35,14 @@ public class OtpSMSRepository {
 
     @Value("${egov.localisation.tenantid.strip.suffix.count}")
     private int tenantIdStripSuffixCount;
+    
+    @Value("${sms.employee.templateId}")
+    private String employeeTemplateId;
+    
+    @Value("${sms.citizen.templateId}")
+    private String citizenTemplateId;
+    
+    private String templateId; 
 
     private CustomKafkaTemplate<String, SMSRequest> kafkaTemplate;
     private String smsTopic;
@@ -53,7 +61,7 @@ public class OtpSMSRepository {
     public void send(OtpRequest otpRequest, String otpNumber) {
 		Long currentTime = System.currentTimeMillis() + maxExecutionTime;
 		final String message = getMessage(otpNumber, otpRequest);
-        kafkaTemplate.send(smsTopic, new SMSRequest(otpRequest.getMobileNumber(), message, Category.OTP, currentTime));
+        kafkaTemplate.send(smsTopic, new SMSRequest(otpRequest.getMobileNumber(), message, Category.OTP, currentTime , templateId));
     }
 
     private String getMessage(String otpNumber, OtpRequest otpRequest) {
@@ -76,10 +84,14 @@ public class OtpSMSRepository {
 
         if (otpRequest.isRegistrationRequestType())
             message = localisedMsgs.get(LOCALIZATION_KEY_REGISTER_SMS);
-        else if (otpRequest.isLoginRequestType() && otpRequest.getUserType().equalsIgnoreCase(USER_TYPE_EMPLOYEE))
+        else if (otpRequest.isLoginRequestType() && otpRequest.getUserType().equalsIgnoreCase(USER_TYPE_EMPLOYEE)) {
             message = localisedMsgs.get(LOCALIZATION_KEY_LOGIN_EMP_SMS);
-        else if (otpRequest.isLoginRequestType() && otpRequest.getUserType().equalsIgnoreCase(USER_TYPE_CITIZEN))
+            templateId = employeeTemplateId;
+        }
+        else if (otpRequest.isLoginRequestType() && otpRequest.getUserType().equalsIgnoreCase(USER_TYPE_CITIZEN)) {
             message = localisedMsgs.get(LOCALIZATION_KEY_LOGIN_CITIZEN_SMS );
+            templateId = citizenTemplateId;
+        }
         else
             message = localisedMsgs.get(LOCALIZATION_KEY_PWD_RESET_SMS);
 
